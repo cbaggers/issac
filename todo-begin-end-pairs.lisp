@@ -1,0 +1,11 @@
+newtoncompoundcollisionbeginaddremove
+newtoncompoundcollisionendaddremove
+
+newtondeformablemeshbeginconfiguration
+newtondeformablemeshendconfiguration
+
+newtonscenecollisionbeginaddremove
+newtonscenecollisionendaddremove
+
+newtontreecollisionbeginbuild
+newtontreecollisionendbuild
