@@ -28,9 +28,6 @@ newtoncreateusermeshcollision
 
 newtongeteulerangle
 newtonseteulerangle
-
-newtongetbroadphasealgorithm
-newtongetcontactmergetolerance
 newtongetcurrentdevice
 newtongetdevicestring
 newtongetjointserializationcallbacks
@@ -39,7 +36,6 @@ newtongetmemoryused
 newtongetnumberofsubsteps
 newtongetstacksize
 newtongetthreadscount
-newtonsetcontactmergetolerance
 newtonsetcurrentdevice
 newtonsetfrictionmodel
 newtonsetjointserializationcallbacks
@@ -207,8 +203,6 @@ newtonconstraintdestructor
 
 
 
-newton-broadphase-default
-newton-broadphase-persintent
 newton-deformable-body
 newton-dynamic-body
 newton-kinematic-body
@@ -305,7 +299,6 @@ newtonhingecalculatestopalpha
 newtonhingegetjointforce
 newtonhingegetjointomega
 
-newtoninvalidatecache
 
 
 newtonjobtask
@@ -374,7 +367,6 @@ newtonscenecollisionparam
 newtonscenecollisionremovesubcollision
 newtonscenecollisionremovesubcollisionbyindex
 newtonscenecollisionsetsubcollisionmatrix
-newtonselectbroadphasealgorithm
 
 
 

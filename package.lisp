@@ -1,7 +1,7 @@
 ;;;; package.lisp
 
 (defpackage #:issac
-  (:use #:cl #:raw-bindings-newton)
+  (:use #:cl #:raw-bindings-newton #:structy-defclass)
   (:import-from #:rtg-math :v!)
   (:import-from
    :cffi
