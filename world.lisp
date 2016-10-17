@@ -1,17 +1,35 @@
 (in-package :issac)
 
+;;------------------------------------------------------------
+
+(defvar *worlds* (make-hash-table))
+
+(defvar *world-id* 0)
+
+(defun gen-world-id ()
+  (incf *world-id*))
+
+(defun %world-by-id (id)
+  (gethash id *worlds*))
+
+(defun (setf %world-by-id) (world id)
+  (setf (gethash id *worlds*) world))
+
+;;------------------------------------------------------------
+
 (deftclass (world (:constructor %make-world)
                   (:conc-name %world-))
   (ptr (error "") :type foreign-pointer)
+  (id (gen-world-id) :type (unsigned-byte 16))
   (solve-model (error "") :type t)
   (friction-model (error "") :type keyword)
   (min-frame-rate 60 :type (unsigned-byte 16)))
 
-;; Create an instance of the Newton world. This function does the same
-;; as NewtonCreate, except that it accepts an extra argument to
-;; specify the stack size for each thread. This is only useful for
-;; simulation with very many (ie thousands or more objects). If in
-;; doubt, use NewtonCreate as it uses reasonable defaults.
+(defvar *null-world*
+  (%make-world :ptr (null-pointer)
+               :solve-model nil
+               :friction-model :null
+               :min-frame-rate 0))
 
 ;;------------------------------------------------------------
 
@@ -33,6 +51,12 @@
                              :solve-model solve-model
                              :friction-model friction-model
                              :min-frame-rate minimum-frame-rate))))
+    ;;
+    ;; add to world table
+    (setf (%world-by-id (%world-id world)) world)
+    (newtonworldsetuserdata (%world-ptr world) (make-pointer (%world-id world)))
+    ;;
+    ;; set defaults
     (unless (eq broadphase-algorithm :default)
       (setf (world-broadphase-algorithm world) broadphase-algorithm))
     (unless (eq max-thread-count :default)
@@ -40,6 +64,19 @@
     (setf (world-solver-model world) solve-model)
     (setf (world-friction-model world) friction-model)
     world))
+
+;; {todo} turn into doc
+;; Create an instance of the Newton world. This function does the same
+;; as NewtonCreate, except that it accepts an extra argument to
+;; specify the stack size for each thread. This is only useful for
+;; simulation with very many (ie thousands or more objects). If in
+;; doubt, use NewtonCreate as it uses reasonable defaults.
+
+;;------------------------------------------------------------
+
+(defun %world-from-world-ptr (world-ptr)
+  (let ((id (pointer-address (newtonworldgetuserdata world-ptr))))
+    (%world-by-id id)))
 
 ;;------------------------------------------------------------
 
@@ -277,6 +314,9 @@
 ;;------------------------------------------------------------
 
 ;; newtonworldgetnextbody
+;; newtonworldgetfirstbody
+;; newtonworldforeachjointdo
+;; newtonworldforeachbodyinaabbdo
 
 ;;------------------------------------------------------------
 
@@ -300,8 +340,8 @@
 ;; newtonworldconvexcast
 ;; newtonworldconvexcastreturninfo
 ;;
-;; newtonworldforeachbodyinaabbdo
-;; newtonworldforeachjointdo
+
+
 ;; newtonworldgetbodycount
 ;; newtonworldgetconstraintcount
 ;; newtonworldgetfirstmaterial
