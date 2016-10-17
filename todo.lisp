@@ -144,7 +144,7 @@ newtoncollisionisconvexshape
 newtoncollisionisstaticshape
 newtoncollisioniterator
 newtoncollisionpointdistance
-newtoncollisionraycast
+
 
 newtoncollisionsetmatrix
 newtoncollisionsetmode

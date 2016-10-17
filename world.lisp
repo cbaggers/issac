@@ -313,10 +313,20 @@
 
 ;;------------------------------------------------------------
 
+(defun world-body-count (world)
+  (newtonworldgetbodycount (%world-ptr world)))
+
+(defun world-constraint-count (world)
+  (newtonworldgetconstraintcount (%world-ptr world)))
+
+;;------------------------------------------------------------
+
 ;; newtonworldgetnextbody
 ;; newtonworldgetfirstbody
 ;; newtonworldforeachjointdo
 ;; newtonworldforeachbodyinaabbdo
+;; newtonworldgetfirstmaterial
+;; newtonworldgetnextmaterial
 
 ;;------------------------------------------------------------
 
@@ -332,24 +342,25 @@
 
 ;;------------------------------------------------------------
 
-;;
-;; WORLD
+;; newtonworldsetdestructorcallback
+;; newtonworldgetdestructorcallback
+
+;;------------------------------------------------------------
+
+;; newtonworldsetcollisionconstructordestructorcallback
+;; newtonworldlistenergetbodydestroycallback
+
+;;------------------------------------------------------------
+
 ;; newtonworldaddpostlistener
 ;; newtonworldaddprelistener
-;; newtonworldcollide
-;; newtonworldconvexcast
-;; newtonworldconvexcastreturninfo
-;;
-
-
-;; newtonworldgetbodycount
-;; newtonworldgetconstraintcount
-;; newtonworldgetfirstmaterial
 ;; newtonworldgetlisteneruserdata
-
-;; newtonworldgetnextmaterial
 ;; newtonworldgetpostlistener
 ;; newtonworldgetprelistener
-;; newtonworldgetuserdata
-;;
-;; newtonworldsetuserdata
+
+;; newtonworldlistenersetbodydestroycallback
+;; newtonworldlistenergetbodydestroycallback
+
+;;------------------------------------------------------------
+
+;; newtonworldcollide
