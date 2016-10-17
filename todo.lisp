@@ -4,7 +4,6 @@
 
 ;;
 ;; CREATE FUNCS (sort em)
-newtoncreate
 newtoncreatebox
 newtoncreatecapsule
 newtoncreatechamfercylinder
@@ -53,37 +52,7 @@ newtonsetstacksize
 newtonsetthreadscount
 newtonsettransform
 
-;;
-;; UPDATE
-newtonupdate
-newtonupdateasync
-newtonwaitforupdatetofinish
-newtongetlastupdatetime
 
-;;
-;; WORLD
-newtonworld
-newtonworldaddpostlistener
-newtonworldaddprelistener
-newtonworldcollide
-newtonworldconvexcast
-newtonworldconvexcastreturninfo
-newtonworldcriticalsectionlock
-newtonworldcriticalsectionunlock
-newtonworldfloatsize
-newtonworldforeachbodyinaabbdo
-newtonworldforeachjointdo
-newtonworldgetbodycount
-newtonworldgetconstraintcount
-newtonworldgetfirstmaterial
-newtonworldgetlisteneruserdata
-newtonworldgetnextbody
-newtonworldgetnextmaterial
-newtonworldgetpostlistener
-newtonworldgetprelistener
-newtonworldgetuserdata
-newtonworldgetversion
-newtonworldsetuserdata
 ;;
 ;; BODY
 newtonbody
