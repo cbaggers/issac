@@ -4,24 +4,22 @@
 
 ;;
 ;; CREATE FUNCS (sort em)
-newtoncreatebox
-newtoncreatecapsule
-newtoncreatechamfercylinder
-newtoncreatecompoundcollision
-newtoncreatecone
+
+
 newtoncreateconvexhull
-newtoncreatecylinder
-newtoncreatedeformablebody
-newtoncreatedynamicbody
-newtoncreateex
+newtoncreateconvexhullfrommesh
+
+newtoncreatecompoundcollision
+newtoncompoundcollisionaddsubcollision
+newtoncompoundcollisionremovesubcollision
+newtoncompoundcollisionremovesubcollisionbyindex
+
 newtoncreateheightfieldcollision
-newtoncreatekinematicbody
-newtoncreatenull
 newtoncreatescenecollision
-newtoncreatesphere
 newtoncreatetreecollision
 newtoncreateusermeshcollision
 
+newtoncreateex
 ;;
 ;; GETS 'n' SETS (sort em)
 
@@ -42,76 +40,7 @@ newtonsetstacksize
 newtonsettransform
 
 
-;;
-;; BODY
-newtonbody
-newtonbodyaddforce
-newtonbodyaddimpulse
-newtonbodyaddtorque
-newtonbodyapplyimpulsearray
-newtonbodyapplyimpulsepair
-newtonbodycalculateinversedynamicsforce
-newtonbodydestructor
-newtonbodygetaabb
-newtonbodygetangulardamping
-newtonbodygetautosleep
-newtonbodygetcentreofmass
-newtonbodygetcollidable
-newtonbodygetcollision
-newtonbodygetcontinuouscollisionmode
-newtonbodygetfirstjoint
-newtonbodygetforce
-newtonbodygetforceacc
-newtonbodygetid
-newtonbodygetinertiamatrix
-newtonbodygetinvinertiamatrix
-newtonbodygetinvmass
-newtonbodygetjointrecursivecollision
-newtonbodygetlineardamping
-newtonbodygetmass
-newtonbodygetmaterialgroupid
-newtonbodygetmatrix
-newtonbodygetmaxrotationperstep
-newtonbodygetnextcontactjoint
-newtonbodygetnextjoint
-newtonbodygetomega
-newtonbodygetpointvelocity
-newtonbodygetposition
-newtonbodygetrotation
-newtonbodygetsimulationstate
-newtonbodygetskeleton
-newtonbodygetsleepstate
-newtonbodygettorque
-newtonbodygettorqueacc
-newtonbodygetuserdata
-newtonbodygetvelocity
-newtonbodygetworld
-newtonbodyintegratevelocity
-newtonbodyiterator
-newtonbodysetangulardamping
-newtonbodysetautosleep
-newtonbodysetcentreofmass
-newtonbodysetcollidable
-newtonbodysetcollision
-newtonbodysetcollisionscale
-newtonbodysetcontinuouscollisionmode
-newtonbodysetfullmassmatrix
-newtonbodysetjointrecursivecollision
-newtonbodysetlineardamping
-newtonbodysetmassmatrix
-newtonbodysetmassproperties
-newtonbodysetmaterialgroupid
-newtonbodysetmatrix
-newtonbodysetmatrixnosleep
-newtonbodysetmatrixrecursive
-newtonbodysetmaxrotationperstep
-newtonbodysetomega
-newtonbodysetomeganosleep
-newtonbodysetsimulationstate
-newtonbodysetsleepstate
-newtonbodysettorque
-newtonbodysetvelocity
-newtonbodysetvelocitynosleep
+
 
 ;;
 ;; COLLISION
@@ -156,7 +85,7 @@ newtoncollisionsupportvertex
 newtoncollisiontreeparam
 ;;
 ;; COMPOUND COLLISION
-newtoncompoundcollisionaddsubcollision
+
 newtoncompoundcollisionbeginaddremove
 newtoncompoundcollisionendaddremove
 newtoncompoundcollisiongetcollisionfromnode
@@ -165,8 +94,6 @@ newtoncompoundcollisiongetnextnode
 newtoncompoundcollisiongetnodebyindex
 newtoncompoundcollisiongetnodeindex
 newtoncompoundcollisionparam
-newtoncompoundcollisionremovesubcollision
-newtoncompoundcollisionremovesubcollisionbyindex
 newtoncompoundcollisionsetsubcollisionmatrix
 
 ;;
