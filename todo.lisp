@@ -7,7 +7,6 @@
 newtoncreatebox
 newtoncreatecapsule
 newtoncreatechamfercylinder
-newtoncreatecollisionfromserialization
 newtoncreatecompoundcollision
 newtoncreatecone
 newtoncreateconvexhull
@@ -28,24 +27,18 @@ newtoncreateusermeshcollision
 
 newtongeteulerangle
 newtonseteulerangle
-newtongetcurrentdevice
-newtongetdevicestring
-newtongetjointserializationcallbacks
-newtongetmaxthreadscount
+
+
 newtongetmemoryused
 newtongetnumberofsubsteps
 newtongetstacksize
-newtongetthreadscount
-newtonsetcurrentdevice
 newtonsetfrictionmodel
-newtonsetjointserializationcallbacks
 newtonsetmemorysystem
 newtonsetnumberofsubsteps
 newtonsetperformanceclock
 newtonsetsolverconvergencequality
 newtonsetsolvermodel
 newtonsetstacksize
-newtonsetthreadscount
 newtonsettransform
 
 
@@ -152,7 +145,7 @@ newtoncollisionisstaticshape
 newtoncollisioniterator
 newtoncollisionpointdistance
 newtoncollisionraycast
-newtoncollisionserialize
+
 newtoncollisionsetmatrix
 newtoncollisionsetmode
 newtoncollisionsetscale
@@ -211,8 +204,7 @@ newton-minor-version
 newtonalloc
 newtonallocmemory
 newtonapplyforceandtorque
-newtonatomicadd
-newtonatomicswap
+
 newtonballgetjointforce
 newtonballgetjointomega
 newtonballsetconelimits
@@ -267,8 +259,7 @@ newtondestroyallbodies
 newtondestroybody
 newtondestroycollision
 newtondestroyjoint
-newtondispachthreadjob
-newtonenumeratedevices
+
 
 newtonfracturecompoundcollisiononemitchunk
 newtonfracturecompoundcollisiononemitcompoundfractured
@@ -391,7 +382,7 @@ newtonslidergetjointposit
 newtonslidergetjointveloc
 newtonsphereparam
 
-newtonsyncthreadjobs
+
 
 newtontreecollisionaddface
 newtontreecollisionbeginbuild
@@ -434,7 +425,7 @@ newtonusermeshcollisiongetfacesinaabb
 
 
 
-newtonyield
+
 
 ;;
 ;; ISLANDS (v.low priority)
@@ -445,3 +436,9 @@ newtonsetislandupdateevent
 newtonislandgetbody
 newtonislandgetbodyaabb
 newtonislandupdate
+
+;;
+;; Serializing (v.low priority)
+
+newtoncreatecollisionfromserialization
+newtoncollisionserialize
