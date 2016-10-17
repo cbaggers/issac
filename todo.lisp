@@ -32,12 +32,12 @@ newtonseteulerangle
 newtongetmemoryused
 newtongetnumberofsubsteps
 newtongetstacksize
-newtonsetfrictionmodel
+
 newtonsetmemorysystem
 newtonsetnumberofsubsteps
 newtonsetperformanceclock
-newtonsetsolverconvergencequality
-newtonsetsolvermodel
+
+
 newtonsetstacksize
 newtonsettransform
 
