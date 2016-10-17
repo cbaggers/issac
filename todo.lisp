@@ -254,8 +254,6 @@ newtondeformablemeshunconstraintparticle
 newtondeformablemeshupdaterendernormals
 
 
-newtondestroy
-newtondestroyallbodies
 newtondestroybody
 newtondestroycollision
 newtondestroyjoint
@@ -421,24 +419,3 @@ newtonuserjointsetrowstiffness
 newtonusermeshcollisionaabbtest
 newtonusermeshcollisioncontinuousoverlaptest
 newtonusermeshcollisiongetfacesinaabb
-
-
-
-
-
-
-;;
-;; ISLANDS (v.low priority)
-
-newtongetmultithreadsolveronsingleisland
-newtonsetmultithreadsolveronsingleisland
-newtonsetislandupdateevent
-newtonislandgetbody
-newtonislandgetbodyaabb
-newtonislandupdate
-
-;;
-;; Serializing (v.low priority)
-
-newtoncreatecollisionfromserialization
-newtoncollisionserialize

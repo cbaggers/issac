@@ -4,7 +4,8 @@
                   (:conc-name %world-))
   (ptr (error "") :type foreign-pointer)
   (solve-model (error "") :type t)
-  (friction-model (error "") :type keyword))
+  (friction-model (error "") :type keyword)
+  (min-frame-rate 60 :type (unsigned-byte 16)))
 
 ;; Create an instance of the Newton world. This function does the same
 ;; as NewtonCreate, except that it accepts an extra argument to
@@ -12,13 +13,17 @@
 ;; simulation with very many (ie thousands or more objects). If in
 ;; doubt, use NewtonCreate as it uses reasonable defaults.
 
+;;------------------------------------------------------------
+
 (defun make-world (&key (broadphase-algorithm :default)
                      (stack-size-mb :default)
                      (max-thread-count :default)
                      (solve-model :adaptive)
-                     (friction-model :adaptive))
+                     (friction-model :adaptive)
+                     (minimum-frame-rate 60))
   (let* ((solve-model (validate-solver-model solve-model))
          (friction-model (validate-friction-model friction-model))
+         (minimum-frame-rate (validate-min-frame-rate minimum-frame-rate))
          (world (world-invalidate-cache
                 (%make-world :ptr (if (eq stack-size-mb :default)
                                       (newtoncreate)
@@ -26,7 +31,8 @@
                                         (assert (integerp stack-size-mb))
                                         (newtoncreateex stack-size-mb)))
                              :solve-model solve-model
-                             :friction-model friction-model))))
+                             :friction-model friction-model
+                             :min-frame-rate minimum-frame-rate))))
     (unless (eq broadphase-algorithm :default)
       (setf (world-broadphase-algorithm world) broadphase-algorithm))
     (unless (eq max-thread-count :default)
@@ -35,10 +41,68 @@
     (setf (world-friction-model world) friction-model)
     world))
 
+;;------------------------------------------------------------
+
 (defun free-world (world)
   "Destroy an instance of the Newton world. This function will destroy the entire Newton world."
   (newtondestroy (%world-ptr world))
   t)
+
+(defun world-destroy-all-bodies (world)
+  (newtondestroyallbodies (%world-ptr world)))
+
+;;------------------------------------------------------------
+
+(defconstant +1/60s0+ (/ 1s0 60s0))
+
+(defun update-world (world &optional (timestep +1/60s0+))
+  "Advance the simulation by a user defined amount of time. This
+   function will advance the simulation by the specified amount of
+   time."
+  (newtonupdate (%world-ptr world) timestep)
+  world)
+
+(defun update-world-async (world &optional (timestep +1/60s0+))
+  "Advance the simulation by a user defined amount of time. This
+   function will advance the simulation by the specified amount of
+   time."
+  (newtonupdateasync (%world-ptr world) timestep)
+  world)
+
+
+(defun world-wait-for-update-to-finish (world)
+  (newtonwaitforupdatetofinish (%world-ptr world))
+  world)
+
+(defun world-last-update-time (world)
+  (newtongetlastupdatetime (%world-ptr world)))
+
+;;------------------------------------------------------------
+
+(defun validate-min-frame-rate (frame-rate)
+  (assert (and (>= 60) (<= frame-rate 1000)
+               (typep frame-rate '(unsigned-byte 16)))
+          (frame-rate))
+  frame-rate)
+
+(defun world-minimum-frame-rate (world)
+  "The minimum frame rate at which the simulation can run. The default
+  minimum frame rate of the simulation is 60 frame per second. Newton
+  will perform sub steps to meet the desired minimum FPS, should the
+  frame rate drop below the specified minimum.
+  This value is clamped between 60fps and 1000fps"
+  (%world-min-frame-rate world))
+
+;; (defun (setf world-minimum-frame-rate) (frame-rate world)
+;;   "The minimum frame rate at which the simulation can run. The default
+;;   minimum frame rate of the simulation is 60 frame per second. Newton
+;;   will perform sub steps to meet the desired minimum FPS, should the
+;;   frame rate drop below the specified minimum.
+;;   This value is clamped between 60fps and 1000fps"
+;;   (let ((frame-rate (validate-min-frame-rate frame-rate)))
+;;     (newtonsetminimumframerate (%world-ptr world) frame-rate)
+;;     (setf (%world-min-frame-rate world) frame-rate)))
+
 
 ;;------------------------------------------------------------
 
@@ -247,10 +311,3 @@
 ;; newtonworldgetuserdata
 ;; newtonworldgetversion
 ;; newtonworldsetuserdata
-
-;;
-;; UPDATE
-;; newtonupdate
-;; newtonupdateasync
-;; newtonwaitforupdatetofinish
-;; newtongetlastupdatetime
