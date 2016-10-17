@@ -272,9 +272,11 @@
   (newtonsyncthreadjobs (%world-ptr world))
   world)
 
+;; newtonyield
+
 ;;------------------------------------------------------------
 
-;; newtonyield
+;; newtonworldgetnextbody
 
 ;;------------------------------------------------------------
 
@@ -297,17 +299,17 @@
 ;; newtonworldcollide
 ;; newtonworldconvexcast
 ;; newtonworldconvexcastreturninfo
-;; newtonworldfloatsize
+;;
 ;; newtonworldforeachbodyinaabbdo
 ;; newtonworldforeachjointdo
 ;; newtonworldgetbodycount
 ;; newtonworldgetconstraintcount
 ;; newtonworldgetfirstmaterial
 ;; newtonworldgetlisteneruserdata
-;; newtonworldgetnextbody
+
 ;; newtonworldgetnextmaterial
 ;; newtonworldgetpostlistener
 ;; newtonworldgetprelistener
 ;; newtonworldgetuserdata
-;; newtonworldgetversion
+;;
 ;; newtonworldsetuserdata

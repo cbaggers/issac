@@ -12,5 +12,7 @@
   :components ((:file "package")
                (:file "extra-bindings")
                (:file "cffi-helpers")
+               (:file "system")
+               (:file "world")
                ;;(:file "play")
                ))
