@@ -87,6 +87,18 @@
 
 ;;------------------------------------------------------------
 
+(defun %world-stack-size (world)
+  (newtongetstacksize (%world-ptr world)))
+
+(defun (setf %world-stack-size) (value world)
+  (assert (typep value '(unsigned-byte 32)))
+  (newtonsetstacksize (%world-ptr world) value)
+  value)
+
+;; newtonsetperformanceclock
+
+;;------------------------------------------------------------
+
 (defun %world-from-world-ptr (world-ptr)
   (let ((id (pointer-address (newtonworldgetuserdata world-ptr))))
     (%world-by-id id)))

@@ -9,30 +9,6 @@
 newtoncreateheightfieldcollision
 newtoncreatescenecollision
 
-newtoncreateusermeshcollision
-
-newtoncreateex
-
-;;
-;; GETS 'n' SETS (sort em)
-
-;; maths
-newtongeteulerangle
-newtonseteulerangle
-
-
-
-newtongetstacksize
-
-
-
-newtonsetperformanceclock
-
-
-newtonsetstacksize
-newtonsettransform
-
-
 ;;
 ;; CONTACT
 newtoncontactgetcollision0
@@ -49,54 +25,19 @@ newtoncontactsprocess
 
 ;;
 ;; CONSTRAINT
-newtonconstraintcreateball
-newtonconstraintcreatecorkscrew
-newtonconstraintcreatehinge
-newtonconstraintcreateslider
-newtonconstraintcreateuniversal
-newtonconstraintcreateupvector
-newtonconstraintcreateuserjoint
-newtonconstraintdestructor
-
-
 
 newton-deformable-body
 newton-dynamic-body
 newton-kinematic-body
-newton-major-version
-newton-minor-version
 
-newtonapplyforceandtorque
-
-newtonballgetjointforce
-newtonballgetjointomega
-newtonballsetconelimits
-
-
-newtonboxparam
 newtoncalculatespringdamperacceleration
-newtoncapsuleparam
-newtonchamfercylinderparam
-newtonclothpatchmaterial
-
-newtonconeparam
 
 newtonconvexcollisioncalculatebuoyancyacceleration
 newtonconvexcollisioncalculateinertialmatrix
 newtonconvexcollisioncalculatevolume
+
 newtonconvexhullgetfaceindices
 newtonconvexhullgetvertexdata
-newtonconvexhullparam
-
-newtoncorkscrewcalculatestopaccel
-newtoncorkscrewcalculatestopalpha
-newtoncorkscrewgetjointforce
-newtoncorkscrewgetjointomega
-newtoncorkscrewgetjointposit
-newtoncorkscrewgetjointveloc
-
-
-newtoncylinderparam
 
 newtondeformablemeshbeginconfiguration
 newtondeformablemeshconstraintparticle
@@ -108,7 +49,7 @@ newtondeformablemeshgetparticlecount
 newtondeformablemeshgetparticleposition
 newtondeformablemeshgetvertexcount
 newtondeformablemeshgetvertexstreams
-newtondeformablemeshparam
+
 newtondeformablemeshsegment
 newtondeformablemeshsegmentgetindexcount
 newtondeformablemeshsegmentgetindexlist
@@ -117,29 +58,8 @@ newtondeformablemeshunconstraintparticle
 newtondeformablemeshupdaterendernormals
 
 
-newtondestroyjoint
-
-newtonheightfieldcollisionparam
-newtonhingecalculatestopalpha
-newtonhingegetjointforce
-newtonhingegetjointomega
 
 
-
-newtonjoint
-newtonjointgetbody0
-newtonjointgetbody1
-newtonjointgetcollisionstate
-newtonjointgetinfo
-newtonjointgetstiffness
-newtonjointgetuserdata
-newtonjointisactive
-newtonjointiterator
-newtonjointrecord
-newtonjointsetcollisionstate
-newtonjointsetdestructor
-newtonjointsetstiffness
-newtonjointsetuserdata
 
 newtonmaterial
 newtonmaterialcontactrotatetangentdirections
@@ -186,7 +106,7 @@ newtonscenecollisiongetfirstnode
 newtonscenecollisiongetnextnode
 newtonscenecollisiongetnodebyindex
 newtonscenecollisiongetnodeindex
-newtonscenecollisionparam
+
 newtonscenecollisionremovesubcollision
 newtonscenecollisionremovesubcollisionbyindex
 newtonscenecollisionsetsubcollisionmatrix
@@ -209,42 +129,27 @@ newtonskeletoncontainergetroot
 newtonskeletoncontainernextsibling
 newtonskeletontdestructor
 
-newtonslidercalculatestopaccel
-newtonslidergetjointposit
-newtonslidergetjointveloc
-newtonsphereparam
-
-
-
-
-newtonuniversalcalculatestopalpha0
-newtonuniversalcalculatestopalpha1
-newtonuniversalgetjointangle1
-newtonuniversalgetjointforce
-newtonuniversalgetjointomega0
-newtonuniversalgetjointomega1
-
-
-newtonupvectorgetpin
-newtonupvectorsetpin
 
 
 newtonusercalculaterowzeroaccelaration
-
 newtonusercontactpoint
-
 newtonuserjoinrowscount
-
-newtonuserjointaddangularrow
-newtonuserjointaddgeneralrow
-newtonuserjointaddlinearrow
-newtonuserjointgetgeneralrow
-newtonuserjointgetrowforce
-newtonuserjointsetrowmaximumfriction
-newtonuserjointsetrowminimumfriction
-newtonuserjointsetrowspringdamperacceleration
-newtonuserjointsetrowstiffness
 
 newtonusermeshcollisionaabbtest
 newtonusermeshcollisioncontinuousoverlaptest
 newtonusermeshcollisiongetfacesinaabb
+
+
+
+newtonsphereparam
+newtoncapsuleparam
+newtonchamfercylinderparam
+newtonconvexhullparam
+newtoncylinderparam
+newtondeformablemeshparam
+newtonheightfieldcollisionparam
+newtonscenecollisionparam
+
+;; maths
+newtongeteulerangle
+newtonseteulerangle

@@ -2,6 +2,9 @@
 
 ;;------------------------------------------------------------
 
+(defvar *newton-version*
+  (list newton-major-version newton-minor-version))
+
 (defun newton-version ()
   (newtonworldgetversion))
 

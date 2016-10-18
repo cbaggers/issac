@@ -111,8 +111,8 @@
 
 ;;------------------------------------------------------------
 
-newtonbodygetcollision
-newtonbodysetcollision
+;; newtonbodygetcollision
+;; newtonbodysetcollision
 
 ;;------------------------------------------------------------
 
