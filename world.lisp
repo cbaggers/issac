@@ -2,21 +2,6 @@
 
 ;;------------------------------------------------------------
 
-(defvar *worlds* (make-hash-table))
-
-(defvar *world-id* 0)
-
-(defun gen-world-id ()
-  (incf *world-id*))
-
-(defun %world-by-id (id)
-  (gethash id *worlds*))
-
-(defun (setf %world-by-id) (world id)
-  (setf (gethash id *worlds*) world))
-
-;;------------------------------------------------------------
-
 (deftclass (world (:constructor %make-world)
                   (:conc-name %world-))
   (ptr (error "") :type foreign-pointer)
@@ -30,6 +15,34 @@
                :solve-model nil
                :friction-model :null
                :min-frame-rate 0))
+
+;;------------------------------------------------------------
+
+(defvar *worlds*
+  (make-array 0 :element-type 'world
+              :adjustable t
+              :fill-pointer 0
+              :initial-element *null-world*))
+
+(defvar *world-id* -1)
+
+(defun gen-world-id ()
+  (incf *world-id*))
+
+(defun %world-by-id (id)
+  (aref *worlds* id))
+
+(defun ensure-world-pool-size (len)
+  (when (< (length *worlds*) len)
+    (if (< (array-dimension *worlds* 0) len)
+        (adjust-array
+         *worlds* (+ len 20) :fill-pointer len :initial-element *null-world*)
+        (setf (fill-pointer *worlds*) len))))
+
+(defun (setf %world-by-id) (world id)
+  (ensure-world-pool-size (1+ id))
+  (setf (aref *worlds* id) world))
+
 
 ;;------------------------------------------------------------
 
@@ -113,6 +126,13 @@
 
 (defun world-last-update-time (world)
   (newtongetlastupdatetime (%world-ptr world)))
+
+(defun world-substep-count (world)
+  (newtongetnumberofsubsteps (%world-ptr world)))
+
+(defun (setf world-substep-count) (value world)
+  (assert (typep value '(unsigned-byte 16)))
+  (newtonsetnumberofsubsteps (%world-ptr world) value))
 
 ;;------------------------------------------------------------
 
@@ -308,6 +328,8 @@
 (defun world-sync-thread-jobs (world)
   (newtonsyncthreadjobs (%world-ptr world))
   world)
+
+;; newtonjobtask
 
 ;; newtonyield
 

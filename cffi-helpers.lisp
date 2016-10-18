@@ -37,3 +37,8 @@
    16 :element-type 'single-float
    :initial-contents
    (loop :for i :below 16 :collect (mem-aref ptr :float i))))
+
+(defun ptr->v3 (ptr)
+  (v! (mem-aref ptr :float 0)
+      (mem-aref ptr :float 1)
+      (mem-aref ptr :float 2)))

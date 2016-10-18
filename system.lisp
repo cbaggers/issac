@@ -14,3 +14,12 @@
   (assert (= (%size-of-newton-float) (foreign-type-size :float))))
 
 ;;------------------------------------------------------------
+
+(defun %newton-memory-used ()
+  (newtongetmemoryused))
+
+;; newtonsetmemorysystem
+;; newtonalloc
+;; newtonallocmemory
+;; newtonfree
+;; newtonfreememory

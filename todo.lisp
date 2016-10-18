@@ -12,26 +12,25 @@ newtoncreatescenecollision
 newtoncreateusermeshcollision
 
 newtoncreateex
+
 ;;
 ;; GETS 'n' SETS (sort em)
 
+;; maths
 newtongeteulerangle
 newtonseteulerangle
 
 
-newtongetmemoryused
-newtongetnumberofsubsteps
+
 newtongetstacksize
 
-newtonsetmemorysystem
-newtonsetnumberofsubsteps
+
+
 newtonsetperformanceclock
 
 
 newtonsetstacksize
 newtonsettransform
-
-
 
 
 ;;
@@ -66,8 +65,7 @@ newton-dynamic-body
 newton-kinematic-body
 newton-major-version
 newton-minor-version
-newtonalloc
-newtonallocmemory
+
 newtonapplyforceandtorque
 
 newtonballgetjointforce
@@ -119,17 +117,7 @@ newtondeformablemeshunconstraintparticle
 newtondeformablemeshupdaterendernormals
 
 
-newtondestroybody
-newtondestroycollision
 newtondestroyjoint
-
-
-
-
-newtonfree
-newtonfreememory
-
-
 
 newtonheightfieldcollisionparam
 newtonhingecalculatestopalpha
@@ -137,8 +125,6 @@ newtonhingegetjointforce
 newtonhingegetjointomega
 
 
-
-newtonjobtask
 
 newtonjoint
 newtonjointgetbody0
