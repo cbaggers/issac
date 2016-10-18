@@ -244,7 +244,7 @@
 ;;------------------------------------------------------------
 
 (defun make-geometry-tree (world faces/mesh/filename
-                           &key optimize)
+                           &key (optimize t))
   "Create an empty complex collision geometry tree. TreeCollision* is
    the preferred method within Newton for collision with polygonal meshes
    of arbitrary complexity. The mesh must be made of flat
@@ -295,12 +295,12 @@
 
 ;;------------------------------------------------------------
 
-(defmacro with-geometry (geometry &body body)
-  (with-gensyms (geom)
-    `(let ((,geom ,geometry))
-       (assert (typep ,geom 'geometry))
-       (unwind-protect (progn ,@body)
-         (free-geometry ,geom)))))
+(defmacro with-geometry ((var geometry) &body body)
+  (assert (symbolp var))
+  `(let ((,var ,geometry))
+     (assert (typep ,var 'geometry))
+     (unwind-protect (progn ,@body)
+       (free-geometry ,var))))
 
 ;;------------------------------------------------------------
 

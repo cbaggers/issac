@@ -15,18 +15,25 @@
   (assert (member body-kind '(:kinematic :dynamic :deformable)) (body-kind))
   body-kind)
 
-(defun make-body (world collision &key (kind :dynamic) (matrix4 (m4:identity)))
+(defun make-body (world geometry
+                  &key (kind :dynamic)
+                    (mass 1s0)
+                    (linear-damping 0.1)
+                    (matrix4 (m4:identity)))
   (let ((kind (validate-body-kind kind))
         (wptr (%world-ptr world)))
     (with-foreign-array (m4 matrix4 '(:array :float 16))
-      (%make-body
-       :ptr (ecase kind
-              (:kinematic (newtoncreatekinematicbody
-                           wptr (%geometry-ptr collision) m4))
-              (:dynamic (newtoncreatedynamicbody
-                         wptr (%geometry-ptr collision) m4))
-              (:deformable (newtoncreatedeformablebody
-                            wptr (%mesh-ptr collision) m4)))))))
+      (let ((body
+             (%make-body
+              :ptr (ecase kind
+                     (:kinematic (newtoncreatekinematicbody
+                                  wptr (%geometry-ptr geometry) m4))
+                     (:dynamic (newtoncreatedynamicbody
+                                wptr (%geometry-ptr geometry) m4))
+                     (:deformable (newtoncreatedeformablebody
+                                   wptr (%mesh-ptr geometry) m4))))))
+        (body-geometry-mass-set body geometry mass)
+        (setf (body-linear-damping body) linear-damping)))))
 
 ;;------------------------------------------------------------
 
@@ -56,6 +63,13 @@
 
 ;;------------------------------------------------------------
 
+(defun body-position (body)
+  (with-foreign-object (v3 :float 3)
+    (newtonbodygetposition (%body-ptr body) v3)
+    (ptr->v3 v3)))
+
+;;------------------------------------------------------------
+
 (defun body-add-force (body force-vec3)
   (with-foreign-array (v3 force-vec3 '(:array :float 3))
     (newtonbodyaddforce (%body-ptr body) v3)))
@@ -68,6 +82,9 @@
 (defun body-add-torque (body torque-vec3)
   (with-foreign-array (v3 torque-vec3 '(:array :float 3))
     (newtonbodyaddtorque (%body-ptr body) v3)))
+
+;; newtonbodyapplyimpulsearray
+;; newtonbodyapplyimpulsepair
 
 ;;------------------------------------------------------------
 
@@ -186,9 +203,49 @@
 
 ;;------------------------------------------------------------
 
-(defun body-set-mass-matrix (body mass ixx iyy izz)
+(defun body-mass (body)
+  "Returns the mass and a vec3 containing the the moment of inertia of the object
+   in each axis"
+  (with-foreign-objects ((mass :float) (ixx :float) (iyy :float) (izz :float))
+    (newtonbodygetmass (%body-ptr body) mass ixx iyy izz)
+    (values mass (v! (mem-aref ixx :float)
+                     (mem-aref iyy :float)
+                     (mem-aref izz :float)))))
+
+(defun body-mass-set (body mass ixx iyy izz)
   (newtonbodysetmassmatrix
-   (%body-ptr body) (float mass) (float ixx) (float iyy) (float izz)))
+   (%body-ptr body) (float mass) (float ixx) (float iyy) (float izz))
+  body)
+
+(defun body-mass-matrix-set (body mass interia-matrix)
+  (with-foreign-array (m4 interia-matrix '(:array :float 16))
+    (newtonbodysetfullmassmatrix (%body-ptr body) (float mass) m4))
+  body)
+
+(defun body-inverse-mass (body)
+  "Returns the mass and a vec3 containing the the moment of inertia of the object
+   in each axis"
+  (with-foreign-objects ((mass :float) (ixx :float) (iyy :float) (izz :float))
+    (newtonbodygetinvmass (%body-ptr body) mass ixx iyy izz)
+    (values mass (v! (mem-aref ixx :float)
+                     (mem-aref iyy :float)
+                     (mem-aref izz :float)))))
+
+(defun body-geometry-mass-set (body geometry mass)
+  (newtonbodysetmassproperties
+   (%body-ptr body) (float mass) (%geometry-ptr geometry)))
+
+;;------------------------------------------------------------
+
+(defun body-inertia-matrix4 (body)
+  (with-foreign-object (m4 :float 16)
+    (newtonbodygetinertiamatrix (%body-ptr body) m4)
+    (ptr->m4 m4)))
+
+(defun body-inverse-intertia-matrix4 (body)
+  (with-foreign-object (m4 :float 16)
+    (newtonbodygetinvinertiamatrix (%body-ptr body) m4)
+    (ptr->m4 m4)))
 
 ;;------------------------------------------------------------
 
@@ -204,6 +261,50 @@
     (newtonbodysetvelocity (%body-ptr body) v3))
   value)
 
+(defun body-point-velocity (body point)
+  (with-foreign-array (p3 point '(:array :float 3))
+    (with-foreign-object (r3 :float 3)
+      (newtonbodygetpointvelocity (%body-ptr body) p3 r3)
+      (ptr->v3 r3))))
+
+(defun body-integrate-velocity (body timestep)
+  (newtonbodyintegratevelocity (%body-ptr body) (float timestep)))
+
+;;------------------------------------------------------------
+
+(defun body-force (body)
+  (with-foreign-object (v3 :float 3)
+    (newtonbodygetforce  (%body-ptr body) v3)
+    (ptr->v3 v3)))
+
+(defun (setf body-force) (value body)
+  (with-foreign-array (v3 value '(:array :float 3))
+    (NewtonBodySetForce (%body-ptr body) v3))
+  value)
+
+(defun body-force-acc (body)
+  "Get the force applied on the last call to apply force and torque
+   callback. this function can be useful to modify force from joint
+   callback"
+  (with-foreign-object (v3 :float 3)
+    (newtonbodygetforceacc (%body-ptr body) v3)
+    (ptr->v3 v3)))
+
+(defun body-torque-acc (body)
+  (with-foreign-object (v3 :float 3)
+    (newtonbodygettorqueacc (%body-ptr body) v3)
+    (ptr->v3 v3)))
+
+(defun body-calculate-inverse-dynamics-force (body timestep desired-velocity)
+  (with-foreign-array (dv3 desired-velocity '(:array :float 3))
+    (with-foreign-object (r3 :float 3)
+      (newtonbodycalculateinversedynamicsforce
+       (%body-ptr body) (float timestep) dv3 r3)
+      (ptr->v3 r3))))
+
+(defun %set-force-torque-callback (body callback)
+  (newtonbodysetforceandtorquecallback (%body-ptr body) callback))
+
 ;;------------------------------------------------------------
 
 (defun body-sleeping-p (body)
@@ -214,6 +315,11 @@
 
 ;;------------------------------------------------------------
 
+(defun body-rotation (body)
+  (with-foreign-object (v3 :float 3)
+    (newtonbodygetrotation (%body-ptr body) v3)
+    (ptr->v3 v3)))
+
 (defun body-max-rotation-per-step (body)
   (newtonbodygetmaxrotationperstep (%body-ptr body)))
 
@@ -221,42 +327,16 @@
   (newtonbodysetmaxrotationperstep (%body-ptr body) (float value)))
 
 ;;------------------------------------------------------------
-;;------------------------------------------------------------
 
 ;; newtonbodygetaabb
 
 ;;------------------------------------------------------------
 
-;; newtonbodygetmass
-;; newtonbodygetinvmass
-
-;; newtonbodysetmassproperties
-;; newtonbodysetfullmassmatrix
-
-;;------------------------------------------------------------
-
-;; newtonbodygetforce
-;; newtonbodygetforceacc
-;; newtonbodycalculateinversedynamicsforce
-
-;;------------------------------------------------------------
-
-;; newtonbodygetposition
-;; newtonbodygetrotation
-;; newtonbodygetpointvelocity
-
-
-
-;; newtonbodygetinertiamatrix
-;; newtonbodygetinvinertiamatrix
 
 
 
 ;; newtonbodygetsimulationstate
 ;; newtonbodygetskeleton
-;; newtonbodygettorqueacc
-
-
 
 ;; newtonbodysetvelocitynosleep
 ;; newtonbodysetmatrixnosleep
@@ -265,20 +345,11 @@
 ;; newtonbodysetsimulationstate
 ;; newtonbodysetcollisionscale
 
-
-;; newtonbodyapplyimpulsearray
-;; newtonbodyapplyimpulsepair
-
 ;; newtonbodydestructor
-
-
 
 ;; newtonbodygetfirstjoint
 ;; newtonbodygetnextjoint
 ;; newtonbodygetnextcontactjoint
 
 
-
-
-;; newtonbodyintegratevelocity
 ;; newtonbodyiterator

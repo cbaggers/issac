@@ -26,7 +26,7 @@ newtoncontactsprocess
 ;;
 ;; CONSTRAINT
 
-newton-deformable-body
+,newton-deformable-body
 newton-dynamic-body
 newton-kinematic-body
 

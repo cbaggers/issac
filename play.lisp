@@ -1,14 +1,17 @@
 (in-package :issac)
 
 (defvar points
-  (vector -100s0 0s0  100s0
-          100s0 0s0  100s0
-          100s0 0s0 -100s0
-          -100s0 0s0 -100s0))
+  (list (list (v! -100s0 0s0  100s0)
+              (v! 100s0 0s0  100s0)
+              (v! 100s0 0s0 -100s0)
+              (v! -100s0 0s0 -100s0))))
 
 (defcallback apply-gravity :void ((body :pointer) (timestep :float)
                                   (thread-index :int))
   (declare (ignore timestep thread-index))
+  (multiple-value-bind (mass) (body-mass body)
+    (setf (body-force body) (v! 0s0 (* -9.8 mass) 0s0 0s0)))
+
   (with-foreign-objects ((mass :float)
                          (ixx :float)
                          (iyy :float)
@@ -22,30 +25,16 @@
       (NewtonBodySetForce body g))))
 
 (defun create-background-body (world)
-  (let ((collision (newtoncreatetreecollision world 0)))
-    (with-foreign-array (pnts points '(:array :float 12))
-      (newtontreecollisionbeginbuild collision)
-      (newtontreecollisionaddface
-       collision 4 pnts (* 3 (foreign-type-size :float)) 0)
-      (newtontreecollisionendbuild collision 1)
-      (with-foreign-array (mptr (m4:identity) '(:array :float 16))
-        (prog1 (newtoncreatedynamicbody world collision mptr)
-          (newtondestroycollision collision))))))
+  (with-geometry (geom (make-geometry-tree world points))
+    (make-body world geom)))
 
 (defun create-freefall-ball (world)
-  (let ((collision (NewtonCreateSphere world 1s0 0 (null-pointer)))
-        (mass 1s0))
-    (with-foreign-array (mptr (m4:translation (v! 0 50 0)) '(:array :float 16))
-      (let ((body (newtoncreatedynamicbody world collision mptr)))
-        (newtonbodysetforceandtorquecallback body (cffi:callback apply-gravity))
-        (newtonbodysetmassproperties body mass collision)
-        (newtonbodysetlineardamping body 0s0)
-        (newtondestroycollision collision)
-        body))))
+  (with-geometry (geom (make-sphere-geometry world :radius 1s0))
+    (let ((body (make-body world geom :linear-damping 0s0
+                           :mass 1s0)))
+      (%set-force-torque-callback body (cffi:callback apply-gravity)))))
 
-(defvar world (let ((w (newtoncreate)))
-                (newtoninvalidatecache w)
-                w))
+(defvar world (make-world))
 (defvar background-body (create-background-body world))
 (defvar freefall-ball (create-freefall-ball world))
 
