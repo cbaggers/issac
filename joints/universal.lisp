@@ -5,7 +5,15 @@
 (deftclass (universal-joint (:constructor %make-universal-joint)
                             (:include joint)))
 
-newtonconstraintcreateuniversal
+(defun make-corkscrew (world parent-body child-body pivot-point-v3
+                       pin0-dir-v3 pin1-dir-v3)
+  (with-foreign-array (piv3 pivot-point-v3 '(:array :float 3))
+    (with-foreign-array (dir0 pin0-dir-v3 '(:array :float 3))
+      (with-foreign-array (dir1 pin1-dir-v3 '(:array :float 3))
+        (newtonconstraintcreateuniversal
+         (%world-ptr world) piv3 dir0 dir1
+         (%body-ptr child-body)
+         (%body-ptr parent-body))))))
 
 ;;------------------------------------------------------------
 

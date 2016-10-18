@@ -4,7 +4,11 @@
 
 (deftclass (up-vector (:constructor %make-up-vector) (:include joint)))
 
-newtonconstraintcreateupvector
+(defun make-up-vector (world body pin-dir-v3)
+  (with-foreign-array (dir3 pin-dir-v3 '(:array :float 3))
+    (newtonconstraintcreateupvector
+     (%world-ptr world) dir3
+     (%body-ptr body))))
 
 ;;------------------------------------------------------------
 
