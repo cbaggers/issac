@@ -43,14 +43,14 @@
          (friction-model (validate-friction-model friction-model))
          (minimum-frame-rate (validate-min-frame-rate minimum-frame-rate))
          (world (world-invalidate-cache
-                (%make-world :ptr (if (eq stack-size-mb :default)
-                                      (newtoncreate)
-                                      (progn
-                                        (assert (integerp stack-size-mb))
-                                        (newtoncreateex stack-size-mb)))
-                             :solve-model solve-model
-                             :friction-model friction-model
-                             :min-frame-rate minimum-frame-rate))))
+                 (%make-world :ptr (if (eq stack-size-mb :default)
+                                       (newtoncreate)
+                                       (progn
+                                         (assert (integerp stack-size-mb))
+                                         (newtoncreateex stack-size-mb)))
+                              :solve-model solve-model
+                              :friction-model friction-model
+                              :min-frame-rate minimum-frame-rate))))
     ;;
     ;; add to world table
     (setf (%world-by-id (%world-id world)) world)
@@ -197,7 +197,7 @@
            (> model 1))))
 
 (defun validate-solver-model (solver-model)
-  (assert (validate-solver-model solver-model) (solver-model))
+  (assert (valid-solver-model-p solver-model) (solver-model))
   solver-model)
 
 (defun world-solver-model (world)
