@@ -7,9 +7,3 @@ newtonsetislandupdateevent
 newtonislandgetbody
 newtonislandgetbodyaabb
 newtonislandupdate
-
-;;
-;; Serializing (v.low priority)
-
-newtoncreatecollisionfromserialization
-newtoncollisionserialize

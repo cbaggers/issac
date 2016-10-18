@@ -18,3 +18,5 @@
 ;; newtonuserjointsetrowminimumfriction
 ;; newtonuserjointsetrowspringdamperacceleration
 ;; newtonuserjointsetrowstiffness
+;; newtonusercalculaterowzeroaccelaration
+;; newtonuserjoinrowscount

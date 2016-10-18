@@ -185,6 +185,13 @@
        :ptr (newtoncreateconvexhull
              wptr len p-ptr 12 (float tolerance) 0 m4)))))
 
+;; newtonconvexcollisioncalculatebuoyancyacceleration
+;; newtonconvexcollisioncalculateinertialmatrix
+;; newtonconvexcollisioncalculatevolume
+;; newtonconvexhullgetfaceindices
+;; newtonconvexhullgetvertexdata
+
+;;------------------------------------------------------------
 
 ;; (defun make-compound-geometry ()
 ;;   "Create a container to hold an array of convex collision
@@ -287,6 +294,9 @@
 ;; newtontreecollisiongetvertexlisttrianglelistinaabb
 ;; newtontreecollisionsetfaceattribute
 
+;; newtoncreatecollisionfromserialization
+;; newtoncollisionserialize
+
 ;;------------------------------------------------------------
 
 (defun free-geometry (geometry)
@@ -384,6 +394,25 @@
 
 ;;------------------------------------------------------------
 
+;; newtoncreateheightfieldcollision
+;; newtoncreatescenecollision
+
+;;------------------------------------------------------------
+
+;; newtonscenecollisionaddsubcollision
+;; newtonscenecollisionbeginaddremove
+;; newtonscenecollisionendaddremove
+;; newtonscenecollisiongetcollisionfromnode
+;; newtonscenecollisiongetfirstnode
+;; newtonscenecollisiongetnextnode
+;; newtonscenecollisiongetnodebyindex
+;; newtonscenecollisiongetnodeindex
+;; newtonscenecollisionremovesubcollision
+;; newtonscenecollisionremovesubcollisionbyindex
+;; newtonscenecollisionsetsubcollisionmatrix
+
+;;------------------------------------------------------------
+
 ;; newtoncollisioncalculateaabb
 ;; newtoncollisionclosestpoint
 
@@ -401,3 +430,4 @@
 ;; newtoncollisiontreeparam
 
 ;; newtoncreateusermeshcollision
+;; newtonusermeshcollisioncontinuousoverlaptest
