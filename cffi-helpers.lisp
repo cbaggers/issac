@@ -1,5 +1,7 @@
 (in-package #:issac)
 
+(defconstant +vec3-size+ (* 3 (foreign-type-size :float)))
+
 (defcfun (%memset "memset") :pointer
   (destination-pointer :pointer)
   (val :int)
@@ -29,3 +31,9 @@
                      `(c-val ,form ,type ,@(rest path)))))))
     (assert path)
     (gen ptr type path)))
+
+(defun ptr->m4 (ptr)
+  (make-array
+   16 :element-type 'single-float
+   :initial-contents
+   (loop :for i :below 16 :collect (mem-aref ptr :float i))))

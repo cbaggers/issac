@@ -38,6 +38,12 @@
             (:constructor %make-convex-hull-geometry)
             (:include geometry)))
 
+(deftclass (geometry-tree
+            (:constructor %make-geometry-tree)
+            (:include geometry)))
+
+;;------------------------------------------------------------
+
 (defun make-null-geometry (world)
   "Create a transparent collision primitive. Some times the
    application needs to create helper rigid bodies that will never
@@ -158,13 +164,13 @@
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
       (etypecase points/mesh
         (mesh
-         (%make-convex-hull-from-points wptr points/mesh tolerance m4))
+         (%make-convex-hull-from-mesh wptr points/mesh tolerance m4))
         (sequence
          (%make-convex-hull-from-points wptr points/mesh tolerance m4))))))
 
-(defun %make-convex-hull-from-points (wptr mesh tolerance m4)
+(defun %make-convex-hull-from-mesh (wptr mesh tolerance m4)
   (declare (ignore wptr mesh tolerance m4))
-  (warn "Not implemented"))
+  (error "Not implemented"))
 
 (defun %make-convex-hull-from-points (wptr points tolerance m4)
   (assert (>= (length points) 4))
@@ -178,3 +184,218 @@
       (%make-convex-hull-geometry
        :ptr (newtoncreateconvexhull
              wptr len p-ptr 12 (float tolerance) 0 m4)))))
+
+
+;; (defun make-compound-geometry ()
+;;   "Create a container to hold an array of convex collision
+;;    primitives. Compound collision primitives can only be made of convex
+;;    collision primitives and they can not contain compound
+;;    collision. Therefore they are treated as convex primitives.
+
+;;    Compound collision primitives are treated as instance collision
+;;    objects that can not shared by multiples rigid bodies."
+;;   )
+
+;; ;;
+;; ;; COMPOUND COLLISION
+
+;; NewtonCompoundCollisionAddSubCollision
+;; NewtonCompoundCollisionGetNodeIndex
+;; NewtonCompoundCollisionRemoveSubCollision
+;; NewtonCompoundCollisionRemoveSubCollisionByIndex
+;; newtoncompoundcollisionbeginaddremove
+;; newtoncompoundcollisionendaddremove
+;; newtoncompoundcollisiongetcollisionfromnode
+;; newtoncompoundcollisiongetfirstnode
+;; newtoncompoundcollisiongetnextnode
+;; newtoncompoundcollisiongetnodebyindex
+;; newtoncompoundcollisiongetnodeindex
+;; newtoncompoundcollisionparam
+;; newtoncompoundcollisionsetsubcollisionmatrix
+;; newtonfracturecompoundcollisiononemitchunk
+;; newtonfracturecompoundcollisiononemitcompoundfractured
+;; newtonfracturedcompoundcollisiongetvertexnormals
+;; newtonfracturedcompoundcollisiongetvertexpositions
+;; newtonfracturedcompoundcollisiongetvertexuvs
+;; newtonfracturedcompoundgetfirstsubmesh
+;; newtonfracturedcompoundgetmainmesh
+;; newtonfracturedcompoundgetnextsubmesh
+;; newtonfracturedcompoundisnodefreetodetach
+;; newtonfracturedcompoundmeshpart
+;; newtonfracturedcompoundmeshpartgetfirstsegment
+;; newtonfracturedcompoundmeshpartgetindexcount
+;; newtonfracturedcompoundmeshpartgetindexstream
+;; newtonfracturedcompoundmeshpartgetmaterial
+;; newtonfracturedcompoundmeshpartgetnextsegment
+;; newtonfracturedcompoundneighbornodelist
+;; newtonfracturedcompoundplaneclip
+;; newtonfracturedcompoundsetcallbacks
+;; newtononcompoundsubcollisionaabboverlap
+
+;;------------------------------------------------------------
+
+;; newtoncollisionaggregateaddbody
+;; newtoncollisionaggregatecreate
+;; newtoncollisionaggregatedestroy
+;; newtoncollisionaggregategetselfcollision
+;; newtoncollisionaggregateremovebody
+;; newtoncollisionaggregatesetselfcollision
+
+;;------------------------------------------------------------
+
+(defun make-geometry-tree (world faces/mesh/filename
+                           &key optimize)
+  "Create an empty complex collision geometry tree. TreeCollision* is
+   the preferred method within Newton for collision with polygonal meshes
+   of arbitrary complexity. The mesh must be made of flat
+   non-intersecting polygons, but they do not explicitly need to be
+   triangles. TreeCollision* can be serialized by the application to/from
+   an arbitrary storage device."
+  (let ((tree-ptr (newtoncreatetreecollision (%world-ptr world) 0))
+        (src faces/mesh/filename))
+    (etypecase src
+      (sequence (%make-geom-tree-from-seq tree-ptr src optimize))
+      (mesh (%make-geom-tree-from-mesh tree-ptr src))
+      ((or string pathname) (%deserialize-geom-tree tree-ptr src)))))
+
+(defun %make-geom-tree-from-seq (tree-ptr src optimize)
+  ;; Add an individual polygon to a TreeCollision. After the call to
+  ;; NewtonTreeCollisionBeginBuild the TreeCollision is ready to accept
+  ;; polygons. The application should iterate through the application's
+  ;; mesh, adding the mesh polygons to the TreeCollision one at a time. The
+  ;; polygons must be flat and non-self intersecting.
+  (newtontreecollisionbeginbuild tree-ptr)
+  (labels ((add-face (f)
+             (let ((len (length f)))
+               (with-foreign-object (d :float (* 3 len))
+                 (loop :for v :in f :for i :from 0 :do
+                    (setf (mem-aref d :float (+ (* i 3) 0)) (v:x v)
+                          (mem-aref d :float (+ (* i 3) 1)) (v:y v)
+                          (mem-aref d :float (+ (* i 3) 2)) (v:z v)))
+                 (newtontreecollisionaddface
+                  tree-ptr len d +vec3-size+ 0)))))
+    (map nil #'add-face src))
+  (newtontreecollisionendbuild tree-ptr (if optimize 1 0)))
+
+(defun %make-geom-tree-from-mesh (tree-ptr src)
+  (error "Not implemented"))
+
+(defun %deserialize-geom-tree (tree-ptr src)
+  (error "Not implemented"))
+
+;; newtontreecollisiongetfaceattribute
+;; newtontreecollisiongetvertexlisttrianglelistinaabb
+;; newtontreecollisionsetfaceattribute
+
+;;------------------------------------------------------------
+
+(defun free-geometry (geometry)
+  (newtondestroycollision (%geometry-ptr geometry))
+  t)
+
+;;------------------------------------------------------------
+
+(defmacro with-geometry (geometry &body body)
+  (with-gensyms (geom)
+    `(let ((,geom ,geometry))
+       (assert (typep ,geom 'geometry))
+       (unwind-protect (progn ,@body)
+         (free-geometry ,geom)))))
+
+;;------------------------------------------------------------
+
+(defun geometry-mode (geometry)
+  (newtoncollisiongetmode (%geometry-ptr geometry)))
+
+(defun (setf geometry-mode) (mode geometry)
+  (assert (integerp mode))
+  (newtoncollisionsetmode (%geometry-ptr geometry) mode))
+
+
+;;------------------------------------------------------------
+
+(defun geometry-scale (geometry)
+  (with-foreign-objects ((x :float) (y :float) (z :float))
+    (newtoncollisiongetscale (%geometry-ptr geometry) x y z)
+    (v! (mem-aref x :float) (mem-aref y :float) (mem-aref z :float))))
+
+(defun (setf geometry-scale) (value geometry)
+  (newtoncollisionsetscale
+   (%geometry-ptr geometry) (v:x value) (v:y value) (v:z value)))
+
+;;------------------------------------------------------------
+
+(defun geometry-offset-matrix4 (geometry)
+  (with-foreign-object (m4 :float 16)
+    (newtoncollisiongetmatrix (%geometry-ptr geometry) m4)
+    (ptr->m4 m4)))
+
+(defun (setf geometry-offset-matrix4) (mat4 geometry)
+  (with-foreign-array (m4 mat4 '(:array :float 16))
+    (newtoncollisionsetmatrix (%geometry-ptr geometry) m4)
+    mat4))
+
+;;------------------------------------------------------------
+
+(defun %geometry-user-data (geometry)
+  (newtoncollisiongetuserdata (%geometry-ptr geometry)))
+
+(defun (setf %geometry-user-data) (ptr geometry)
+  (newtoncollisionsetuserdata (%geometry-ptr geometry) ptr))
+
+(defun %geometry-user-data-1 (geometry)
+  (newtoncollisiongetuserdata1 (%geometry-ptr geometry)))
+
+(defun (setf %geometry-user-data-1) (ptr geometry)
+  (newtoncollisionsetuserdata1 (%geometry-ptr geometry) ptr))
+
+
+(defun %geometry-data-pointer (geometry)
+  (newtoncollisiondatapointer (%geometry-ptr geometry)))
+
+;;------------------------------------------------------------
+
+(defun %geometry-user-id (geometry)
+  (newtoncollisiongetuserid (%geometry-ptr geometry)))
+
+(defun (setf %geometry-user-id) (id geometry)
+  (assert (typep id '(unsigned-byte 32)))
+  (newtoncollisionsetuserid (%geometry-ptr geometry) id))
+
+;;------------------------------------------------------------
+
+(defun convex-shape-p (geometry)
+  (>= (newtoncollisionisconvexshape (%geometry-ptr geometry)) 0))
+
+(defun convex-static-p (geometry)
+  (>= (newtoncollisionisstaticshape (%geometry-ptr geometry)) 0))
+
+;;------------------------------------------------------------
+
+;; newtoncollisioncollide
+;; newtoncollisioncollidecontinue
+
+;;------------------------------------------------------------
+
+(defun %geometry-info (geometry)
+  (with-foreign-object (info '(:struct newtoncollisioninforecord))
+    (newtoncollisiongetinfo (%geometry-ptr geometry) info)
+    (mem-aref info '(:struct newtoncollisioninforecord))))
+
+;;------------------------------------------------------------
+
+;; newtoncollisioncalculateaabb
+;; newtoncollisionclosestpoint
+
+;; newtoncollisiongetparentinstance
+
+;; newtoncollisiongetskinthickness
+;; newtoncollisiongetsubcollisionhandle
+;; newtoncollisiongettype
+
+;; newtoncollisioninforecord
+;; newtoncollisionintersectiontest
+;; newtoncollisioniterator
+;; newtoncollisionpointdistance
+;; newtoncollisionsupportvertex
+;; newtoncollisiontreeparam

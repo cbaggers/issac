@@ -2,6 +2,7 @@
 
 (defpackage #:issac
   (:use #:cl #:raw-bindings-newton #:structy-defclass)
+  (:import-from #:alexandria :with-gensyms)
   (:import-from #:rtg-math :v!)
   (:import-from
    :cffi
