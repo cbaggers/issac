@@ -1,135 +1,101 @@
 ;;;; package.lisp
 
-(defpackage #:issac
-  (:use #:cl #:raw-bindings-newton #:structy-defclass)
+(uiop:define-package #:issac
+  (:use #:cl #:raw-bindings-newton #:structy-defclass :cffi)
   (:import-from #:alexandria :with-gensyms)
   (:import-from #:rtg-math :v!)
-  (:import-from
-   :cffi
-   ;; Types.
-   #:foreign-pointer
+  (:shadow :callback)
+  (:export
+   ;; system
+   :newton-version
 
-   ;; FIXME: the following types are undocumented. They should
-   ;; probably be replaced with a proper type introspection API
-   ;; though.
-   #:*built-in-foreign-types*
-   #:*other-builtin-types*
-   #:*built-in-integer-types*
-   #:*built-in-float-types*
+   ;; world
+   :world
+   :make-world
+   :free-world
+   :world-destroy-all-bodies
+   :world-step
+   :world-step-async
+   :world-wait-for-update-to-finish
+   :world-last-update-time
+   :world-substep-count
+   :world-minimum-frame-rate
+   :world-invalidate-cache
+   :world-current-device
+   :world-devices
+   :world-broadphase-algorithm
+   :world-solver-model
+   :world-friction-model
+   :world-contact-merge-tolerance
+   :world-thread-count
+   :world-max-thread-count
+   :world-sync-thread-jobs
+   :world-body-count
+   :world-constraint-count
 
-   ;; Primitive pointer operations.
-   #:foreign-free
-   #:foreign-alloc
-   #:mem-aptr
-   #:mem-aref
-   #:mem-ref
-   #:pointerp
-   #:pointer-eq
-   #:null-pointer
-   #:null-pointer-p
-   #:inc-pointer
-   #:incf-pointer
-   #:with-foreign-pointer
-   #:make-pointer
-   #:pointer-address
+   ;; geometry
+   :geometry
+   :null-geometry
+   :box-geometry
+   :sphere-geometry
+   :cone-geometry
+   :capsule-geometry
+   :cylinder-geometry
+   :chamfer-cylinder-geometry
+   :convex-hull-geometry
+   :geometry-tree
+   :make-null-geometry
+   :make-box-geometry
+   :make-sphere-geometry
+   :make-cone-geometry
+   :make-capsule-geometry
+   :make-cylinder-geometry
+   :make-chamfer-cylinder-geometry
+   :make-convex-hull-geometry
+   :make-geometry-tree
+   :free-geometry
+   :geometry-mode
+   :geometry-scale
+   :geometry-offset-matrix4
+   :convex-shape-p
+   :convex-static-p
 
-   ;; Shareable vectors.
-   #:make-shareable-byte-vector
-   #:with-pointer-to-vector-data
-
-   ;; Foreign string operations.
-   #:*default-foreign-encoding*
-   #:foreign-string-alloc
-   #:foreign-string-free
-   #:foreign-string-to-lisp
-   #:lisp-string-to-foreign
-   #:with-foreign-string
-   #:with-foreign-strings
-   #:with-foreign-pointer-as-string
-
-   ;; Foreign array operations.
-   ;; TODO: document these
-   #:foreign-array-alloc
-   #:foreign-array-free
-   #:foreign-array-to-lisp
-   #:lisp-array-to-foreign
-   #:with-foreign-array
-   #:foreign-aref
-
-   ;; Foreign function operations.
-   #:defcfun
-   #:foreign-funcall
-   #:foreign-funcall-pointer
-   #:translate-camelcase-name
-   #:translate-name-from-foreign
-   #:translate-name-to-foreign
-   #:translate-underscore-separated-name
-
-   ;; Foreign library operations.
-   #:*foreign-library-directories*
-   #:*darwin-framework-directories*
-   #:foreign-library
-   #:foreign-library-name
-   #:foreign-library-pathname
-   #:foreign-library-type
-   #:foreign-library-loaded-p
-   #:list-foreign-libraries
-   #:define-foreign-library
-   #:load-foreign-library
-   #:load-foreign-library-error
-   #:use-foreign-library
-   #:close-foreign-library
-   #:reload-foreign-libraries
-
-   ;; Callbacks.
-   #:get-callback
-   #:defcallback
-
-   ;; Foreign type operations.
-   #:defcstruct
-   #:defcunion
-   #:defctype
-   #:defcenum
-   #:defbitfield
-   #:define-foreign-type
-   #:define-parse-method
-   #:define-c-struct-wrapper
-   #:foreign-enum-keyword
-   #:foreign-enum-keyword-list
-   #:foreign-enum-value
-   #:foreign-bitfield-symbol-list
-   #:foreign-bitfield-symbols
-   #:foreign-bitfield-value
-   #:foreign-slot-pointer
-   #:foreign-slot-value
-   #:foreign-slot-type
-   #:foreign-slot-offset
-   #:foreign-slot-count
-   #:foreign-slot-names
-   #:foreign-type-alignment
-   #:foreign-type-size
-   #:with-foreign-object
-   #:with-foreign-objects
-   #:with-foreign-slots
-   #:convert-to-foreign
-   #:convert-from-foreign
-   #:convert-into-foreign-memory
-   #:free-converted-object
-   #:translation-forms-for-class
-
-   ;; Extensible foreign type operations.
-   #:define-translation-method          ; FIXME: undocumented
-   #:translate-to-foreign
-   #:translate-from-foreign
-   #:translate-into-foreign-memory
-   #:free-translated-object
-   #:expand-to-foreign-dyn
-   #:expand-to-foreign
-   #:expand-from-foreign
-   #:expand-into-foreign-memory
-
-   ;; Foreign globals.
-   #:defcvar
-   #:get-var-pointer
-   #:foreign-symbol-pointer
-   ))
+   ;; bodies
+   :body
+   :make-body
+   :free-body
+   :body-id
+   :body-world
+   :body-group-id
+   :body-position
+   :body-add-force
+   :body-add-force
+   :body-add-torque
+   :body-angular-damping
+   :body-auto-sleep-p
+   :body-centre-of-mass
+   :body-collidable-p
+   :body-recursive-collision-p
+   :body-linear-damping
+   :body-matrix4
+   :body-angular-velocity
+   :body-omega
+   :body-torque
+   :body-mass
+   :body-mass-set
+   :body-mass-matrix-set
+   :body-inverse-mass
+   :body-geometry-mass-set
+   :body-inertia-matrix4
+   :body-inverse-intertia-matrix4
+   :body-velocity
+   :body-point-velocity
+   :body-integrate-velocity
+   :body-force
+   :body-force-acc
+   :body-torque-acc
+   :body-calculate-inverse-dynamics-force
+   :body-set-force-torque-callback
+   :body-sleeping-p
+   :body-rotation
+   :body-max-rotation-per-step))
