@@ -2,15 +2,6 @@
 
 ;;------------------------------------------------------------
 
-;;
-;; BODY
-
-(deftclass (body (:constructor %make-body)
-                  (:conc-name %body-))
-  (ptr (error "") :type foreign-pointer))
-
-;;------------------------------------------------------------
-
 (defun validate-body-kind (body-kind)
   (assert (member body-kind '(:kinematic :dynamic :deformable)) (body-kind))
   body-kind)
@@ -350,6 +341,5 @@
 ;; newtonbodygetfirstjoint
 ;; newtonbodygetnextjoint
 ;; newtonbodygetnextcontactjoint
-
 
 ;; newtonbodyiterator

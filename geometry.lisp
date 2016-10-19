@@ -2,48 +2,6 @@
 
 ;;------------------------------------------------------------
 
-(deftclass (geometry (:constructor %make-geometry)
-                     (:conc-name %geometry-))
-  (ptr (error "") :type foreign-pointer))
-
-(deftclass (null-geometry
-            (:constructor %make-null)
-            (:include geometry)))
-
-(deftclass (box-geometry
-            (:constructor %make-box)
-            (:include geometry)))
-
-(deftclass (sphere-geometry
-            (:constructor %make-sphere)
-            (:include geometry)))
-
-(deftclass (cone-geometry
-            (:constructor %make-cone)
-            (:include geometry)))
-
-(deftclass (capsule-geometry
-            (:constructor %make-capsule)
-            (:include geometry)))
-
-(deftclass (cylinder-geometry
-            (:constructor %make-cylinder)
-            (:include geometry)))
-
-(deftclass (chamfer-cylinder-geometry
-            (:constructor %make-chamfer-cylinder)
-            (:include geometry)))
-
-(deftclass (convex-hull-geometry
-            (:constructor %make-convex-hull-geometry)
-            (:include geometry)))
-
-(deftclass (geometry-tree
-            (:constructor %make-geometry-tree)
-            (:include geometry)))
-
-;;------------------------------------------------------------
-
 (defun make-null-geometry (world)
   "Create a transparent collision primitive. Some times the
    application needs to create helper rigid bodies that will never

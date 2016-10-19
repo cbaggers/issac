@@ -2,14 +2,6 @@
 
 ;;------------------------------------------------------------
 
-(deftclass (world (:constructor %make-world)
-                  (:conc-name %world-))
-  (ptr (error "") :type foreign-pointer)
-  (id (gen-world-id) :type (unsigned-byte 16))
-  (solve-model (error "") :type t)
-  (friction-model (error "") :type keyword)
-  (min-frame-rate 60 :type (unsigned-byte 16)))
-
 (defvar *null-world*
   (%make-world :ptr (null-pointer)
                :solve-model nil

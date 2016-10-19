@@ -2,10 +2,6 @@
 
 ;;------------------------------------------------------------
 
-(deftclass (mesh (:constructor %make-mesh)
-                     (:conc-name %mesh-))
-  (ptr (error "") :type foreign-pointer))
-
 ;; newtondeformablemeshbeginconfiguration
 ;; newtondeformablemeshconstraintparticle
 ;; newtondeformablemeshcreateclusters
