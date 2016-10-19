@@ -14,22 +14,29 @@
   (let ((kind (validate-body-kind kind))
         (wptr (%world-ptr world)))
     (with-foreign-array (m4 matrix4 '(:array :float 16))
-      (let ((body
-             (%make-body
-              :ptr (ecase kind
-                     (:kinematic (newtoncreatekinematicbody
-                                  wptr (%geometry-ptr geometry) m4))
-                     (:dynamic (newtoncreatedynamicbody
-                                wptr (%geometry-ptr geometry) m4))
-                     (:deformable (newtoncreatedeformablebody
-                                   wptr (%mesh-ptr geometry) m4))))))
+      (let* ((body
+              (%make-body
+               :ptr (ecase kind
+                      (:kinematic (newtoncreatekinematicbody
+                                   wptr (%geometry-ptr geometry) m4))
+                      (:dynamic (newtoncreatedynamicbody
+                                 wptr (%geometry-ptr geometry) m4))
+                      (:deformable (newtoncreatedeformablebody
+                                    wptr (%mesh-ptr geometry) m4))))))
+        (setf (%body-user-data body) (make-pointer (%add-body-to-system body)))
         (body-geometry-mass-set body geometry mass)
-        (setf (body-linear-damping body) linear-damping)))))
+        (setf (body-linear-damping body) linear-damping)
+        body))))
 
 ;;------------------------------------------------------------
 
 (defun free-body (body)
   (newtondestroybody (%body-ptr body)))
+
+;;------------------------------------------------------------
+
+(defun %body-ptr->body (ptr)
+  (%body-id-to-body (pointer-address (newtonbodygetuserdata ptr))))
 
 ;;------------------------------------------------------------
 
@@ -41,6 +48,9 @@
 
 (defun %body-user-data (body)
   (newtonbodygetuserdata (%body-ptr body)))
+
+(defun (setf %body-user-data) (ptr body)
+  (newtonbodysetuserdata (%body-ptr body) ptr))
 
 ;;------------------------------------------------------------
 
@@ -199,9 +209,10 @@
    in each axis"
   (with-foreign-objects ((mass :float) (ixx :float) (iyy :float) (izz :float))
     (newtonbodygetmass (%body-ptr body) mass ixx iyy izz)
-    (values mass (v! (mem-aref ixx :float)
-                     (mem-aref iyy :float)
-                     (mem-aref izz :float)))))
+    (values (mem-aref mass :float)
+            (v! (mem-aref ixx :float)
+                (mem-aref iyy :float)
+                (mem-aref izz :float)))))
 
 (defun body-mass-set (body mass ixx iyy izz)
   (newtonbodysetmassmatrix
@@ -293,8 +304,13 @@
        (%body-ptr body) (float timestep) dv3 r3)
       (ptr->v3 r3))))
 
+(defun body-set-force-torque-callback (body callback)
+  (%set-force-torque-callback body (cffi:get-callback callback))
+  body)
+
 (defun %set-force-torque-callback (body callback)
-  (newtonbodysetforceandtorquecallback (%body-ptr body) callback))
+  (newtonbodysetforceandtorquecallback (%body-ptr body) callback)
+  body)
 
 ;;------------------------------------------------------------
 

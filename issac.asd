@@ -18,6 +18,5 @@
                (:file "geometry")
                (:file "body")
                (:file "mesh")
-               (:file "init")
-               ;;(:file "play")
-               ))
+               (:file "def-callback")
+               (:file "init")))

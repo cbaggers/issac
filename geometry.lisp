@@ -2,6 +2,13 @@
 
 ;;------------------------------------------------------------
 
+(defun %init-data (body)
+  (setf (%geometry-user-data body) (make-pointer (%add-geom-to-system body)))
+  body)
+
+(defun %geom-ptr->geom (ptr)
+  (%geom-id-to-geom (pointer-address (newtoncollisiongetuserdata ptr))))
+
 (defun make-null-geometry (world)
   "Create a transparent collision primitive. Some times the
    application needs to create helper rigid bodies that will never
@@ -12,17 +19,19 @@
    complexity. The Null collision is a collision object that satisfy all
    this conditions without having to change the engine philosophy."
   (let ((wptr (%world-ptr world)))
-    (%make-null
-     :ptr (newtoncreatenull wptr))))
+    (%init-data
+     (%make-null
+      :ptr (newtoncreatenull wptr)))))
 
 (defun make-box-geometry (world &key (dimensions (v! 1s0 1s0 1s0))
                                   (offset-matrix4 (m4:identity)))
   "Create a box primitive for collision."
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
-      (%make-box
-       :ptr (newtoncreatebox
-             wptr (v:x dimensions) (v:y dimensions) (v:z dimensions) 0 m4)))))
+      (%init-data
+       (%make-box
+        :ptr (newtoncreatebox
+              wptr (v:x dimensions) (v:y dimensions) (v:z dimensions) 0 m4))))))
 
 (defun make-sphere-geometry (world &key (radius 1s0)
                                      (offset-matrix4 (m4:identity)))
@@ -34,16 +43,18 @@
    value."
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
-      (%make-sphere
-       :ptr (newtoncreatesphere wptr 0 (float radius) m4)))))
+      (%init-data
+       (%make-sphere
+        :ptr (newtoncreatesphere wptr (float radius) 0 m4))))))
 
 (defun make-cone-geometry (world &key (radius 1s0) (height 1s0)
                                    (offset-matrix4 (m4:identity)))
   "Create a cone primitive for collision."
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
-      (%make-cone
-       :ptr (newtoncreatecone wptr (float radius) (float height) 0  m4)))))
+      (%init-data
+       (%make-cone
+        :ptr (newtoncreatecone wptr (float radius) (float height) 0  m4))))))
 
 (defun make-capsule-geometry (world &key (radius-0 1s0) (radius-1 1s0)
                                       (height (* 2 (max radius-1 radius-0)))
@@ -53,9 +64,10 @@
    case the height will be clamped the 2 * radius."
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
-      (%make-capsule
-       :ptr (newtoncreatecapsule
-             wptr (float radius-0) (float radius-1) (float height) 0 m4)))))
+      (%init-data
+       (%make-capsule
+        :ptr (newtoncreatecapsule
+              wptr (float radius-0) (float radius-1) (float height) 0 m4))))))
 
 (defun make-cylinder-geometry (world &key (radius-0 1s0) (radius-1 1s0)
                                        (height 4s0)
@@ -63,18 +75,20 @@
   "Create a cylinder primitive for collision."
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
-      (%make-cylinder
-       :ptr (newtoncreatecylinder
-             wptr (float radius-0) (float radius-1) (float height) 0 m4)))))
+      (%init-data
+       (%make-cylinder
+        :ptr (newtoncreatecylinder
+              wptr (float radius-0) (float radius-1) (float height) 0 m4))))))
 
 (defun make-chamfer-cylinder-geometry (world &key (radius 1s0) (height 1s0)
                                                (offset-matrix4 (m4:identity)))
   "Create a ChamferCylinder primitive for collision."
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
-      (%make-chamfer-cylinder
-       :ptr (newtoncreatechamfercylinder
-             wptr (float radius) (float height) 0 m4)))))
+      (%init-data
+       (%make-chamfer-cylinder
+        :ptr (newtoncreatechamfercylinder
+              wptr (float radius) (float height) 0 m4))))))
 
 
 (defun make-convex-hull-geometry (world points/mesh
@@ -120,11 +134,12 @@
    to generate."
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
-      (etypecase points/mesh
-        (mesh
-         (%make-convex-hull-from-mesh wptr points/mesh tolerance m4))
-        (sequence
-         (%make-convex-hull-from-points wptr points/mesh tolerance m4))))))
+      (%init-data
+       (etypecase points/mesh
+         (mesh
+          (%make-convex-hull-from-mesh wptr points/mesh tolerance m4))
+         (sequence
+          (%make-convex-hull-from-points wptr points/mesh tolerance m4)))))))
 
 (defun %make-convex-hull-from-mesh (wptr mesh tolerance m4)
   (declare (ignore wptr mesh tolerance m4))
@@ -221,7 +236,8 @@
     (etypecase src
       (sequence (%make-geom-tree-from-seq tree-ptr src optimize))
       (mesh (%make-geom-tree-from-mesh tree-ptr src))
-      ((or string pathname) (%deserialize-geom-tree tree-ptr src)))))
+      ((or string pathname) (%deserialize-geom-tree tree-ptr src)))
+    (%make-geometry-tree :ptr tree-ptr)))
 
 (defun %make-geom-tree-from-seq (tree-ptr src optimize)
   ;; Add an individual polygon to a TreeCollision. After the call to
@@ -243,9 +259,11 @@
   (newtontreecollisionendbuild tree-ptr (if optimize 1 0)))
 
 (defun %make-geom-tree-from-mesh (tree-ptr src)
+  (declare (ignore tree-ptr src))
   (error "Not implemented"))
 
 (defun %deserialize-geom-tree (tree-ptr src)
+  (declare (ignore tree-ptr src))
   (error "Not implemented"))
 
 ;; newtontreecollisiongetfaceattribute

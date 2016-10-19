@@ -2,24 +2,12 @@
 
 ;;------------------------------------------------------------
 
-(defvar *null-world*
-  (%make-world :ptr (null-pointer)
-               :solve-model nil
-               :friction-model :null
-               :min-frame-rate 0))
+(defmethod print-object ((obj world) stream)
+  (if (eq *null-world* obj)
+      (format stream "#<NULL-WORLD>")
+      (call-next-method)))
 
 ;;------------------------------------------------------------
-
-(defvar *worlds*
-  (make-array 0 :element-type 'world
-              :adjustable t
-              :fill-pointer 0
-              :initial-element *null-world*))
-
-(defvar *world-id* -1)
-
-(defun gen-world-id ()
-  (incf *world-id*))
 
 (defun %world-by-id (id)
   (aref *worlds* id))
@@ -109,14 +97,14 @@
 
 (defconstant +1/60s0+ (/ 1s0 60s0))
 
-(defun update-world (world &optional (timestep +1/60s0+))
+(defun world-step (world &optional (timestep +1/60s0+))
   "Advance the simulation by a user defined amount of time. This
    function will advance the simulation by the specified amount of
    time."
   (newtonupdate (%world-ptr world) timestep)
   world)
 
-(defun update-world-async (world &optional (timestep +1/60s0+))
+(defun world-step-async (world &optional (timestep +1/60s0+))
   "Advance the simulation by a user defined amount of time. This
    function will advance the simulation by the specified amount of
    time."
