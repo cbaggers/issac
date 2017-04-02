@@ -1,17 +1,17 @@
 (in-package :issac)
 
-(defvar points
+(defvar *points*
   (list (list (v! -100s0 0s0  100s0)
               (v! 100s0 0s0  100s0)
               (v! 100s0 0s0 -100s0)
               (v! -100s0 0s0 -100s0))))
 
 (def-callback-apply-force-and-torque apply-gravity (body)
-  (multiple-value-bind (mass) (body-mass body)
+  (let ((mass (body-mass body)))
     (setf (body-force body) (v! 0s0 (* -9.8 mass) 0s0 0s0))))
 
 (defun create-floor (world)
-  (with-geometry (geom (make-geometry-tree world points))
+  (with-geometry (geom (make-geometry-tree world *points*))
     (make-body world geom)))
 
 (defun create-ball (world)
