@@ -555,7 +555,6 @@
 ;; newtoncompoundcollisionparam
 ;; newtonfracturecompoundcollisiononemitchunk
 ;; newtonfracturecompoundcollisiononemitcompoundfractured
-;; newtononcompoundsubcollisionaabboverlap
 
 ;;------------------------------------------------------------
 
@@ -597,5 +596,4 @@
 ;; types/callbacks
 ;; newtonusermeshcollisioncontinuousoverlaptest
 ;; newtoncollisioninforecord
-;; newtoncollisioniterator
 ;; newtoncollisiontreeparam

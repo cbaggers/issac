@@ -335,11 +335,41 @@
 
 ;;------------------------------------------------------------
 
-;; newtonworldgetfirstbody
-;; newtonworldgetnextbody
+(defun %world-first-body (world)
+  (newtonworldgetfirstbody (%world-ptr world)))
 
-;; newtonworldgetfirstmaterial
-;; newtonworldgetnextmaterial
+(defun %world-next-body (world body-ptr)
+  (newtonworldgetnextbody (%world-ptr world) body-ptr))
+
+(defmacro do-world-bodys ((var-name world) &body body)
+  ;; hidden is just so the user can't fuck the process by setting
+  ;; var-name to something else
+  (with-gensyms (gworld hidden)
+    `(let* ((,gworld ,world)
+            (,hidden (%world-first-body ,gworld))
+            (,var-name ,hidden))
+       (loop :until (null-pointer-p ,hidden) :do
+          (setf ,var-name (%body-ptr->body ,hidden))
+          (progn ,@body)
+          (setf ,hidden (%world-next-body ,gworld ,hidden)
+                ,var-name ,hidden)))))
+
+(defun %world-first-material-pair (world)
+  (newtonworldgetfirstmaterial (%world-ptr world)))
+
+(defun %world-next-material-pair (world material-pair-ptr)
+  (newtonworldgetnextmaterial (%world-ptr world) material-pair-ptr))
+
+(defmacro do-world-material-pairs ((var-name world) &body body)
+  ;; hidden is just so the user can't fuck the process by setting
+  ;; var-name to something else
+  (with-gensyms (gworld hidden)
+    `(let* ((,gworld ,world)
+            (,hidden (%world-first-material-pair ,gworld)))
+       (loop :until (null-pointer-p ,hidden) :do
+          (let ((,var-name (%material-pair-ptr->material-pair ,hidden)))
+            ,@body
+            (setf ,hidden (%world-next-material-pair ,gworld ,hidden)))))))
 
 ;; newtonworldforeachjointdo
 ;; newtonworldforeachbodyinaabbdo

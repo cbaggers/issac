@@ -73,8 +73,11 @@
 
 ;;------------------------------------------------------------
 
-(defun %body-ptr->body (ptr)
-  (%body-id-to-body (pointer-address (newtonbodygetuserdata ptr))))
+(defn-inline %body-ptr->body ((ptr foreign-pointer)) body
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (%body-id-to-body
+   (pointer-address
+    (the foreign-pointer (newtonbodygetuserdata ptr)))))
 
 (defun %geom-ptr->geom (ptr)
   (%geom-id-to-geom (pointer-address (newtoncollisiongetuserdata ptr))))

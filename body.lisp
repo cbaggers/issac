@@ -313,12 +313,9 @@
       (ptr->v3 r3))))
 
 (defun body-set-force-torque-callback (body callback)
-  (%set-force-torque-callback body (cffi:get-callback callback))
-  body)
-
-(defun %set-force-torque-callback (body callback)
-  (newtonbodysetforceandtorquecallback (%body-ptr body) callback)
-  body)
+  (newtonbodysetforceandtorquecallback
+   (%body-ptr body) '%body-apply-force-and-torque-callback)
+  (setf (%body-force-torque-callback body) callback))
 
 ;;------------------------------------------------------------
 
@@ -427,7 +424,3 @@
           (progn ,@body)
           (setf ,hidden (%body-next-contact-joint ,gbody ,hidden)
                 ,var-name ,hidden)))))
-
-;; types/callbacks
-;; newtonbodydestructor
-;; newtonbodyiterator

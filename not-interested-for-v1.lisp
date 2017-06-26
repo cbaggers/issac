@@ -69,6 +69,11 @@ newtonislandgetbody
 newtonislandgetbodyaabb
 newtonislandupdate
 
+newtonusermeshcollisioncollidecallback
+newtonusermeshcollisiondestroycallback
+newtonusermeshcollisionrayhitcallback
+
+
 ||#
 
 

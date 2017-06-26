@@ -8,7 +8,8 @@
 
 (deftclass (null-geometry
             (:constructor %make-null)
-            (:include geometry)))
+            (:include geometry))
+  (iterator-callback  ))
 
 (deftclass (box-geometry
             (:constructor %make-box)
@@ -57,9 +58,18 @@
 ;;------------------------------------------------------------
 ;; NewtonBody* - newtonbody - body
 
-(deftclass (body (:constructor %make-body)
-                  (:conc-name %body-))
-  (ptr (error "") :type foreign-pointer))
+(defstruct (body (:constructor %make-body)
+                 (:conc-name %body-))
+  (ptr (error "") :type foreign-pointer)
+  (force-torque-callback
+   nil
+   :type (or null (function (body integer) t)))
+  (destructor-callback
+   nil
+   :type (or null (function (body) t)))
+  (transform-callback
+   nil
+   :type (or null (function (body rtg-math.types:mat4) t))))
 
 ;;------------------------------------------------------------
 ;; NewtonSkeletonContainer* - newtonskeletoncontainer - skeleton

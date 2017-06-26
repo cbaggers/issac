@@ -6,7 +6,8 @@
               (v! 100s0 0s0 -100s0)
               (v! -100s0 0s0 -100s0))))
 
-(def-callback-apply-force-and-torque apply-gravity (body)
+(defun apply-gravity (body timestep)
+  (declare (ignore timestep))
   (let ((mass (body-mass body)))
     (setf (body-force body) (v! 0s0 (* -9.8 mass) 0s0 0s0))))
 

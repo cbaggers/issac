@@ -42,3 +42,9 @@
   (v! (mem-aref ptr :float 0)
       (mem-aref ptr :float 1)
       (mem-aref ptr :float 2)))
+
+(defun fnum (foreign-type)
+  (let ((size (* 8 (foreign-type-size foreign-type))))
+    (ecase foreign-type
+      ((:uint :uint8 :ushort :ubyte) `(unsigned-byte ,size))
+      ((:int :int8 :short :byte) `(unsigned-byte ,size)))))

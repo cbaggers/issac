@@ -1,69 +1,103 @@
 (in-package :issac)
 
 ;;------------------------------------------------------------
-;; Kinds of callback
+;; Body
 
-(defmacro def-callback-apply-force-and-torque
-    (name (body-var &optional timestep-var) &body body)
-  (with-gensyms (%body %timestep %thread-index)
-    `(defcallback ,name :void
-         ((,%body :pointer) (,%timestep :float) (,%thread-index :int))
-       (declare (ignorable ,%timestep ,%thread-index))
-       (let ((,body-var (%body-ptr->body ,%body))
-             ,@(when timestep-var `((,timestep-var ,%timestep))))
-         ,@body))))
+(defcallback %body-apply-force-and-torque-callback
+    :void ((body-ptr :pointer) (timestep :float) (thread-index :int))
+  (let ((body (%body-ptr->body body-ptr)))
+    (funcall (%body-force-torque-callback body)
+             body
+             timestep)))
 
-;; ball
+(defcallback %body-destructor-callback :void ((body-ptr :pointer))
+  (let ((body (%body-ptr->body body-ptr)))
+    (funcall (%body-destructor-callback body) body)))
 
-;; collision-copy-construction
-;; collision-destructor
-;; collision-tree-raycast
+(defcallback %body-transform-callback
+    :void ((body-ptr :pointer) (mat4 (:pointer :float)) (thread-index :int))
+  (declare (ignore thread-index))
+  (let ((body (%body-ptr->body body-ptr)))
+    (funcall (%body-transform-callback body) body (ptr->m4 mat4))))
 
-;; corkscrew
+;;------------------------------------------------------------
 
-;; deserialize
+;; newtoncollisioniterator
+;; (void* const userData, int vertexCount, const dFloat* const faceArray, int faceId)
+;; NewtonCollisionForEachPolygonDo
+;; NewtonDeformableMeshSetDebugCallback
 
-;; fracture-compound-collision-reconstruct-main-mesh
+;;------------------------------------------------------------
 
-;; get-time-in-microsenconds
+;; ;;------------------------------------------------------------
 
-;; heightfield-raycast
+;; ;; callbacks
 
-;; hinge
+;; ;; joint - ball
+;; newtonballcallback
 
-;; on-body-deserialization
-;; on-body-serialization
+;; ;; joint - corkscrew
+;; newtoncorkscrewcallback
 
-;; on-joint-deserialization
-;; on-joint-serialization
-;; on-user-collision-serialization
+;; ;; joint - hinge
+;; newtonhingecallback
 
-;; serialize
+;; ;; joint - slider
+;; newtonslidercallback
 
-;; slider
+;; ;; joint - universal
+;; newtonuniversalcallback
 
-;; tree-collision
-;; tree-collision-face
+;; ;; joint - bilateral
 
-;; universal
+;; newtonuserbilateralcallback
+;; newtonuserbilateralgetinfocallback
 
-;; user-bilateral
-;; user-bilateral-get-info
-;; user-mesh-collision-collide
-;; user-mesh-collision-destroy
-;; user-mesh-collision-rayhit
+;; ;; world
+;; newtonbodyiterator
+;; newtoncollisioncopyconstructioncallback
+;; newtoncollisiondestructorcallback
+;; newtonworlddestroylistenercallback
+;; newtonworlddestructorcallback
+;; newtonworldlistenerbodydestroycallback
+;; newtonworldrayfiltercallback
+;; newtonworldrayprefiltercallback
+;; newtonworldupdatelistenercallback
 
-;; world-destroy-listener
-;; world-destructor
-;; world-listener-body-destroy
-;; world-ray-filter
-;; world-ray-prefilter
-;; world-update-listener
+;; ;; geometry - tree
+;; newtoncollisiontreeraycastcallback
+;; ;; (const NewtonBody* const body, const NewtonCollision* const treeCollision, dFloat intersection, dFloat* const normal, int faceId, void* const usedData)
+;; NewtonTreeCollisionSetUserRayCastCallback
 
-;; joint-iterator
-;; body-iterator
-;; collision-iterator
-;; collision-iterator
+;; newtontreecollisionfacecallback
+;; ;; (void* const context, const dFloat* const polygon, int strideInBytes, const int* const indexArray, int indexCount)
+;; ;; NewtonTreeCollisionForEachFace
 
-;; body-destructor
-;; set-transform
+;; newtontreecollisioncallback
+;; ;; (const NewtonBody* const bodyWithTreeCollision, const NewtonBody* const body, int faceID, int vertexCount, const dFloat* const vertex, int vertexStrideInByte)
+;; ;; NewtonStaticCollisionSetDebugCallback
+
+;; ;; geometry - fracturedcompound
+;; newtonfracturecompoundcollisionreconstructmainmeshcallback
+
+;; ;; geometry - height-field
+;; newtonheightfieldraycastcallback
+
+;; ;; material
+;; newtononaabboverlap
+;; newtononcompoundsubcollisionaabboverlap
+
+
+;; ;; Notes on user data & ids
+;; ;;
+;; ;; newtonbodysetuserdata
+;; ;;
+;; ;; newtoncollisionsetuserid
+;; ;; newtoncollisiondatapointer
+;; ;;
+;; ;; newtonmaterialsetcallbackuserdata
+;; ;;
+;; ;; newtonworldsetuserdata
+;; ;; newtonjointsetuserdata
+;; ;;
+;; ;; body world joint collision

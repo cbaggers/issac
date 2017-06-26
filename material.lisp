@@ -254,7 +254,3 @@
      (%material-pair-ptr material-pair)
      n3))
   vec3)
-
-
-;; type/callback
-;; newtononaabboverlap
