@@ -3,18 +3,19 @@
 ;;------------------------------------------------------------
 ;; Body
 
-(defcallback %body-apply-force-and-torque-callback
+(defcallback %body-apply-force-and-torque
     :void ((body-ptr :pointer) (timestep :float) (thread-index :int))
+  (declare (ignore thread-index))
   (let ((body (%body-ptr->body body-ptr)))
     (funcall (%body-force-torque-callback body)
              body
              timestep)))
 
-(defcallback %body-destructor-callback :void ((body-ptr :pointer))
+(defcallback %body-destructor :void ((body-ptr :pointer))
   (let ((body (%body-ptr->body body-ptr)))
     (funcall (%body-destructor-callback body) body)))
 
-(defcallback %body-transform-callback
+(defcallback %body-transform
     :void ((body-ptr :pointer) (mat4 (:pointer :float)) (thread-index :int))
   (declare (ignore thread-index))
   (let ((body (%body-ptr->body body-ptr)))

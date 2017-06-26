@@ -33,6 +33,13 @@
 (defun free-body (body)
   (newtondestroybody (%body-ptr body)))
 
+(defun body-destructor-callback (body)
+  (%body-destructor-callback body))
+
+(defun (setf body-destructor-callback) (callback body)
+  (newtonbodysetdestructorcallback (%body-ptr body) '%body-destructor)
+  (setf (%body-destructor-callback body) callback))
+
 ;;------------------------------------------------------------
 
 (defun body-id (body)
@@ -174,6 +181,13 @@
     (newtonbodysetmatrix (%body-ptr body) m4)
     mat4))
 
+(defun body-transform-callback (body)
+  (%body-transform-callback body))
+
+(defun (setf body-transform-callback) (callback body)
+  (newtonbodysettransformcallback (%body-ptr body) '%body-transform)
+  (setf (%body-transform-callback body) callback))
+
 ;;------------------------------------------------------------
 
 (defun body-angular-velocity (body)
@@ -312,9 +326,12 @@
        (%body-ptr body) (float timestep) dv3 r3)
       (ptr->v3 r3))))
 
-(defun body-set-force-torque-callback (body callback)
+(defun body-force-torque-callback (body)
+  (%body-force-torque-callback body))
+
+(defun (setf body-force-torque-callback) (callback body)
   (newtonbodysetforceandtorquecallback
-   (%body-ptr body) '%body-apply-force-and-torque-callback)
+   (%body-ptr body) '%body-apply-force-and-torque)
   (setf (%body-force-torque-callback body) callback))
 
 ;;------------------------------------------------------------
