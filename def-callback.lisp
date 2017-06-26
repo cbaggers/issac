@@ -29,41 +29,150 @@
 ;; NewtonDeformableMeshSetDebugCallback
 
 ;;------------------------------------------------------------
-
-;; ;;------------------------------------------------------------
-
-;; ;; callbacks
-
-;; ;; joint - ball
 ;; newtonballcallback
 
-;; ;; joint - corkscrew
+(defcallback %ball-cb :void ((joint-ptr :pointer))
+  (let ((joint (%joint-ptr->joint joint-ptr)))
+    (funcall (%ball-&-socket-callback joint) joint)))
+
+;;------------------------------------------------------------
 ;; newtoncorkscrewcallback
 
-;; ;; joint - hinge
-;; newtonhingecallback
+(defcallback %corkscrew-cb :void
+    ((joint-ptr :pointer)
+     (data (:pointer NewtonHingeSliderUpdateDesc)))
+  (with-foreign-slots ((m-accel m-minFriction m-maxFriction m-timestep)
+                       data NewtonHingeSliderUpdateDesc)
+    (let ((joint (%joint-ptr->joint joint-ptr)))
+      (funcall (%corkscrew-callback joint)
+               joint m-accel m-maxFriction m-maxFriction m-timestep))))
 
-;; ;; joint - slider
+;;------------------------------------------------------------
 ;; newtonslidercallback
 
-;; ;; joint - universal
+(defcallback %slider-cb :void
+    ((joint-ptr :pointer)
+     (data (:pointer NewtonHingeSliderUpdateDesc)))
+  (with-foreign-slots ((m-accel m-minFriction m-maxFriction m-timestep)
+                       data NewtonHingeSliderUpdateDesc)
+    (let ((joint (%joint-ptr->joint joint-ptr)))
+      (funcall (%slider-callback joint)
+               joint m-accel m-maxFriction m-maxFriction m-timestep))))
+
+;;------------------------------------------------------------
 ;; newtonuniversalcallback
 
-;; ;; joint - bilateral
+(defcallback %universal-cb :void
+    ((joint-ptr :pointer)
+     (data (:pointer NewtonHingeSliderUpdateDesc)))
+  (with-foreign-slots ((m-accel m-minFriction m-maxFriction m-timestep)
+                       data NewtonHingeSliderUpdateDesc)
+    (let ((joint (%joint-ptr->joint joint-ptr)))
+      (funcall (%universal-callback joint)
+               joint m-accel m-maxFriction m-maxFriction m-timestep))))
 
+;;------------------------------------------------------------
+;; newtonhingecallback
+
+(defcallback %hinge-cb :void
+    ((joint-ptr :pointer)
+     (data (:pointer NewtonHingeSliderUpdateDesc)))
+  (with-foreign-slots ((m-accel m-minFriction m-maxFriction m-timestep)
+                       data NewtonHingeSliderUpdateDesc)
+    (let ((joint (%joint-ptr->joint joint-ptr)))
+      (funcall (%hinge-callback joint)
+               joint m-accel m-maxFriction m-maxFriction m-timestep))))
+
+;;------------------------------------------------------------
 ;; newtonuserbilateralcallback
-;; newtonuserbilateralgetinfocallback
 
-;; ;; world
+(defcallback %bilateral-cb
+    :void ((joint-ptr :pointer) (timestep :float) (thread-index :int))
+  (declare (ignore thread-index))
+  (let ((joint (%joint-ptr->body joint-ptr)))
+    (funcall (%bilateral-callback joint)
+             joint
+             timestep)))
+
+;; newtonuserbilateralgetinfocallback
+(defcallback %bilateral-info-cb :void
+    ((joint-ptr :pointer) (data (:pointer NewtonJointRecord)))
+  (with-foreign-slots ((m-attachmenmatrix-0
+                        m-attachmenmatrix-1
+                        m-minlineardof
+                        m-maxlineardof
+                        m-minangulardof
+                        m-maxangulardof
+                        m-attachbody-0
+                        m-attachbody-1
+                        m-extraparameters
+                        m-bodiescollisionon
+                        m-descriptiontype)
+                       data NewtonJointRecord)
+    (let ((joint (%joint-ptr->joint joint-ptr)))
+      (funcall (%hinge-callback joint)
+               joint
+               (ptr->m4 m-attachbody-0)
+               (ptr->m4 m-attachbody-1)
+               (ptr->v3 m-minlineardof)
+               (ptr->v3 m-maxlineardof)
+               (ptr->v3 m-minangulardof)
+               (ptr->v3 m-maxangulardof)
+               (%body-ptr->body m-attachbody-0)
+               (%body-ptr->body m-attachbody-1)
+               (foreign-array-to-lisp m-extraparameters '(:array :float 64))
+               m-bodiescollisionon
+               (foreign-string-to-lisp m-descriptiontype :count 128)))))
+
+;;------------------------------------------------------------
+;; world
+
 ;; newtonbodyiterator
+;; we use the userdata to store the world-id
+(defcallback %body-iterator-cb :int ((body-ptr :pointer) (user-data :pointer))
+  (let ((body (%body-ptr->body body-ptr))
+        (world (%world-by-id (pointer-address user-data))))
+    (funcall (%world-body-iterator-callback world) body)))
+
 ;; newtoncollisioncopyconstructioncallback
+(defcallback %geom-copy-construction-cb :void ((world-ptr :pointer)
+                                               (geom :pointer)
+                                               (src-geom :pointer))
+  (let ((world (%world-from-world-ptr world-ptr))
+        (geometry (%geom-ptr->geom geom))
+        (src-geometry (%geom-ptr->geom src-geom)))
+    (format t "{TODO} geometry copy construction ~s ~s ~s"
+            world geometry src-geometry)))
+
 ;; newtoncollisiondestructorcallback
+(defcallback %geom-copy-destruction-cb :void ((world-ptr :pointer)
+                                              (geom :pointer))
+  (let ((world (%world-from-world-ptr world-ptr))
+        (geometry (%geom-ptr->geom geom)))
+    (format t "{TODO} geometry destruction ~s ~s"
+            world geometry)))
+
+
 ;; newtonworlddestroylistenercallback
+(defcallback %world-destroy-listener-cb :void ((world-ptr :pointer)
+                                               (user-data :pointer))
+  (let ((world (%world-from-world-ptr world-ptr)))
+    (format t "{TODO} geometry destruction ~s ~s"
+            world user-data)))
+
 ;; newtonworlddestructorcallback
+(defcallback %world-destructor-cb :void ((world-ptr :pointer))
+  (let ((world (%world-from-world-ptr world-ptr)))
+    (format t "{TODO} geometry destruction ~s ~s"
+            world user-data)))
+
 ;; newtonworldlistenerbodydestroycallback
 ;; newtonworldrayfiltercallback
 ;; newtonworldrayprefiltercallback
 ;; newtonworldupdatelistenercallback
+
+;; ;;------------------------------------------------------------
+;; ;; callbacks
 
 ;; ;; geometry - tree
 ;; newtoncollisiontreeraycastcallback
@@ -87,18 +196,3 @@
 ;; ;; material
 ;; newtononaabboverlap
 ;; newtononcompoundsubcollisionaabboverlap
-
-
-;; ;; Notes on user data & ids
-;; ;;
-;; ;; newtonbodysetuserdata
-;; ;;
-;; ;; newtoncollisionsetuserid
-;; ;; newtoncollisiondatapointer
-;; ;;
-;; ;; newtonmaterialsetcallbackuserdata
-;; ;;
-;; ;; newtonworldsetuserdata
-;; ;; newtonjointsetuserdata
-;; ;;
-;; ;; body world joint collision

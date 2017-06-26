@@ -29,7 +29,7 @@
 
 ;;------------------------------------------------------------
 
-(declaim (type (array world (*)) *worlds**))
+(declaim (type (array world (*)) *worlds*))
 (defvar *worlds*
   (make-array 0 :element-type 'world :fill-pointer 0 :adjustable t
               :initial-element *null-world*))
@@ -46,6 +46,10 @@
 (defvar *material-pairs*
   (make-array 0 :element-type 'geometry :fill-pointer 0 :adjustable t))
 
+(declaim (type (array joint (*)) *joints*))
+(defvar *joints*
+  (make-array 0 :element-type 'joint :fill-pointer 0 :adjustable t))
+
 ;;------------------------------------------------------------
 
 (defun %add-body-to-system (body)
@@ -60,6 +64,10 @@
   ;; returns the new index
   (vector-push-extend geom *geometry*))
 
+(defun %add-joint-to-system (joint)
+  ;; returns the new index
+  (vector-push-extend joint *joints*))
+
 ;;------------------------------------------------------------
 
 (defun %body-id-to-body (body-id)
@@ -70,6 +78,9 @@
 
 (defun %material-pair-id-to-material-pair (material-pair-id)
   (aref *material-pairs* material-pair-id))
+
+(defun %joint-id-to-joint (joint-id)
+  (aref *joints* joint-id))
 
 ;;------------------------------------------------------------
 
@@ -86,5 +97,8 @@
   (%material-pair-id-to-material-pair
    (pointer-address
     (NewtonMaterialGetMaterialPairUserData ptr))))
+
+(defun %joint-ptr->joint (ptr)
+  (%joint-id-to-joint (pointer-address (newtonjointgetuserdata ptr))))
 
 ;;------------------------------------------------------------
