@@ -19,7 +19,7 @@
   (with-geometry (geom (make-sphere-geometry world :radius 1s0))
     (let ((body (make-body world geom :linear-damping 0s0
                            :mass 1s0)))
-      (body-set-force-torque-callback body 'apply-gravity)
+      (setf (body-force-torque-callback body) #'apply-gravity)
       (setf (body-matrix4 body) (m4:translation (v! 0 40 -10)))
       body)))
 
