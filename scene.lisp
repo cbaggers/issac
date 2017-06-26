@@ -1,3 +1,0 @@
-
-;; newtonscenecollisionbeginaddremove
-;; newtonscenecollisionendaddremove

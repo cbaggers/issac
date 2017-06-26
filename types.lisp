@@ -62,6 +62,13 @@
   (ptr (error "") :type foreign-pointer))
 
 ;;------------------------------------------------------------
+;; NewtonSkeletonContainer* - newtonskeletoncontainer - skeleton
+
+(deftclass (skeleton (:constructor %make-skeleton)
+                  (:conc-name %skeleton-))
+  (ptr (error "") :type foreign-pointer))
+
+;;------------------------------------------------------------
 
 (deftclass (mesh (:constructor %make-mesh)
                      (:conc-name %mesh-))

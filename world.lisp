@@ -335,24 +335,14 @@
 
 ;;------------------------------------------------------------
 
-;; newtonworldgetnextbody
 ;; newtonworldgetfirstbody
-;; newtonworldforeachjointdo
-;; newtonworldforeachbodyinaabbdo
+;; newtonworldgetnextbody
+
 ;; newtonworldgetfirstmaterial
 ;; newtonworldgetnextmaterial
 
-;;------------------------------------------------------------
-
-;; newtongetjointserializationcallbacks
-;; newtonsetjointserializationcallbacks
-
-;;------------------------------------------------------------
-
-;; newtonworldcriticalsectionlock
-;; newtonworldcriticalsectionunlock
-;; newtonatomicadd
-;; newtonatomicswap
+;; newtonworldforeachjointdo
+;; newtonworldforeachbodyinaabbdo
 
 ;;------------------------------------------------------------
 
@@ -362,15 +352,16 @@
 ;;------------------------------------------------------------
 
 ;; newtonworldsetcollisionconstructordestructorcallback
-;; newtonworldlistenergetbodydestroycallback
 
 ;;------------------------------------------------------------
 
-;; newtonworldaddpostlistener
-;; newtonworldaddprelistener
-;; newtonworldgetlisteneruserdata
-;; newtonworldgetpostlistener
 ;; newtonworldgetprelistener
+;; newtonworldgetpostlistener
+
+;; newtonworldaddprelistener
+;; newtonworldaddpostlistener
+
+;; newtonworldgetlisteneruserdata
 
 ;; newtonworldlistenersetbodydestroycallback
 ;; newtonworldlistenergetbodydestroycallback

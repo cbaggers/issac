@@ -401,7 +401,7 @@
   ;; var-name to something else
   (with-gensyms (gscene hidden)
     `(let* ((,gscene ,scene)
-            (,hidden (%scene-first-contact ,gscene))
+            (,hidden (%scene-first-node ,gscene))
             (,var-name ,hidden))
        (loop :until (null-pointer-p ,hidden) :do
           (setf ,var-name ,hidden)
@@ -513,7 +513,7 @@
   ;; var-name to something else
   (with-gensyms (gcompound hidden)
     `(let* ((,gcompound ,compound)
-            (,hidden (%compound-first-contact ,gcompound))
+            (,hidden (%compound-first-node ,gcompound))
             (,var-name ,hidden))
        (loop :until (null-pointer-p ,hidden) :do
           (setf ,var-name ,hidden)

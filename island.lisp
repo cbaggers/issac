@@ -1,9 +1,0 @@
-;;
-;; ISLANDS (v.low priority)
-
-newtongetmultithreadsolveronsingleisland
-newtonsetmultithreadsolveronsingleisland
-newtonsetislandupdateevent
-newtonislandgetbody
-newtonislandgetbodyaabb
-newtonislandupdate

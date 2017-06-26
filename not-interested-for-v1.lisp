@@ -3,6 +3,11 @@
 newtongeteulerangle
 newtonseteulerangle
 
+newtonworldcriticalsectionlock
+newtonworldcriticalsectionunlock
+newtonatomicadd
+newtonatomicswap
+
 newtondeserializecallback
 newtononbodydeserializationcallback
 newtononbodyserializationcallback
@@ -11,6 +16,9 @@ newtononjointserializationcallback
 newtoncreatecollisionfromserialization
 newtoncollisionserialize
 newtononusercollisionserializationcallback
+newtongetjointserializationcallbacks
+newtonsetjointserializationcallbacks
+
 newtonserializecallback
 
 (defstruct ll-collision
@@ -53,6 +61,14 @@ newtonserializecallback
      )))
 
 (newtoncreateusermeshcollision)
+
+newtongetmultithreadsolveronsingleisland
+newtonsetmultithreadsolveronsingleisland
+newtonsetislandupdateevent
+newtonislandgetbody
+newtonislandgetbodyaabb
+newtonislandupdate
+
 ||#
 
 

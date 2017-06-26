@@ -79,8 +79,12 @@
   (with-foreign-array (v3 torque-vec3 '(:array :float 3))
     (newtonbodyaddtorque (%body-ptr body) v3)))
 
-;; newtonbodyapplyimpulsearray
-;; newtonbodyapplyimpulsepair
+(defun body-apply-impulse-pair (body linear-impulse3 angular-impulse3)
+  (with-foreign-array (l3 linear-impulse3 '(:array :float 3))
+    (with-foreign-array (a3 angular-impulse3 '(:array :float 3))
+      (newtonbodyapplyimpulsepair (%body-ptr body) l3 a3))))
+
+;;newtonbodyapplyimpulsearray
 
 ;;------------------------------------------------------------
 
@@ -324,6 +328,18 @@
 (defun (setf body-sleeping-p) (value body)
   (newtonbodysetsleepstate (%body-ptr body) (if value 1 0)))
 
+(defun body-set-velocity-no-sleep (body vec3)
+  (with-foreign-array (v3 vec3 '(:array :float 3))
+    (newtonbodysetvelocitynosleep (%body-ptr body) v3)))
+
+(defun body-set-matrix-no-sleep (body mat4)
+  (with-foreign-array (m4 mat4 '(:array :float 16))
+    (newtonbodysetmatrixnosleep (%body-ptr body) m4)))
+
+(defun body-set-omega-no-sleep (body vec3)
+  (with-foreign-array (v3 vec3 '(:array :float 3))
+    (newtonbodysetomeganosleep (%body-ptr body) v3)))
+
 ;;------------------------------------------------------------
 
 (defun body-rotation (body)
@@ -339,27 +355,79 @@
 
 ;;------------------------------------------------------------
 
-;; newtonbodygetaabb
+(defun body-aabb (body)
+  (with-foreign-objects ((p0 :float 3)
+                         (p1 :float 3))
+    (newtonbodygetaabb (%body-ptr body) p0 p1)
+    (values (ptr->v3 p0) (ptr->v3 p1))))
 
 ;;------------------------------------------------------------
 
+(defun body-simulation-state (body)
+  ;; {TODO} what does state mean
+  (newtonbodygetsimulationstate (%body-ptr body)))
 
+(defun (setf body-simulation-state) (state body)
+  ;; {TODO} what does state mean
+  (newtonbodysetsimulationstate (%body-ptr body) state))
 
+(defun body-get-skeleton ()
+  ;; {TODO} how are we meant to handle skeletons?
+  (newtonbodygetskeleton (%body-ptr body)))
 
-;; newtonbodygetsimulationstate
-;; newtonbodygetskeleton
+(defun body-set-matrix-recursive (body mat4)
+  (with-foreign-array (m4 mat4 '(:array :float 16))
+    (newtonbodysetmatrixrecursive (%body-ptr body) m4)))
 
-;; newtonbodysetvelocitynosleep
-;; newtonbodysetmatrixnosleep
-;; newtonbodysetomeganosleep
-;; newtonbodysetmatrixrecursive
-;; newtonbodysetsimulationstate
-;; newtonbodysetcollisionscale
+(defun body-set-collision-scale (body scale3)
+  (newtonbodysetcollisionscale body (v:x scale3) (v:y scale3) (v:z scale3)))
 
+(defun %body-first-joint (body)
+  ;; {TODO} need an index of joints
+  (newtonbodygetfirstjoint (%body-ptr body)))
+
+(defun %body-next-joint (body joint)
+  ;; {TODO} need an index of joints
+  (newtonbodygetnextjoint
+   (%body-ptr body)
+   joint))
+
+(defmacro do-body-joints ((var-name body-obj) &body body)
+  ;; hidden is just so the user can't fuck the process by setting
+  ;; var-name to something else
+  (with-gensyms (gbody hidden)
+    `(let* ((,gbody ,body-obj)
+            (,hidden (%body-first-joint ,gbody))
+            (,var-name ,hidden))
+       (loop :until (null-pointer-p ,hidden) :do
+          (setf ,var-name ,hidden)
+          (progn ,@body)
+          (setf ,hidden (%body-next-joint ,gbody ,hidden)
+                ,var-name ,hidden)))))
+
+(defun %body-first-contact-joint (body)
+  ;; {TODO} need an index of contact-joints
+  (newtonbodygetfirstcontactjoint (%body-ptr body)))
+
+(defun %body-next-contact-joint (body contact-joint)
+  ;; {TODO} need an index of contact-joints
+  (newtonbodygetnextcontactjoint
+   (%body-ptr body)
+   contact-joint))
+
+(defmacro do-body-contact-joints ((var-name body-obj) &body body)
+  ;; hidden is just so the user can't fuck the process by setting
+  ;; var-name to something else
+  (with-gensyms (gbody hidden)
+    `(let* ((,gbody ,body-obj)
+            (,hidden (%body-first-contact-joint ,gbody))
+            (,var-name ,hidden))
+       (loop :until (null-pointer-p ,hidden) :do
+          (setf ,var-name ,hidden)
+          (progn ,@body)
+          (setf ,hidden (%body-next-contact-joint ,gbody ,hidden)
+                ,var-name ,hidden)))))
+
+;; types/callbacks
 ;; newtonbodydestructor
-
-;; newtonbodygetfirstjoint
-;; newtonbodygetnextjoint
-;; newtonbodygetnextcontactjoint
-
 ;; newtonbodyiterator
