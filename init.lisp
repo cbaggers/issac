@@ -1,17 +1,17 @@
 (in-package :issac)
 
+(defvar *initialized* nil)
+
 (defun %init ()
   (if *initialized*
       (progn
         (warn "Issac is already initialized")
         nil)
       (progn
-        ;;(dinitode2 0)
         (setf *initialized* t))))
 
 (defun %uninit ()
   (when *initialized*
-    ;;(dcloseode)
     (setf *initialized* nil)
     t))
 
@@ -24,7 +24,3 @@
   (when (%uninit)
     ;;(reset-worlds)
     ))
-
-(defmacro with-ode-initialized (&body body)
-  `(unwind-protect (progn (init) ,@body)
-     (uninit)))

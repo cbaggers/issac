@@ -45,9 +45,11 @@
 ;;------------------------------------------------------------
 
 (defun %add-body-to-system (body)
+  ;; returns the new index
   (vector-push-extend body *bodies*))
 
 (defun %add-geom-to-system (geom)
+  ;; returns the new index
   (vector-push-extend geom *geometry*))
 
 (defun %body-id-to-body (body-id)

@@ -10,7 +10,6 @@
                #:cffi #:uiop #:structy-defclass #:rtg-math
                #:fn)
   :components ((:file "package")
-               (:file "extra-bindings")
                (:file "cffi-helpers")
                (:file "types")
                (:file "system")
