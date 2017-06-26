@@ -38,7 +38,7 @@
 ;;------------------------------------------------------------
 ;; newtoncorkscrewcallback
 
-(defcallback %corkscrew-cb :void
+(defcallback %corkscrew-cb :uint
     ((joint-ptr :pointer)
      (data (:pointer NewtonHingeSliderUpdateDesc)))
   (with-foreign-slots ((m-accel m-minFriction m-maxFriction m-timestep)
@@ -50,7 +50,7 @@
 ;;------------------------------------------------------------
 ;; newtonslidercallback
 
-(defcallback %slider-cb :void
+(defcallback %slider-cb :uint
     ((joint-ptr :pointer)
      (data (:pointer NewtonHingeSliderUpdateDesc)))
   (with-foreign-slots ((m-accel m-minFriction m-maxFriction m-timestep)
@@ -62,7 +62,7 @@
 ;;------------------------------------------------------------
 ;; newtonuniversalcallback
 
-(defcallback %universal-cb :void
+(defcallback %universal-cb :uint
     ((joint-ptr :pointer)
      (data (:pointer NewtonHingeSliderUpdateDesc)))
   (with-foreign-slots ((m-accel m-minFriction m-maxFriction m-timestep)
@@ -74,7 +74,7 @@
 ;;------------------------------------------------------------
 ;; newtonhingecallback
 
-(defcallback %hinge-cb :void
+(defcallback %hinge-cb :uint
     ((joint-ptr :pointer)
      (data (:pointer NewtonHingeSliderUpdateDesc)))
   (with-foreign-slots ((m-accel m-minFriction m-maxFriction m-timestep)
@@ -205,13 +205,13 @@
              intersect-param)))
 
 ;; newtonworldrayprefiltercallback
-(defcallback %world-ray-prefilter-cb :float ((body-ptr :pointer)
-                                             (geom-ptr :pointer)
-                                             (user-data :pointer))
+(defcallback %world-ray-prefilter-cb :uint ((body-ptr :pointer)
+                                            (geom-ptr :pointer)
+                                            (user-data :pointer))
   (let ((world (%world-by-id (pointer-address user-data)))
         (body (%body-ptr->body body-ptr))
         (shape-hit (%geom-ptr->geom geom-ptr)))
-    (funcall (%world-ray-filter-callback world) body shape-hit)))
+    (funcall (%world-ray-prefilter-callback world) body shape-hit)))
 
 ;; newtonworldupdatelistenercallback
 (defcallback %world-update-listener-cb :void ((world-ptr :pointer)
@@ -287,11 +287,11 @@
 
 ;; newtontreecollisioncallback
 
-(defcallback %geom-tree-face-cb :float ((tree-ptr :pointer)
-                                        (body-ptr :pointer)
-                                        (face-id :int)
-                                        (vertex-count :int)
-                                        (vertex-arr :pointer)
+(defcallback %geom-tree-face-cb :void ((tree-ptr :pointer)
+                                       (body-ptr :pointer)
+                                       (face-id :int)
+                                       (vertex-count :int)
+                                       (vertex-arr :pointer)
                                         (stride-in-bytes :int))
   (let ((tree (%geom-ptr->geom tree-ptr))
         (body (%body-ptr->body body-ptr))
@@ -339,7 +339,7 @@
 ;; material
 
 ;; newtononaabboverlap
-(defcallback %geom-height-field-raycat-cb :float
+(defcallback %geom-height-field-raycat-cb :int
     ((material-ptr :pointer)
      (body0-ptr :pointer)
      (body1-ptr :pointer)
