@@ -89,7 +89,7 @@
 (defcallback %bilateral-cb
     :void ((joint-ptr :pointer) (timestep :float) (thread-index :int))
   (declare (ignore thread-index))
-  (let ((joint (%joint-ptr->body joint-ptr)))
+  (let ((joint (%joint-ptr->joint joint-ptr)))
     (funcall (%bilateral-callback joint)
              joint
              timestep)))
@@ -163,13 +163,58 @@
 ;; newtonworlddestructorcallback
 (defcallback %world-destructor-cb :void ((world-ptr :pointer))
   (let ((world (%world-from-world-ptr world-ptr)))
-    (format t "{TODO} geometry destruction ~s ~s"
-            world user-data)))
+    (format t "{TODO} world destruction ~s" world)))
 
 ;; newtonworldlistenerbodydestroycallback
+(defcallback %world-destroy-listener-cb :void ((world-ptr :pointer)
+                                               (user-data :pointer)
+                                               (body-ptr :pointer))
+  (let ((world (%world-from-world-ptr world-ptr))
+        (body (%body-ptr->body body-ptr)))
+    (format t "{TODO} listener body destruction ~s ~s ~s"
+            world user-data body)))
+
+
 ;; newtonworldrayfiltercallback
+;; we use the userdata to store the world-id
+(defcallback %world-ray-filter-cb :float ((body-ptr :pointer)
+                                          (geom-ptr :pointer)
+                                          (hit-contact :pointer)
+                                          (hit-normal :pointer)
+                                          (collision-id :long)
+                                          (user-data :pointer)
+                                          (intersect-param :float))
+  (let ((world (%world-by-id (pointer-address user-data)))
+        (body (%body-ptr->body body-ptr))
+        (shape-hit (%geom-ptr->geom geom-ptr))
+        (hit-contact (ptr->v3 hit-contact))
+        (hit-normal (ptr->v3 hit-normal)))
+    (funcall (%world-ray-filter-callback world)
+             body
+             shape-hit
+             hit-contact
+             hit-normal
+             collision-id
+             intersect-param)))
+
 ;; newtonworldrayprefiltercallback
+(defcallback %world-ray-prefilter-cb :float ((body-ptr :pointer)
+                                             (geom-ptr :pointer)
+                                             (user-data :pointer))
+  (let ((world (%world-by-id (pointer-address user-data)))
+        (body (%body-ptr->body body-ptr))
+        (shape-hit (%geom-ptr->geom geom-ptr)))
+    (funcall (%world-ray-filter-callback world) body shape-hit)))
+
 ;; newtonworldupdatelistenercallback
+(defcallback %world-update-listener-cb :void ((world-ptr :pointer)
+                                                 (listener-user-data :pointer)
+                                                 (timestep :float))
+  (let ((world (%world-from-world-ptr world-ptr)))
+    (funcall (%world-update-listener-callback world)
+             world
+             listener-user-data
+             timestep)))
 
 ;; ;;------------------------------------------------------------
 ;; ;; callbacks

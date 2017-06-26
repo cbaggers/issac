@@ -194,7 +194,21 @@
   (friction-model (error "") :type keyword)
   (min-frame-rate 60 :type (unsigned-byte 16))
   (body-iterator-callback
-   nil :type (or null (function (body) t))))
+   nil :type (or null (function (body) t)))
+  (ray-filter-callback
+   nil :type (or null (function (body
+                                 geometry
+                                 rtg-math.types:vec3
+                                 rtg-math.types:vec3
+                                 (signed-byte 64)
+                                 single-float)
+                                single-float)))
+  (ray-prefilter-callback
+   nil :type (or null (function (body geometry)
+                                integer)))
+  (update-listener-callback
+   nil :type (or null (function (world foreign-pointer single-float)
+                                t))))
 
 (defvar *null-world*
   (%make-world :ptr (null-pointer)

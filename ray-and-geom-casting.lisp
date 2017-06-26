@@ -12,10 +12,7 @@
 
 ;;------------------------------------------------------------
 
-(defun world-ray-cast (world point-v3-a point-v3-b &optional (style :all))
-  )
-
-(defun %world-ray-cast (world point-v3-a point-v3-b filter user-data prefilter thread-index)
+(defun world-ray-cast (world point-a-v3 point-b-v3 filter &optional prefilter)
   "Shoot ray from point p0 to p1 and trigger callback for each body on
   that line. The ray cast function will trigger the callback for every
   intersection between the line segment (from p0 to p1) and a body in
@@ -53,11 +50,28 @@
   pairs in much, much less that the 1000 times the cost of one
   pair. Therefore this function must be used with care, as excessive use
   of it can degrade performance."
-  (newtonworldraycast (%world-ptr world) ))
+  ;; {TODO} handle the thread index
+  (assert filter)
+  (with-foreign-array (p0 point-a-v3 '(:array :float 3))
+    (with-foreign-array (p1 point-b-v3 '(:array :float 3))
+      (setf (%world-ray-filter-callback world) filter)
+      (when prefilter
+        (setf (%world-ray-prefilter-callback world) prefilter))
+      (unwind-protect
+           (newtonworldraycast (%world-ptr world)
+                               p0
+                               p1
+                               '%world-ray-filter-cb
+                               (%world-ptr world)
+                               (if prefilter
+                                   '%world-ray-prefilter-cb
+                                   (null-pointer))
+                               0)
+        (setf (%world-ray-filter-callback world) nil)
+        (setf (%world-ray-prefilter-callback world) nil)))))
 
 
 
 ;; newtoncollisionraycast
-
 ;; newtonworldconvexcast
 ;; newtonworldconvexcastreturninfo
