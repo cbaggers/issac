@@ -2,56 +2,56 @@
 
 ;;------------------------------------------------------------
 
-(deftclass (geometry (:constructor %make-geometry)
+(defstruct (geometry (:constructor %make-geometry)
                      (:conc-name %geometry-))
   (ptr (error "") :type foreign-pointer))
 
-(deftclass (null-geometry
+(defstruct (null-geometry
             (:constructor %make-null)
             (:include geometry))
   (iterator-callback  ))
 
-(deftclass (box-geometry
+(defstruct (box-geometry
             (:constructor %make-box)
             (:include geometry)))
 
-(deftclass (sphere-geometry
+(defstruct (sphere-geometry
             (:constructor %make-sphere)
             (:include geometry)))
 
-(deftclass (cone-geometry
+(defstruct (cone-geometry
             (:constructor %make-cone)
             (:include geometry)))
 
-(deftclass (capsule-geometry
+(defstruct (capsule-geometry
             (:constructor %make-capsule)
             (:include geometry)))
 
-(deftclass (cylinder-geometry
+(defstruct (cylinder-geometry
             (:constructor %make-cylinder)
             (:include geometry)))
 
-(deftclass (chamfer-cylinder-geometry
+(defstruct (chamfer-cylinder-geometry
             (:constructor %make-chamfer-cylinder)
             (:include geometry)))
 
-(deftclass (convex-hull-geometry
+(defstruct (convex-hull-geometry
             (:constructor %make-convex-hull-geometry)
             (:include geometry)))
 
-(deftclass (geometry-tree
+(defstruct (geometry-tree
             (:constructor %make-geometry-tree)
             (:include geometry)))
 
-(deftclass (compound-geometry
+(defstruct (compound-geometry
             (:constructor %make-compound-geometry)
             (:include geometry)))
 
-(deftclass (height-field-geometry
+(defstruct (height-field-geometry
             (:constructor %make-height-field)
             (:include geometry)))
 
-(deftclass (scene-geometry
+(defstruct (scene-geometry
             (:constructor %make-scene)
             (:include geometry)))
 
@@ -74,42 +74,42 @@
 ;;------------------------------------------------------------
 ;; NewtonSkeletonContainer* - newtonskeletoncontainer - skeleton
 
-(deftclass (skeleton (:constructor %make-skeleton)
+(defstruct (skeleton (:constructor %make-skeleton)
                   (:conc-name %skeleton-))
   (ptr (error "") :type foreign-pointer))
 
 ;;------------------------------------------------------------
 
-(deftclass (mesh (:constructor %make-mesh)
+(defstruct (mesh (:constructor %make-mesh)
                      (:conc-name %mesh-))
   (ptr (error "") :type foreign-pointer))
 
 ;;------------------------------------------------------------
 
-(deftclass (joint (:constructor %make-joint)
+(defstruct (joint (:constructor %make-joint)
                   (:conc-name %joint-))
   (ptr (error "") :type foreign-pointer))
 
-(deftclass (ball-&-socket (:constructor %make-ball-&-socket) (:include joint)))
+(defstruct (ball-&-socket (:constructor %make-ball-&-socket) (:include joint)))
 
-(deftclass (corkscrew (:constructor %make-corkscrew) (:include joint)))
+(defstruct (corkscrew (:constructor %make-corkscrew) (:include joint)))
 
-(deftclass (hinge (:constructor %make-hinge) (:include joint)))
+(defstruct (hinge (:constructor %make-hinge) (:include joint)))
 
-(deftclass (slider (:constructor %make-slider) (:include joint)))
+(defstruct (slider (:constructor %make-slider) (:include joint)))
 
-(deftclass (universal-joint (:constructor %make-universal-joint)
+(defstruct (universal-joint (:constructor %make-universal-joint)
                             (:include joint)))
 
-(deftclass (up-vector (:constructor %make-up-vector) (:include joint)))
+(defstruct (up-vector (:constructor %make-up-vector) (:include joint)))
 
 ;; An advanced feature we dont need yet
-;; (deftclass (bilateral-joint (:constructor %make-bilateral-joint)
+;; (defstruct (bilateral-joint (:constructor %make-bilateral-joint)
 ;;                             (:include joint)))
 
 ;;------------------------------------------------------------
 
-(deftclass (material-pair (:constructor %make-material-pair)
+(defstruct (material-pair (:constructor %make-material-pair)
                      (:conc-name %material-pair-))
   (ptr (error "") :type foreign-pointer))
 
@@ -121,7 +121,7 @@
 (defun gen-world-id ()
   (incf *world-id*))
 
-(deftclass (world (:constructor %make-world)
+(defstruct (world (:constructor %make-world)
                   (:conc-name %world-))
   (ptr (error "") :type foreign-pointer)
   (id (gen-world-id) :type (unsigned-byte 16))
