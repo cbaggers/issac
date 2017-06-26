@@ -77,7 +77,7 @@
   (with-foreign-array (v3 force-vec3 '(:array :float 3))
     (newtonbodyaddforce (%body-ptr body) v3)))
 
-(defun body-add-force (body delta-vec3 &optional (position-vec3 (v! 0 0 0)))
+(defun body-add-impluse (body delta-vec3 &optional (position-vec3 (v! 0 0 0)))
   (with-foreign-array (d3 delta-vec3 '(:array :float 3))
     (with-foreign-array (p3 position-vec3 '(:array :float 3))
       (newtonbodyaddimpulse (%body-ptr body) d3 p3))))
@@ -331,7 +331,7 @@
 
 (defun (setf body-force-torque-callback) (callback body)
   (newtonbodysetforceandtorquecallback
-   (%body-ptr body) '%body-apply-force-and-torque)
+   (%body-ptr body) (get-callback '%body-apply-force-and-torque))
   (setf (%body-force-torque-callback body) callback))
 
 ;;------------------------------------------------------------
@@ -385,7 +385,7 @@
   ;; {TODO} what does state mean
   (newtonbodysetsimulationstate (%body-ptr body) state))
 
-(defun body-get-skeleton ()
+(defun body-get-skeleton (body)
   ;; {TODO} how are we meant to handle skeletons?
   (newtonbodygetskeleton (%body-ptr body)))
 
