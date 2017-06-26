@@ -4,12 +4,17 @@
 
 (defstruct (geometry (:constructor %make-geometry)
                      (:conc-name %geometry-))
-  (ptr (error "") :type foreign-pointer))
+  (ptr (error "") :type foreign-pointer)
+  (iterator-callback
+   nil
+   :type (or null (function (geometry
+                             (array single-float (*))
+                             (signed-byte 32))
+                            t))))
 
 (defstruct (null-geometry
             (:constructor %make-null)
-            (:include geometry))
-  (iterator-callback  ))
+            (:include geometry)))
 
 (defstruct (box-geometry
             (:constructor %make-box)
@@ -40,16 +45,42 @@
             (:include geometry)))
 
 (defstruct (geometry-tree
-            (:constructor %make-geometry-tree)
-            (:include geometry)))
+             (:constructor %make-geometry-tree)
+             (:conc-name %geometry-tree-)
+             (:include geometry))
+  (raycast-callback
+   nil
+   :type (or null (function (geometry-tree
+                             body
+                             single-float
+                             rtg-math.types:vec3
+                             (signed-byte 32))
+                            t)))
+  (face-callback
+   nil
+   :type (or null (function (geometry-tree
+                             body
+                             (signed-byte 32)
+                             (array single-float (*))
+                             (signed-byte 32))))))
 
 (defstruct (compound-geometry
             (:constructor %make-compound-geometry)
             (:include geometry)))
 
 (defstruct (height-field-geometry
-            (:constructor %make-height-field)
-            (:include geometry)))
+             (:constructor %make-height-field)
+             (:conc-name %height-field-)
+             (:include geometry))
+  (ray-cast-callback
+   nil
+   :type (or null (function (height-field-geometry
+                             body
+                             single-float
+                             (signed-byte 32)
+                             (signed-byte 32)
+                             rtg-math.types:vec3
+                             (signed-byte 32))))))
 
 (defstruct (scene-geometry
             (:constructor %make-scene)
@@ -175,8 +206,12 @@
 ;;------------------------------------------------------------
 
 (defstruct (material-pair (:constructor %make-material-pair)
-                     (:conc-name %material-pair-))
-  (ptr (error "") :type foreign-pointer))
+                          (:conc-name %material-pair-))
+  (ptr (error "") :type foreign-pointer)
+  (aabb-overlap-callback
+   nil
+   :type (or null (function (material-pair body body)
+                            (signed-byte 32)))))
 
 ;;------------------------------------------------------------
 ;; NewtonWorld* - newtonworld - world
