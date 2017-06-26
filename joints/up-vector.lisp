@@ -2,8 +2,6 @@
 
 ;;------------------------------------------------------------
 
-(deftclass (up-vector (:constructor %make-up-vector) (:include joint)))
-
 (defun make-up-vector (world body pin-dir-v3)
   (with-foreign-array (dir3 pin-dir-v3 '(:array :float 3))
     (newtonconstraintcreateupvector

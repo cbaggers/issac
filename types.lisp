@@ -43,6 +43,7 @@
             (:include geometry)))
 
 ;;------------------------------------------------------------
+;; NewtonBody* - newtonbody - body
 
 (deftclass (body (:constructor %make-body)
                   (:conc-name %body-))
@@ -55,6 +56,36 @@
   (ptr (error "") :type foreign-pointer))
 
 ;;------------------------------------------------------------
+
+(deftclass (joint (:constructor %make-joint)
+                  (:conc-name %joint-))
+  (ptr (error "") :type foreign-pointer))
+
+(deftclass (ball-&-socket (:constructor %make-ball-&-socket) (:include joint)))
+
+(deftclass (corkscrew (:constructor %make-corkscrew) (:include joint)))
+
+(deftclass (hinge (:constructor %make-hinge) (:include joint)))
+
+(deftclass (slider (:constructor %make-slider) (:include joint)))
+
+(deftclass (universal-joint (:constructor %make-universal-joint)
+                            (:include joint)))
+
+(deftclass (up-vector (:constructor %make-up-vector) (:include joint)))
+
+;; An advanced feature we dont need yet
+;; (deftclass (bilateral-joint (:constructor %make-bilateral-joint)
+;;                             (:include joint)))
+
+;;------------------------------------------------------------
+
+(deftclass (material-pair (:constructor %make-material-pair)
+                     (:conc-name %material-pair-))
+  (ptr (error "") :type foreign-pointer))
+
+;;------------------------------------------------------------
+;; NewtonWorld* - newtonworld - world
 
 (defvar *world-id* -1)
 

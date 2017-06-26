@@ -6,9 +6,6 @@
   (setf (%geometry-user-data body) (make-pointer (%add-geom-to-system body)))
   body)
 
-(defun %geom-ptr->geom (ptr)
-  (%geom-id-to-geom (pointer-address (newtoncollisiongetuserdata ptr))))
-
 (defun make-null-geometry (world)
   "Create a transparent collision primitive. Some times the
    application needs to create helper rigid bodies that will never

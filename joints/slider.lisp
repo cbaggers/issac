@@ -2,8 +2,6 @@
 
 ;;------------------------------------------------------------
 
-(deftclass (slider (:constructor %make-slider) (:include joint)))
-
 (defun make-slider (world parent-body child-body pivot-point-v3 pin-dir-v3)
   (with-foreign-array (piv3 pivot-point-v3 '(:array :float 3))
     (with-foreign-array (dir3 pin-dir-v3 '(:array :float 3))

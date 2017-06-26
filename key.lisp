@@ -1,0 +1,152 @@
+#||
+NewtonCollision* - NEWTONCOLLISION
+newton calls it a primtive for collision
+we call it geometry. We also have extra types for different kinds of geometry
+but this is just so folks can specialize on types if they want to.
+
+NewtonBody* - NEWTONBODY
+Body is the thing that get simulated, it has geometry
+
+
+
+(CFFI:DEFCTYPE NEWTONWORLD (:STRUCT NEWTONWORLD))
+(CFFI:DEFCTYPE NEWTONJOINT (:STRUCT NEWTONJOINT))
+(CFFI:DEFCTYPE NEWTONMATERIAL (:STRUCT NEWTONMATERIAL))
+(CFFI:DEFCTYPE NEWTONSKELETONCONTAINER (:STRUCT NEWTONSKELETONCONTAINER))
+(CFFI:DEFCTYPE NEWTONBOXPARAM (:STRUCT NEWTONBOXPARAM))
+(CFFI:DEFCTYPE NEWTONSPHEREPARAM (:STRUCT NEWTONSPHEREPARAM))
+(CFFI:DEFCTYPE NEWTONCAPSULEPARAM (:STRUCT NEWTONCAPSULEPARAM))
+(CFFI:DEFCTYPE NEWTONCYLINDERPARAM (:STRUCT NEWTONCYLINDERPARAM))
+(CFFI:DEFCTYPE NEWTONCONEPARAM (:STRUCT NEWTONCONEPARAM))
+(CFFI:DEFCTYPE NEWTONCHAMFERCYLINDERPARAM (:STRUCT NEWTONCHAMFERCYLINDERPARAM))
+(CFFI:DEFCTYPE NEWTONCONVEXHULLPARAM (:STRUCT NEWTONCONVEXHULLPARAM))
+(CFFI:DEFCTYPE NEWTONCOLLISIONTREEPARAM (:STRUCT NEWTONCOLLISIONTREEPARAM))
+(CFFI:DEFCTYPE NEWTONDEFORMABLEMESHPARAM (:STRUCT NEWTONDEFORMABLEMESHPARAM))
+(CFFI:DEFCTYPE NEWTONSCENECOLLISIONPARAM (:STRUCT NEWTONSCENECOLLISIONPARAM))
+(CFFI:DEFCTYPE NEWTONCOLLISIONINFORECORD (:STRUCT NEWTONCOLLISIONINFORECORD))
+(CFFI:DEFCTYPE NEWTONJOINTRECORD (:STRUCT NEWTONJOINTRECORD))
+(CFFI:DEFCTYPE NEWTONCLOTHPATCHMATERIAL (:STRUCT NEWTONCLOTHPATCHMATERIAL))
+(CFFI:DEFCTYPE NEWTONSKELETONBONEJACOBIAN (:STRUCT NEWTONSKELETONBONEJACOBIAN))
+(CFFI:DEFCTYPE NEWTONUSERCONTACTPOINT (:STRUCT NEWTONUSERCONTACTPOINT))
+(CFFI:DEFCTYPE NEWTONWORLDDESTRUCTORCALLBACK FUNCTION-POINTER)
+(CFFI:DEFCTYPE NEWTONCOLLISIONCOPYCONSTRUCTIONCALLBACK FUNCTION-POINTER)
+(CFFI:DEFCTYPE NEWTONCOLLISIONDESTRUCTORCALLBACK FUNCTION-POINTER)
+(CFFI:DEFCTYPE NEWTONBODYDESTRUCTOR FUNCTION-POINTER)
+(CFFI:DEFCTYPE NEWTONFRACTURECOMPOUNDCOLLISIONRECONSTRUCTMAINMESHCALLBACK
+(CFFI:DEFCTYPE NEWTONCONSTRAINTDESTRUCTOR FUNCTION-POINTER)
+(CFFI:DEFCTYPE NEWTONSKELETONTDESTRUCTOR FUNCTION-POINTER)
+
+||#
+
+#|| QA
+
+---
+
+WAT:
+NewtonReleaseCollision is not in c lib even though there are comments and docs
+everywhere telling you to use it.
+
+ANSWER:
+It has been replaced by NewtonDestroyCollision and works pretty much the same
+except the colliders are instance based now instead of reference based
+
+---
+
+WAT:
+Geometry (NewtonCollision*) is freed everywhere, what the hell
+
+ANSWER:
+Geometry is an instance now. When you assign it to a body it copies it so it
+is is safe to free it. (see with-geometry)
+
+---
+
+WAT:
+How do I make an ellipsoid?
+
+ANSWER:
+Scale a sphere
+
+---
+
+WAT:
+What are userids for?
+
+ANSWER:
+Anything you like, just like userdata. One is a pointer and one is an int
+
+---
+
+WAT:
+why the jizz does newtonmaterialgetdefaultgroupid need two group ids?
+
+ANSWER:
+NewtonMaterial* is an interesting type, it is a pair. we call it a
+material-pair and called MaterialGroupIDs materials. The materials
+are then the nodes in the graph and the pairs are the edges
+
+---
+
+WAT:
+x
+
+ANSWER:
+y
+
+---
+
+WAT:
+x
+
+ANSWER:
+y
+
+---
+
+WAT:
+x
+
+ANSWER:
+y
+
+---
+
+WAT:
+x
+
+ANSWER:
+y
+
+---
+
+WAT:
+x
+
+ANSWER:
+y
+
+---
+
+WAT:
+x
+
+ANSWER:
+y
+
+---
+
+WAT:
+x
+
+ANSWER:
+y
+
+---
+
+WAT:
+x
+
+ANSWER:
+y
+
+||#

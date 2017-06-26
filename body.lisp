@@ -35,11 +35,6 @@
 
 ;;------------------------------------------------------------
 
-(defun %body-ptr->body (ptr)
-  (%body-id-to-body (pointer-address (newtonbodygetuserdata ptr))))
-
-;;------------------------------------------------------------
-
 (defun body-id (body)
   (newtonbodygetid (%body-ptr body)))
 
@@ -54,10 +49,10 @@
 
 ;;------------------------------------------------------------
 
-(defun body-group-id (body)
+(defun body-material (body)
   (newtonbodygetmaterialgroupid (%body-ptr body)))
 
-(defun (setf body-group-id) (id body)
+(defun (setf body-material) (id body)
   (assert (typep id '(unsigned-byte 8)))
   (newtonbodysetmaterialgroupid (%body-ptr body) id)
   id)
@@ -129,14 +124,23 @@
 
 ;;------------------------------------------------------------
 
-;; newtonbodygetcollision
-;; newtonbodysetcollision
+(defun body-geometry (body)
+  "Get the geometry for the given body"
+  (newtonbodygetcollision (%body-ptr body)))
+
+(defun (setf body-geometry) (geometry body)
+  "Get the geometry for the given body"
+  (newtonbodysetcollision (%body-ptr body) (%geometry-ptr geometry)))
 
 ;;------------------------------------------------------------
 
-;; This feature is currently disabled: (By newton
-;; newtonbodysetcontinuouscollisionmode
-;; newtonbodygetcontinuouscollisionmode
+(defun body-continuous-collision-mode (body)
+  ;; {TODO} translate the int returned from this
+  (newtonbodygetcontinuouscollisionmode body))
+
+(defun (setf body-continuous-collision-mode) (state body)
+  ;; {TODO} translate the int returned from this
+  (newtonbodysetcontinuouscollisionmode body state))
 
 ;;------------------------------------------------------------
 

@@ -2,21 +2,15 @@
 
 ;;------------------------------------------------------------
 
-(deftclass (joint (:constructor %make-joint)
-                     (:conc-name %joint-))
-  (ptr (error "") :type foreign-pointer))
-
-;;------------------------------------------------------------
-
 (defun free-joint (world joint)
   (NewtonDestroyJoint (%world-ptr world) (%joint-ptr joint)))
 
 ;;------------------------------------------------------------
 
-(defun %geometry-user-data (geometry)
+(defun %joint-user-data (geometry)
   (NewtonJointGetUserData (%geometry-ptr geometry)))
 
-(defun (setf %geometry-user-data) (ptr geometry)
+(defun (setf %joint-user-data) (ptr geometry)
   (NewtonJointSetUserData (%geometry-ptr geometry) ptr))
 
 ;;------------------------------------------------------------

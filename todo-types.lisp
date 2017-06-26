@@ -2,9 +2,6 @@
 
 newtonallocmemory
 newtonapplyforceandtorque
-newtonbody
-newtonbodydestructor
-newtonbodyiterator
 newtonboxparam
 newtoncapsuleparam
 newtonchamfercylinderparam
@@ -29,7 +26,6 @@ newtonheightfieldcollisionparam
 newtonhingesliderupdatedesc
 newtonislandupdate
 newtonjobtask
-newtonjoint
 newtonjointiterator
 newtonjointrecord
 newtonmaterial
@@ -37,38 +33,32 @@ newtononaabboverlap
 newtononcompoundsubcollisionaabboverlap
 newtononcontactgeneration
 newtonscenecollisionparam
-newtonsettransform
+
 newtonskeletonbonejacobian
 newtonskeletonbonejacobianpair
 newtonskeletoncontainer
 newtonskeletontdestructor
-newtonsphereparam
+
+newtonsphereparam ;; part of the collision info record
 newtonusercontactpoint
 newtonusermeshcollisionaabbtest
 newtonusermeshcollisioncollidedesc
 newtonusermeshcollisiongetcollisioninfo
 newtonusermeshcollisiongetfacesinaabb
 newtonusermeshcollisionrayhitdesc
-newtonworld
 newtonworldconvexcastreturninfo
 
 ;; callbacks
+newtonsettransform
 newtonballcallback
 newtoncollisioncopyconstructioncallback
 newtoncollisiondestructorcallback
 newtoncollisiontreeraycastcallback
 newtoncorkscrewcallback
-newtondeserializecallback
 newtonfracturecompoundcollisionreconstructmainmeshcallback
 newtongettimeinmicrosencondscallback
 newtonheightfieldraycastcallback
 newtonhingecallback
-newtononbodydeserializationcallback
-newtononbodyserializationcallback
-newtononjointdeserializationcallback
-newtononjointserializationcallback
-newtononusercollisionserializationcallback
-newtonserializecallback
 newtonslidercallback
 newtontreecollisioncallback
 newtontreecollisionfacecallback

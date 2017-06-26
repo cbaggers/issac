@@ -6,8 +6,6 @@
 ;;
 ;;------------------------------------------------------------
 
-;; (deftclass (bilateral-joint (:constructor %make-bilateral-joint) (:include joint)))
-
 ;; newtonconstraintcreateuserjoint
 ;; newtonuserjointaddangularrow
 ;; newtonuserjointaddgeneralrow

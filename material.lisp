@@ -1,60 +1,72 @@
 (in-package :issac)
 
+;;
+;; NewtonMaterial* is a pair so we call it material-pair
+;;
+;; MaterialGroupID is what we call a material
+;;
+
 ;;------------------------------------------------------------
 
-;; NewtonMaterialGetDefaultGroupID
-;; "Get the value of the default MaterialGroupID. Group IDs can be
-;; interpreted as the nodes of a dense graph. The edges of the graph are
-;; the physics materials. When the Newton world is created, the default
-;; Group ID is created by the engine. When bodies are created the
-;; application assigns a group ID to the body."
+(defun world-default-material (world)
+  "Gets the defaul material for this world.
+
+   A Material can be interpreted as the nodes of a dense graph. The edges of
+   the graph are called material-pairs and we describe the relationships
+   between pairs of materials.
+
+   When the Newton world is created, the default material is created by the
+   engine. When bodies are created the application assigns a material to the
+   body."
+  (NewtonMaterialGetDefaultGroupID (%world-ptr world)))
 
 
 ;; NewtonMaterialCreateGroupID
-;; "Create a new MaterialGroupID. Group IDs can be interpreted as the
-;; nodes of a dense graph. The edges of the graph are the physics
-;; materials. When the Newton world is created, the default Group ID is
-;; created by the engine. When bodies are created the application assigns
-;; a group ID to the body.
-;;
-;; Note: The only way to destroy a Group ID after its creation is by
-;; destroying all the bodies and calling the function
-;; NewtonMaterialDestroyAllGroupID.See also:
-;; NewtonMaterialDestroyAllGroupID"
 
 
-;; NewtonMaterialDestroyAllGroupID
-;; "Remove all groups ID from the Newton world. This function removes all
-;; groups ID from the Newton world. This function must be called after
-;; there are no more rigid bodies in the word."
+(defun create-material (world)
+  "Create a new material.
 
+   A Material can be interpreted as the nodes of a dense graph. The edges of
+   the graph are called material-pairs and we describe the relationships
+   between pairs of materials.
 
-newtononaabboverlap
-newtonmaterial
-newtonmaterialcontactrotatetangentdirections
-newtonmaterialgetbodycollidingshape
-newtonmaterialgetcontactfaceattribute
-newtonmaterialgetcontactforce
-newtonmaterialgetcontactmaxnormalimpact
-newtonmaterialgetcontactmaxtangentimpact
-newtonmaterialgetcontactnormalspeed
-newtonmaterialgetcontactpenetration
-newtonmaterialgetcontactpositionandnormal
-newtonmaterialgetcontacttangentdirections
-newtonmaterialgetcontacttangentspeed
-newtonmaterialgetmaterialpairuserdata
-newtonmaterialgetuserdata
-newtonmaterialsetcallbackuserdata
-newtonmaterialsetcontactelasticity
-newtonmaterialsetcontactfrictioncoef
-newtonmaterialsetcontactfrictionstate
-newtonmaterialsetcontactnormaldirection
-newtonmaterialsetcontactposition
-newtonmaterialsetcontactsoftness
-newtonmaterialsetcontacttangentacceleration
-newtonmaterialsetcontacttangentfriction
-newtonmaterialsetdefaultcollidable
-newtonmaterialsetdefaultelasticity
-newtonmaterialsetdefaultfriction
-newtonmaterialsetdefaultsoftness
-newtonmaterialsetsurfacethickness
+   When the Newton world is created, the default material is created by the
+   engine. When bodies are created the application assigns a material to the
+   body.
+
+   Note: The only way to destroy a material after its creation is by
+   destroying all the bodies and calling the function `destroy-all-materials`"
+  (NewtonMaterialCreateGroupID (%world-ptr world)))
+
+(defun destroy-all-materials ()
+  "Remove all materials from the Newton world. This function must be called
+   after there are no more rigid bodies in the word."
+  (NewtonMaterialDestroyAllGroupID world))
+
+;; newtononaabboverlap
+;; newtonmaterialcontactrotatetangentdirections
+;; newtonmaterialgetbodycollidingshape
+;; newtonmaterialgetcontactfaceattribute
+;; newtonmaterialgetcontactforce
+;; newtonmaterialgetcontactmaxnormalimpact
+;; newtonmaterialgetcontactmaxtangentimpact
+;; newtonmaterialgetcontactnormalspeed
+;; newtonmaterialgetcontactpenetration
+;; newtonmaterialgetcontactpositionandnormal
+;; newtonmaterialgetcontacttangentdirections
+;; newtonmaterialgetcontacttangentspeed
+;; newtonmaterialsetcallbackuserdata
+;; newtonmaterialsetcontactelasticity
+;; newtonmaterialsetcontactfrictioncoef
+;; newtonmaterialsetcontactfrictionstate
+;; newtonmaterialsetcontactnormaldirection
+;; newtonmaterialsetcontactposition
+;; newtonmaterialsetcontactsoftness
+;; newtonmaterialsetcontacttangentacceleration
+;; newtonmaterialsetcontacttangentfriction
+;; newtonmaterialsetdefaultcollidable
+;; newtonmaterialsetdefaultelasticity
+;; newtonmaterialsetdefaultfriction
+;; newtonmaterialsetdefaultsoftness
+;; newtonmaterialsetsurfacethickness
