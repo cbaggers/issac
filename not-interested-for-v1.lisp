@@ -8,6 +8,8 @@ newtononbodydeserializationcallback
 newtononbodyserializationcallback
 newtononjointdeserializationcallback
 newtononjointserializationcallback
+newtoncreatecollisionfromserialization
+newtoncollisionserialize
 newtononusercollisionserializationcallback
 newtonserializecallback
 
@@ -41,5 +43,21 @@ newtonserializecallback
   :INT)
 (newtoncollisioncollide)
 ;; newtoncollisioncollidecontinue
+
+(newtoncollisionclosestpoint)
+(newtoncollisionintersectiontest)
+(defun geometry-point-distance (world geometry dir3)
+  (with-foreign-array (d3 dir3 '(:array :float 3))
+    (newtoncollisionpointdistance
+     (%world-ptr world) d3 (%geometry-ptr geometry)
+     )))
+
+(newtoncreateusermeshcollision)
+||#
+
+
+#|| Is not valid in Newton itself
+
+(newtonconvexhullgetvertexdata )
 
 ||#

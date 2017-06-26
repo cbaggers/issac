@@ -42,6 +42,10 @@
             (:constructor %make-geometry-tree)
             (:include geometry)))
 
+(deftclass (compound-geometry
+            (:constructor %make-compound-geometry)
+            (:include geometry)))
+
 (deftclass (height-field-geometry
             (:constructor %make-height-field)
             (:include geometry)))

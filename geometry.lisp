@@ -155,59 +155,34 @@
        :ptr (newtoncreateconvexhull
              wptr len p-ptr 12 (float tolerance) 0 m4)))))
 
-;; newtonconvexcollisioncalculatebuoyancyacceleration
-;; newtonconvexcollisioncalculateinertialmatrix
-;; newtonconvexcollisioncalculatevolume
-;; newtonconvexhullgetfaceindices
-;; newtonconvexhullgetvertexdata
+(defun convex-geometry-calculate-inertia (convex)
+  "Calculate the three principal axis and the the values of the inertia matrix
+   of a convex collision objects.
+   Returns two vec3s:
+   - the principal inertia.
+   - the center of mass for the principal inertia."
+  (with-foreign-objects ((inertia3 :float 3)
+                         (origin3 :float 3))
+    (newtonconvexcollisioncalculateinertialmatrix
+     (%geometry-ptr convex) inertia3 origin3)
+    (values (ptr->v3 inertia3)
+            (ptr->v3 origin3))))
 
-;;------------------------------------------------------------
 
-;; (defun make-compound-geometry ()
-;;   "Create a container to hold an array of convex collision
-;;    primitives. Compound collision primitives can only be made of convex
-;;    collision primitives and they can not contain compound
-;;    collision. Therefore they are treated as convex primitives.
+(defun convex-geometry-calculate-volume (convex)
+  (newtonconvexcollisioncalculatevolume (%geometry-ptr convex)))
 
-;;    Compound collision primitives are treated as instance collision
-;;    objects that can not shared by multiples rigid bodies."
-;;   )
+;; (defun convex-geometry-calculate-buoyancy-acceleration (convex
+;;                                                         matrix4
+;;                                                         gravity-vec3
+;;                                                         fluid-density
+;;                                                         fluid-linear-viscosity
+;;                                                         )
+;;   (newtonconvexcollisioncalculatebuoyancyacceleration
+;;    (%geometry-ptr convex)
+;;     ))
 
-;; ;;
-;; ;; COMPOUND COLLISION
-
-;; NewtonCompoundCollisionAddSubCollision
-;; NewtonCompoundCollisionGetNodeIndex
-;; NewtonCompoundCollisionRemoveSubCollision
-;; NewtonCompoundCollisionRemoveSubCollisionByIndex
-;; newtoncompoundcollisionbeginaddremove
-;; newtoncompoundcollisionendaddremove
-;; newtoncompoundcollisiongetcollisionfromnode
-;; newtoncompoundcollisiongetfirstnode
-;; newtoncompoundcollisiongetnextnode
-;; newtoncompoundcollisiongetnodebyindex
-;; newtoncompoundcollisiongetnodeindex
-;; newtoncompoundcollisionparam
-;; newtoncompoundcollisionsetsubcollisionmatrix
-;; newtonfracturecompoundcollisiononemitchunk
-;; newtonfracturecompoundcollisiononemitcompoundfractured
-;; newtonfracturedcompoundcollisiongetvertexnormals
-;; newtonfracturedcompoundcollisiongetvertexpositions
-;; newtonfracturedcompoundcollisiongetvertexuvs
-;; newtonfracturedcompoundgetfirstsubmesh
-;; newtonfracturedcompoundgetmainmesh
-;; newtonfracturedcompoundgetnextsubmesh
-;; newtonfracturedcompoundisnodefreetodetach
-;; newtonfracturedcompoundmeshpart
-;; newtonfracturedcompoundmeshpartgetfirstsegment
-;; newtonfracturedcompoundmeshpartgetindexcount
-;; newtonfracturedcompoundmeshpartgetindexstream
-;; newtonfracturedcompoundmeshpartgetmaterial
-;; newtonfracturedcompoundmeshpartgetnextsegment
-;; newtonfracturedcompoundneighbornodelist
-;; newtonfracturedcompoundplaneclip
-;; newtonfracturedcompoundsetcallbacks
-;; newtononcompoundsubcollisionaabboverlap
+;; (newtonconvexhullgetfaceindices)
 
 ;;------------------------------------------------------------
 
@@ -263,12 +238,10 @@
   (declare (ignore tree-ptr src))
   (error "Not implemented"))
 
-;; newtontreecollisiongetfaceattribute
-;; newtontreecollisiongetvertexlisttrianglelistinaabb
-;; newtontreecollisionsetfaceattribute
-
-;; newtoncreatecollisionfromserialization
-;; newtoncollisionserialize
+;; (defun tree-geometry-face-attribute (tree index)
+;;   (newtontreecollisiongetfaceattribute ))
+;; (newtontreecollisionsetfaceattribute)
+;; (newtontreecollisiongetvertexlisttrianglelistinaabb)
 
 ;;------------------------------------------------------------
 
@@ -470,22 +443,159 @@
      m4)))
 
 ;;------------------------------------------------------------
+;; COMPOUND COLLISION
 
-;; newtoncollisioncalculateaabb
-;; newtoncollisionclosestpoint
 
-;; newtoncollisiongetparentinstance
+(defun make-compound-geometry (world shape-id)
+  "Create a container to hold an array of convex collision
+   primitives. Compound collision primitives can only be made of convex
+   collision primitives and they can not contain compound
+   collision. Therefore they are treated as convex primitives.
 
-;; newtoncollisiongetskinthickness
-;; newtoncollisiongetsubcollisionhandle
-;; newtoncollisiongettype
+   Compound collision primitives are treated as instance collision
+   objects that can not shared by multiples rigid bodies."
+  ;; {TODO} What is a shape-id
+  (%make-compound-geometry
+   :ptr (newtoncreatecompoundcollision
+         (%world-ptr world) shape-id)))
 
-;; newtoncollisioninforecord
-;; newtoncollisionintersectiontest
-;; newtoncollisioniterator
-;; newtoncollisionpointdistance
-;; newtoncollisionsupportvertex
-;; newtoncollisiontreeparam
+(defun compound-add-sub-geometry (compound convex)
+  (NewtonCompoundCollisionAddSubCollision
+   (%geometry-ptr compound)
+   (%geometry-ptr convex)))
 
-;; newtoncreateusermeshcollision
+(defun compound-node-index (compound node)
+  (NewtonCompoundCollisionGetNodeIndex
+   (%geometry-ptr compound)
+   node))
+
+(defun compound-remove-sub-geometry-by-index (compound index)
+  (NewtonCompoundCollisionRemoveSubCollisionByIndex
+   (%geometry-ptr compound)
+   index))
+
+(defun compound-remove-sub-geometry (compound node)
+  (NewtonCompoundCollisionRemoveSubCollision
+   (%geometry-ptr compound)
+   node))
+
+(defun %compound-begin-add-remove (compound)
+  (newtoncompoundcollisionbeginaddremove (%geometry-ptr compound)))
+
+(defun %compound-end-add-remove (compound)
+  (newtoncompoundcollisionendaddremove (%geometry-ptr compound)))
+
+(defmacro with-compound-add-remove (compound &body body)
+  (with-gensyms (gcompound)
+    `(let ((,gcompound ,compound))
+       (%compound-begin-add-remove ,gcompound)
+       (unwind-protect (progn ,@body)
+         (%compound-end-add-remove ,gcompound)))))
+
+(defun compound-from-node-get-geometry (compound node)
+  (%geom-ptr->geom
+   (newtoncompoundcollisiongetcollisionfromnode
+    (%geometry-ptr compound)
+    node)))
+
+(defun %compound-first-node (compound)
+  ;; What is a collision-node? look like just a ptr
+  (newtoncompoundcollisiongetfirstnode (%geometry-ptr compound)))
+
+(defun %compound-next-node (compound node)
+  ;; What is a collision-node? look like just a ptr
+  (newtoncompoundcollisiongetnextnode
+   (%geometry-ptr compound)
+   node))
+
+(defmacro do-compound-nodes ((var-name compound) &body body)
+  ;; hidden is just so the user can't fuck the process by setting
+  ;; var-name to something else
+  (with-gensyms (gcompound hidden)
+    `(let* ((,gcompound ,compound)
+            (,hidden (%compound-first-contact ,gcompound))
+            (,var-name ,hidden))
+       (loop :until (null-pointer-p ,hidden) :do
+          (setf ,var-name ,hidden)
+          (progn ,@body)
+          (setf ,hidden (%compound-next-node ,gcompound ,hidden)
+                ,var-name ,hidden)))))
+
+
+(defun compound-node (compound index)
+  (newtoncompoundcollisiongetnodebyindex
+   (%geometry-ptr compound)
+   index))
+
+(defun compound-set-sub-geometry-matrix4 (compound node mat4)
+  (with-foreign-array (m4 mat4 '(:array :float 16))
+    (newtoncompoundcollisionsetsubcollisionmatrix
+     (%geometry-ptr compound)
+     node
+     m4)))
+
+;; newtonfracturedcompoundcollisiongetvertexnormals
+;; newtonfracturedcompoundcollisiongetvertexpositions
+;; newtonfracturedcompoundcollisiongetvertexuvs
+;; newtonfracturedcompoundgetfirstsubmesh
+;; newtonfracturedcompoundgetmainmesh
+;; newtonfracturedcompoundgetnextsubmesh
+;; newtonfracturedcompoundisnodefreetodetach
+;; newtonfracturedcompoundmeshpart
+;; newtonfracturedcompoundmeshpartgetfirstsegment
+;; newtonfracturedcompoundmeshpartgetindexcount
+;; newtonfracturedcompoundmeshpartgetindexstream
+;; newtonfracturedcompoundmeshpartgetmaterial
+;; newtonfracturedcompoundmeshpartgetnextsegment
+;; newtonfracturedcompoundneighbornodelist
+;; newtonfracturedcompoundplaneclip
+;; newtonfracturedcompoundsetcallbacks
+
+;; types/callbacks
+;; newtoncompoundcollisionparam
+;; newtonfracturecompoundcollisiononemitchunk
+;; newtonfracturecompoundcollisiononemitcompoundfractured
+;; newtononcompoundsubcollisionaabboverlap
+
+;;------------------------------------------------------------
+
+(defun geometry-calculate-aabb (geometry
+                                &optional (offset-matrix4 (m4:identity)))
+  "Calculate an axis-aligned bounding box for this collision,
+   the box is calculated relative to `offset-matrix4`"
+  (with-foreign-objects ((p0 :float 3)
+                         (p1 :float 3))
+    (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
+      (newtoncollisioncalculateaabb
+       (%geometry-ptr geometry) m4 p0 p1)
+      (values (ptr->v3 p0) (ptr->v3 p1)))))
+
+(defun geometry-get-parent (geometry)
+  (newtoncollisiongetparentinstance (%geometry-ptr geometry)))
+
+(defun geometry-skin-thickness (geometry)
+  (NewtonCollisionGetSkinThickness (%geometry-ptr geometry)))
+
+(defun sub-geometry-handle (geometry)
+  (%geom-ptr->geom
+   (newtoncollisiongetsubcollisionhandle (%geometry-ptr geometry))))
+
+(defun geometry-type (geometry)
+  ;; {TODO} what is type?
+  (newtoncollisiongettype (%geometry-ptr geometry)))
+
+
+(defun geometry-most-extreme-vertex (geometry dir3)
+  "Calculate the most extreme point of a convex collision shape along the given
+   direction"
+  (with-foreign-array (d3 dir3 '(:array :float 3))
+    (with-foreign-object (vpos3 :float 3)
+      (newtoncollisionsupportvertex
+       (%geometry-ptr geometry) d3 vpos3)
+      (ptr->v3 vpos3))))
+
+;; types/callbacks
 ;; newtonusermeshcollisioncontinuousoverlaptest
+;; newtoncollisioninforecord
+;; newtoncollisioniterator
+;; newtoncollisiontreeparam
