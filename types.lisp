@@ -42,6 +42,14 @@
             (:constructor %make-geometry-tree)
             (:include geometry)))
 
+(deftclass (height-field-geometry
+            (:constructor %make-height-field)
+            (:include geometry)))
+
+(deftclass (scene-geometry
+            (:constructor %make-scene)
+            (:include geometry)))
+
 ;;------------------------------------------------------------
 ;; NewtonBody* - newtonbody - body
 

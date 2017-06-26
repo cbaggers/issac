@@ -355,11 +355,6 @@
 
 ;;------------------------------------------------------------
 
-;; newtoncollisioncollide
-;; newtoncollisioncollidecontinue
-
-;;------------------------------------------------------------
-
 (defun %geometry-info (geometry)
   (with-foreign-object (info '(:struct newtoncollisioninforecord))
     (newtoncollisiongetinfo (%geometry-ptr geometry) info)
@@ -367,22 +362,112 @@
 
 ;;------------------------------------------------------------
 
-;; newtoncreateheightfieldcollision
-;; newtoncreatescenecollision
+(defun make-height-field-geometry (world heights-2d-array
+                                   &optional
+                                     (vertical-scale 1f0)
+                                     (horizontal-scale 1f0)
+                                     (diagonals :lower-left->upper-right))
+  ;; {TODO} what are shape-ids?
+  (assert (and (typep heights-2d-array 'array)
+               (= 2 (array-rank heights-2d-array))))
+  (let* ((width (array-dimension heights-2d-array 0))
+         (height (array-dimension heights-2d-array 1)))
+    (with-foreign-array (arr heights-2d-array :float)
+      (with-foreign-object (attributes :char (* width height))
+        (%make-height-field
+         :ptr (newtoncreateheightfieldcollision
+               (%world-ptr world)
+               width height
+               (ecase diagonals
+                 (:lower-left->upper-right 0)
+                 (:lower-right->upper-left 1))
+               32
+               arr
+               attributes
+               (float vertical-scale)
+               (float horizontal-scale)
+               0))))))
 
 ;;------------------------------------------------------------
 
-;; newtonscenecollisionaddsubcollision
-;; newtonscenecollisionbeginaddremove
-;; newtonscenecollisionendaddremove
-;; newtonscenecollisiongetcollisionfromnode
-;; newtonscenecollisiongetfirstnode
-;; newtonscenecollisiongetnextnode
-;; newtonscenecollisiongetnodebyindex
-;; newtonscenecollisiongetnodeindex
-;; newtonscenecollisionremovesubcollision
-;; newtonscenecollisionremovesubcollisionbyindex
-;; newtonscenecollisionsetsubcollisionmatrix
+(defun create-scene-geometry (world shape-id)
+  ;; {TODO} what are shape-ids?
+  (%make-scene
+   :ptr (newtoncreatescenecollision (%world-ptr world) shape-id)))
+
+(defun %scene-begin-add-remove (scene)
+  (newtonscenecollisionbeginaddremove (%geometry-ptr scene)))
+
+(defun %scene-end-add-remove (scene)
+  (newtonscenecollisionendaddremove (%geometry-ptr scene)))
+
+(defmacro with-scene-add-remove (scene &body body)
+  (with-gensyms (gscene)
+    `(let ((,gscene ,scene))
+       (%scene-begin-add-remove ,gscene)
+       (unwind-protect (progn ,@body)
+         (%scene-end-add-remove ,gscene)))))
+
+(defun scene-add-sub-geometry (scene geometry)
+  (newtonscenecollisionaddsubcollision
+   (%geometry-ptr scene)
+   (%geometry-ptr geometry)))
+
+(defun %scene-first-node (scene)
+  ;; What is a collision-node? look like just a ptr
+  (newtonscenecollisiongetfirstnode (%geometry-ptr scene)))
+
+(defun %scene-next-node (scene node)
+  ;; What is a collision-node? look like just a ptr
+  (newtonscenecollisiongetnextnode
+   (%geometry-ptr scene)
+   node))
+
+(defmacro do-scene-nodes ((var-name scene) &body body)
+  ;; hidden is just so the user can't fuck the process by setting
+  ;; var-name to something else
+  (with-gensyms (gscene hidden)
+    `(let* ((,gscene ,scene)
+            (,hidden (%scene-first-contact ,gscene))
+            (,var-name ,hidden))
+       (loop :until (null-pointer-p ,hidden) :do
+          (setf ,var-name ,hidden)
+          (progn ,@body)
+          (setf ,hidden (%scene-next-node ,gscene ,hidden)
+                ,var-name ,hidden)))))
+
+(defun scene-from-node-get-geometry (scene node)
+  (%geom-ptr->geom
+   (newtonscenecollisiongetcollisionfromnode
+    (%geometry-ptr scene)
+    node)))
+
+(defun scene-node-index (scene node)
+  (newtonscenecollisiongetnodeindex
+   (%geometry-ptr scene)
+   node))
+
+(defun scene-node (scene index)
+  (newtonscenecollisiongetnodebyindex
+   (%geometry-ptr scene)
+   index))
+
+(defun scene-remove-sub-geometry-by-index (scene index)
+  (newtonscenecollisionremovesubcollisionbyindex
+   (%geometry-ptr scene)
+   index))
+
+(defun scene-remove-sub-geometry (scene node)
+  (newtonscenecollisionremovesubcollision
+   (%geometry-ptr scene)
+   node))
+
+(defun scene-set-sub-geometry-matrix4 (scene node mat4)
+  (with-foreign-array (m4 mat4 '(:array :float 16))
+    (newtonscenecollisionsetsubcollisionmatrix
+     (%geometry-ptr scene)
+     node
+     m4)))
 
 ;;------------------------------------------------------------
 
