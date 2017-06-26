@@ -3,30 +3,37 @@
 ;;------------------------------------------------------------
 ;; Body
 
+;; NewtonApplyForceAndTorque
 (defcallback %body-apply-force-and-torque
     :void ((body-ptr :pointer) (timestep :float) (thread-index :int))
   (declare (ignore thread-index))
   (let ((body (%body-ptr->body body-ptr)))
     (funcall (%body-force-torque-callback body)
              body
-             timestep)))
+             timestep)
+    (values)))
 
+;; NewtonBodyDestructor
 (defcallback %body-destructor :void ((body-ptr :pointer))
   (let ((body (%body-ptr->body body-ptr)))
-    (funcall (%body-destructor-callback body) body)))
+    (funcall (%body-destructor-callback body) body)
+    (values)))
 
+;; NewtonSetTransform
 (defcallback %body-transform
     :void ((body-ptr :pointer) (mat4 (:pointer :float)) (thread-index :int))
   (declare (ignore thread-index))
   (let ((body (%body-ptr->body body-ptr)))
-    (funcall (%body-transform-callback body) body (ptr->m4 mat4))))
+    (funcall (%body-transform-callback body) body (ptr->m4 mat4))
+    (values)))
 
 ;;------------------------------------------------------------
 ;; newtonballcallback
 
 (defcallback %ball-cb :void ((joint-ptr :pointer))
   (let ((joint (%joint-ptr->joint joint-ptr)))
-    (funcall (%ball-&-socket-callback joint) joint)))
+    (funcall (%ball-&-socket-callback joint) joint)
+    (values)))
 
 ;;------------------------------------------------------------
 ;; newtoncorkscrewcallback
@@ -85,7 +92,8 @@
   (let ((joint (%joint-ptr->joint joint-ptr)))
     (funcall (%bilateral-callback joint)
              joint
-             timestep)))
+             timestep)
+    (values)))
 
 ;; newtonuserbilateralgetinfocallback
 (defcallback %bilateral-info-cb :void
@@ -115,7 +123,8 @@
                (%body-ptr->body m-attachbody-1)
                (foreign-array-to-lisp m-extraparameters '(:array :float 64))
                m-bodiescollisionon
-               (foreign-string-to-lisp m-descriptiontype :count 128)))))
+               (foreign-string-to-lisp m-descriptiontype :count 128))
+      (values))))
 
 ;;------------------------------------------------------------
 ;; world
@@ -135,7 +144,8 @@
         (geometry (%geom-ptr->geom geom))
         (src-geometry (%geom-ptr->geom src-geom)))
     (format t "{TODO} geometry copy construction ~s ~s ~s"
-            world geometry src-geometry)))
+            world geometry src-geometry)
+    (values)))
 
 ;; newtoncollisiondestructorcallback
 (defcallback %geom-copy-destruction-cb :void ((world-ptr :pointer)
@@ -143,7 +153,8 @@
   (let ((world (%world-from-world-ptr world-ptr))
         (geometry (%geom-ptr->geom geom)))
     (format t "{TODO} geometry destruction ~s ~s"
-            world geometry)))
+            world geometry)
+    (values)))
 
 
 ;; newtonworlddestroylistenercallback
@@ -151,12 +162,14 @@
                                                (user-data :pointer))
   (let ((world (%world-from-world-ptr world-ptr)))
     (format t "{TODO} geometry destruction ~s ~s"
-            world user-data)))
+            world user-data)
+    (values)))
 
 ;; newtonworlddestructorcallback
 (defcallback %world-destructor-cb :void ((world-ptr :pointer))
   (let ((world (%world-from-world-ptr world-ptr)))
-    (format t "{TODO} world destruction ~s" world)))
+    (format t "{TODO} world destruction ~s" world)
+    (values)))
 
 ;; newtonworldlistenerbodydestroycallback
 (defcallback %world-destroy-listener-cb :void ((world-ptr :pointer)
@@ -165,7 +178,8 @@
   (let ((world (%world-from-world-ptr world-ptr))
         (body (%body-ptr->body body-ptr)))
     (format t "{TODO} listener body destruction ~s ~s ~s"
-            world user-data body)))
+            world user-data body)
+    (values)))
 
 
 ;; newtonworldrayfiltercallback
@@ -207,7 +221,8 @@
     (funcall (%world-update-listener-callback world)
              world
              listener-user-data
-             timestep)))
+             timestep)
+    (values)))
 
 ;;------------------------------------------------------------
 ;; Geometry
@@ -225,7 +240,8 @@
     (funcall (%geometry-iterator-callback geom)
              geom
              arr
-             face-id)))
+             face-id)
+    (values)))
 
 
 ;; newtoncollisiontreeraycastcallback
@@ -287,7 +303,8 @@
              body
              face-id
              arr
-             stride-in-bytes)))
+             stride-in-bytes)
+    (values)))
 
 ;; newtonfracturecompoundcollisionreconstructmainmeshcallback
 ;; need to work out NewtonFracturedCompoundMeshPart first

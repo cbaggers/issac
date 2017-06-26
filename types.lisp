@@ -10,7 +10,7 @@
    :type (or null (function (geometry
                              (array single-float (*))
                              (signed-byte 32))
-                            t))))
+                            single-float))))
 
 (defstruct (null-geometry
             (:constructor %make-null)
@@ -80,7 +80,8 @@
                              (signed-byte 32)
                              (signed-byte 32)
                              rtg-math.types:vec3
-                             (signed-byte 32))))))
+                             (signed-byte 32))
+                            single-float))))
 
 (defstruct (scene-geometry
             (:constructor %make-scene)
@@ -138,7 +139,7 @@
                              single-float
                              single-float
                              single-float)
-                            t))))
+                            (unsigned-byte 32)))))
 
 (defstruct (hinge (:constructor %make-hinge)
                   (:conc-name %hinge-)
@@ -150,7 +151,7 @@
                              single-float
                              single-float
                              single-float)
-                            t))))
+                            (unsigned-byte 32)))))
 
 (defstruct (slider (:constructor %make-slider)
                    (:conc-name %slider-)
@@ -162,7 +163,7 @@
                              single-float
                              single-float
                              single-float)
-                            t))))
+                            (unsigned-byte 32)))))
 
 (defstruct (universal-joint (:constructor %make-universal-joint)
                             (:conc-name %universal-)
@@ -174,7 +175,7 @@
                              single-float
                              single-float
                              single-float)
-                            t))))
+                            (unsigned-byte 32)))))
 
 (defstruct (up-vector (:constructor %make-up-vector)
                       (:conc-name %up-vector-)
@@ -228,8 +229,9 @@
   (solve-model (error "") :type t)
   (friction-model (error "") :type keyword)
   (min-frame-rate 60 :type (unsigned-byte 16))
+  ;;
   (body-iterator-callback
-   nil :type (or null (function (body) t)))
+   nil :type (or null (function (body) (signed-byte 32))))
   (ray-filter-callback
    nil :type (or null (function (body
                                  geometry
@@ -240,7 +242,7 @@
                                 single-float)))
   (ray-prefilter-callback
    nil :type (or null (function (body geometry)
-                                integer)))
+                                (unsigned-byte 32))))
   (update-listener-callback
    nil :type (or null (function (world foreign-pointer single-float)
                                 t))))
