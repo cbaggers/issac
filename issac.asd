@@ -22,5 +22,5 @@
                (:file "joints/slider")
                (:file "joints/corkscrew")
                (:file "joints/contacts")
-               (:file "def-callback")
+               (:file "callbacks")
                (:file "init")))
