@@ -2,7 +2,18 @@
 
 ;;------------------------------------------------------------
 
-;; newtonconstraintcreatehinge
+(defun make-hinge (world
+                   pivot-point-v3
+                   pin-dir-v3
+                   child-body
+                   parent-body)
+  (with-foreign-array (pp3 pivot-point-v3 '(:array :float 3))
+    (with-foreign-array (pd3 pin-dir-v3 '(:array :float 3))
+      (newtonconstraintcreatehinge (%world-ptr world)
+                                   pp3
+                                   pd3
+                                   (%body-ptr child-body)
+                                   (%body-ptr parent-body)))))
 
 (defun corkscrew-calc-stop-alpha (corkscrew
                                   acceleration

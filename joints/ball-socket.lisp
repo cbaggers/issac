@@ -2,7 +2,15 @@
 
 ;;------------------------------------------------------------
 
-;; newtonconstraintcreateball
+(defun make-ball-&-socket (world
+                           pivot-point-v3
+                           child-body
+                           parent-body)
+  (with-foreign-array (v3 pivot-point-v3 '(:array :float 3))
+    (newtonconstraintcreateball (%world-ptr world)
+                                v3
+                                (%body-ptr child-body)
+                                (%body-ptr parent-body))))
 
 (defun ball-&-socket-force (ball-&-socket)
   (with-foreign-object (v3 :float 3)

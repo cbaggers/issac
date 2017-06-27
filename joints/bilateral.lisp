@@ -1,7 +1,7 @@
 (in-package :issac)
 
 ;;------------------------------------------------------------
-(newtonuserjoin)
+;; newtonuserjoin
 ;;------------------------------------------------------------
 
 (defun bilateral-callback (joint)
