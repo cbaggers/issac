@@ -165,8 +165,8 @@
    :hinge-force
    :hinge-omega
 
-   :init
-   :uninit
+   :initialize
+   :uninitialize
 
    :joint-active-p
    :joint-body-0

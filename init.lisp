@@ -15,12 +15,12 @@
     (setf *initialized* nil)
     t))
 
-(defun init ()
+(defun initialize-issac ()
   (when (%init)
     ;;(reset-worlds)
     t))
 
-(defun uninit ()
+(defun uninitialize-issac ()
   (when (%uninit)
     ;;(reset-worlds)
     ))

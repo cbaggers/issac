@@ -197,12 +197,11 @@
 
 (defun make-geometry-tree (world faces/mesh/filename
                            &key (optimize t))
-  "Create an empty complex collision geometry tree. TreeCollision* is
-   the preferred method within Newton for collision with polygonal meshes
+  "Create an empty complex collision geometry tree. Tree-geometry is
+   the preferred geometry within Newton for collision with polygonal meshes
    of arbitrary complexity. The mesh must be made of flat
    non-intersecting polygons, but they do not explicitly need to be
-   triangles. TreeCollision* can be serialized by the application to/from
-   an arbitrary storage device."
+   triangles."
   (let ((tree-ptr (newtoncreatetreecollision (%world-ptr world) 0))
         (src faces/mesh/filename))
     (etypecase src
