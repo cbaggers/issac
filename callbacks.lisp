@@ -158,17 +158,15 @@
 
 
 ;; newtonworlddestroylistenercallback
-(defcallback %world-pre-destory-listener-cb :void ((world-ptr :pointer)
+(defcallback %world-pre-destroy-listener-cb :void ((world-ptr :pointer)
                                                    (user-data :pointer))
-  (declare (ignore user-data))
   (let ((world (%world-from-world-ptr world-ptr)))
     (format t "{TODO} geometry destruction ~s ~s"
             world user-data)
     (values)))
 
-(defcallback %world-post-destory-listener-cb :void ((world-ptr :pointer)
+(defcallback %world-post-destroy-listener-cb :void ((world-ptr :pointer)
                                                     (user-data :pointer))
-  (declare (ignore user-data))
   (let ((world (%world-from-world-ptr world-ptr)))
     (format t "{TODO} geometry destruction ~s ~s"
             world user-data)

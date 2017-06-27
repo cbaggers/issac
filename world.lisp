@@ -433,7 +433,7 @@
                  (get-callback '%world-pre-update-listener-cb)
                  (null-pointer)))
         (des (if (%world-geom-constructor-callback world)
-                 (get-callback '%world-pre-destory-listener-cb)
+                 (get-callback '%world-pre-destroy-listener-cb)
                  (null-pointer))))
     (with-foreign-string (name "l")
       (NewtonWorldAddPreListener
@@ -448,7 +448,7 @@
                  (get-callback '%world-pre-destroy-listener-cb)
                  (null-pointer)))
         (des (if (%world-geom-constructor-callback world)
-                 (get-callback '%world-pre-destory-listener-cb)
+                 (get-callback '%world-pre-destroy-listener-cb)
                  (null-pointer))))
     (with-foreign-string (name "l")
       (NewtonWorldAddPreListener
@@ -466,7 +466,7 @@
                  (get-callback '%world-post-update-listener-cb)
                  (null-pointer)))
         (des (if (%world-geom-constructor-callback world)
-                 (get-callback '%world-post-destory-listener-cb)
+                 (get-callback '%world-post-destroy-listener-cb)
                  (null-pointer))))
     (with-foreign-string (name "l")
       (NewtonWorldAddPostListener
@@ -481,7 +481,7 @@
                  (get-callback '%world-post-destroy-listener-cb)
                  (null-pointer)))
         (des (if (%world-geom-constructor-callback world)
-                 (get-callback '%world-post-destory-listener-cb)
+                 (get-callback '%world-post-destroy-listener-cb)
                  (null-pointer))))
     (with-foreign-string (name "l")
       (NewtonWorldAddPostListener
