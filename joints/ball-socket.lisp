@@ -14,7 +14,15 @@
     (newtonballgetjointomega (%joint-ptr ball-&-socket) v3)
     (ptr->v3 v3)))
 
-;; newtonballsetconelimits
+(defun ball-&-socket-set-cone-limits (ball-&-socket
+                                      pin-v3
+                                      max-cone-angle
+                                      max-twist-angle)
+  (with-foreign-array (pin3 pin-v3 '(:array :float 3))
+    (newtonballsetconelimits (%joint-ptr ball-&-socket)
+                             pin3
+                             max-cone-angle
+                             max-twist-angle)))
 
 (defun ball-&-socket-callback (joint)
   (%ball-&-socket-callback joint))

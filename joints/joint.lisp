@@ -44,26 +44,51 @@
 
 ;;------------------------------------------------------------
 
-;; (CFFI:DEFCSTRUCT (NEWTONJOINTRECORD :SIZE 584)
-;;   (M-ATTACHMENMATRIX-0 (:ARRAY (:ARRAY :FLOAT 4) 4) :OFFSET 0)
-;;   (M-ATTACHMENMATRIX-1 (:ARRAY (:ARRAY :FLOAT 4) 4) :OFFSET 64)
-;;   (M-MINLINEARDOF (:ARRAY :FLOAT 3) :OFFSET 128)
-;;   (M-MAXLINEARDOF (:ARRAY :FLOAT 3) :OFFSET 140)
-;;   (M-MINANGULARDOF (:ARRAY :FLOAT 3) :OFFSET 152)
-;;   (M-MAXANGULARDOF (:ARRAY :FLOAT 3) :OFFSET 164)
-;;   (M-ATTACHBODY-0 (:POINTER NEWTONBODY) :OFFSET 176)
-;;   (M-ATTACHBODY-1 (:POINTER NEWTONBODY) :OFFSET 184)
-;;   (M-EXTRAPARAMETERS (:ARRAY :FLOAT 64) :OFFSET 192)
-;;   (M-BODIESCOLLISIONON :INT :OFFSET 448)
-;;   (M-DESCRIPTIONTYPE (:ARRAY :CHAR 128) :OFFSET 452))
-
-;; NewtonJointGetInfo
+(defun joint-info (joint)
+  (with-foreign-object (ptr 'NewtonJointRecord)
+    (NewtonJointGetInfo (%joint-ptr joint) ptr)
+    (with-foreign-slots ((m-attachmenmatrix-0
+                          m-attachmenmatrix-1
+                          m-minlineardof
+                          m-maxlineardof
+                          m-minangulardof
+                          m-maxangulardof
+                          m-attachbody-0
+                          m-attachbody-1
+                          m-extraparameters
+                          m-bodiescollisionon
+                          m-descriptiontype)
+                         ptr NewtonJointRecord)
+      (make-joint-info
+       :attachment-0-body (%body-ptr->body m-attachbody-0)
+       :attachment-1-body (%body-ptr->body m-attachbody-1)
+       :attachment-0-mat4 (ptr->m4 m-attachbody-0)
+       :attachment-1-mat4 (ptr->m4 m-attachbody-1)
+       :min-linear-dof (ptr->v3 m-minlineardof)
+       :max-linear-dof (ptr->v3 m-maxlineardof)
+       :min-angular-dof (ptr->v3 m-minangulardof)
+       :max-angular-dof (ptr->v3 m-maxangulardof)
+       :extra-params (foreign-array-to-lisp
+                      m-extraparameters '(:array :float 64))
+       :bodies-collision-on (= 1 m-bodiescollisionon)
+       :description (foreign-string-to-lisp m-descriptiontype :count 128)))))
 
 ;;------------------------------------------------------------
 
-;; NewtonJointGetBody0
-;; NewtonJointGetBody1
+(defun joint-body-0 (joint)
+  (NewtonJointGetBody0 (%joint-ptr joint)))
+
+(defun joint-body-1 (joint)
+  (NewtonJointGetBody1 (%joint-ptr joint)))
 
 ;;------------------------------------------------------------
 
-;; NewtonJointSetDestructor
+(defun joint-destructor-callback (joint)
+  (%joint-destructor-callback joint))
+
+(defun (setf joint-destructor-callback) (callback joint)
+  (let ((cb (if callback
+                (get-callback '%joint-destructor-cb)
+                (null-pointer))))
+    (newtonjointsetdestructor (%joint-ptr joint) cb))
+  (setf (%joint-destructor-callback joint) callback))

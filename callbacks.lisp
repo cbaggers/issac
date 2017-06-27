@@ -28,6 +28,14 @@
     (values)))
 
 ;;------------------------------------------------------------
+;; newtonconstraintdestructor
+
+(defcallback %joint-destructor-cb :void ((joint-ptr :pointer))
+  (let ((joint (%joint-ptr->joint joint-ptr)))
+    (funcall (%joint-destructor-callback joint) joint)
+    (values)))
+
+;;------------------------------------------------------------
 ;; newtonballcallback
 
 (defcallback %ball-cb :void ((joint-ptr :pointer))
@@ -111,19 +119,21 @@
                         m-descriptiontype)
                        data NewtonJointRecord)
     (let ((joint (%joint-ptr->joint joint-ptr)))
-      (funcall (%hinge-callback joint)
+      (funcall (%bilateral-info-callback joint)
                joint
-               (ptr->m4 m-attachbody-0)
-               (ptr->m4 m-attachbody-1)
-               (ptr->v3 m-minlineardof)
-               (ptr->v3 m-maxlineardof)
-               (ptr->v3 m-minangulardof)
-               (ptr->v3 m-maxangulardof)
-               (%body-ptr->body m-attachbody-0)
-               (%body-ptr->body m-attachbody-1)
-               (foreign-array-to-lisp m-extraparameters '(:array :float 64))
-               m-bodiescollisionon
-               (foreign-string-to-lisp m-descriptiontype :count 128))
+               (make-joint-info
+                :attachment-0-body (%body-ptr->body m-attachbody-0)
+                :attachment-1-body (%body-ptr->body m-attachbody-1)
+                :attachment-0-mat4 (ptr->m4 m-attachbody-0)
+                :attachment-1-mat4 (ptr->m4 m-attachbody-1)
+                :min-linear-dof (ptr->v3 m-minlineardof)
+                :max-linear-dof (ptr->v3 m-maxlineardof)
+                :min-angular-dof (ptr->v3 m-minangulardof)
+                :max-angular-dof (ptr->v3 m-maxangulardof)
+                :extra-params (foreign-array-to-lisp
+                               m-extraparameters '(:array :float 64))
+                :bodies-collision-on (= 1 m-bodiescollisionon)
+                :description (foreign-string-to-lisp m-descriptiontype :count 128)))
       (values))))
 
 ;;------------------------------------------------------------

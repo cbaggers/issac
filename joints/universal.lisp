@@ -35,11 +35,35 @@
 
 ;;------------------------------------------------------------
 
-;; (defun universal-joint-calc-stop-alpha-0 (universal-joint desc-ptr angle)
-;;   (newtonuniversalcalculatestopalpha0 (%joint-ptr universal-joint) desc-ptr angle))
+(defun universal-joint-calc-stop-alpha-0 (universal
+                                          acceleration
+                                          min-friction
+                                          max-friction
+                                          timestep
+                                          position)
+  (with-foreign-object (desc 'newtonhingesliderupdatedesc)
+    (with-foreign-slots ((m-accel m-minfriction m-maxfriction m-timestep)
+                         desc newtonhingesliderupdatedesc)
+      (setf m-accel acceleration
+            m-minfriction min-friction
+            m-maxfriction max-friction
+            m-timestep timestep))
+    (newtonuniversalcalculatestopalpha0 (%joint-ptr universal) desc position)))
 
-;; (defun universal-joint-calc-stop-alpha-1 (universal-joint desc-ptr angle)
-;;   (newtonuniversalcalculatestopalpha1 (%joint-ptr universal-joint) desc-ptr angle))
+(defun universal-joint-calc-stop-alpha-1 (universal
+                                          acceleration
+                                          min-friction
+                                          max-friction
+                                          timestep
+                                          position)
+  (with-foreign-object (desc 'newtonhingesliderupdatedesc)
+    (with-foreign-slots ((m-accel m-minfriction m-maxfriction m-timestep)
+                         desc newtonhingesliderupdatedesc)
+      (setf m-accel acceleration
+            m-minfriction min-friction
+            m-maxfriction max-friction
+            m-timestep timestep))
+    (newtonuniversalcalculatestopalpha0 (%joint-ptr universal) desc position)))
 
 ;;------------------------------------------------------------
 

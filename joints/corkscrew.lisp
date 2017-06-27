@@ -28,25 +28,43 @@
 
 ;;------------------------------------------------------------
 
-;; (defun corkscrew-calc-stop-acceleration (corkscrew desc-ptr position)
-;;   "Calculate the the relative linear acceleration needed to stop the
-;;    corkscrew at the desired angle. this function can only be called from
-;;    a NewtonCorkscrewCallback and it can be used by the application to
-;;    implement corkscrew limits."
-;;   (newtoncorkscrewcalculatestopaccel (%joint-ptr corkscrew) desc-ptr position))
+(defun corkscrew-calc-stop-acceleration (corkscrew
+                                         acceleration
+                                         min-friction
+                                         max-friction
+                                         timestep
+                                         position)
+  "Calculate the the relative linear acceleration needed to stop the
+   corkscrew at the desired angle. this function can only be called from
+   a NewtonCorkscrewCallback and it can be used by the application to
+   implement corkscrew limits."
+  (with-foreign-object (desc 'newtonhingesliderupdatedesc)
+    (with-foreign-slots ((m-accel m-minfriction m-maxfriction m-timestep)
+                         desc newtonhingesliderupdatedesc)
+      (setf m-accel acceleration
+            m-minfriction min-friction
+            m-maxfriction max-friction
+            m-timestep timestep))
+    (newtoncorkscrewcalculatestopaccel (%joint-ptr corkscrew) desc position)))
 
-;; (defun corkscrew-calc-stop-alpha (corkscrew desc-ptr angle)
-;;   "Calculate the relative angular acceleration needed to stop the
-;;    corkscrew at the desired angle. this function can only be called from
-;;    a NewtonCorkscrewCallback and it can be used by the application to
-;;    implement corkscrew limits."
-;;   (newtoncorkscrewcalculatestopalpha (%joint-ptr corkscrew) desc-ptr angle))
-
-;; (cffi:defcstruct (newtonhingesliderupdatedesc :size 16)
-;;   (m-accel :float :offset 0)
-;;   (m-minfriction :float :offset 4)
-;;   (m-maxfriction :float :offset 8)
-;;   (m-timestep :float :offset 12))
+(defun corkscrew-calc-stop-alpha (corkscrew
+                                  acceleration
+                                  min-friction
+                                  max-friction
+                                  timestep
+                                  angle)
+  "Calculate the relative angular acceleration needed to stop the
+   corkscrew at the desired angle. this function can only be called from
+   a NewtonCorkscrewCallback and it can be used by the application to
+   implement corkscrew limits."
+  (with-foreign-object (desc 'newtonhingesliderupdatedesc)
+    (with-foreign-slots ((m-accel m-minfriction m-maxfriction m-timestep)
+                         desc newtonhingesliderupdatedesc)
+      (setf m-accel acceleration
+            m-minfriction min-friction
+            m-maxfriction max-friction
+            m-timestep timestep))
+    (newtoncorkscrewcalculatestopalpha (%joint-ptr corkscrew) desc angle)))
 
 ;;------------------------------------------------------------
 

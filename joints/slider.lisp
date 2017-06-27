@@ -25,7 +25,24 @@
 
 ;;------------------------------------------------------------
 
-;; newtonslidercalculatestopaccel
+(defun slider-calc-stop-acceleration (slider
+                                      acceleration
+                                      min-friction
+                                      max-friction
+                                      timestep
+                                      position)
+  "Calculate the the relative linear acceleration needed to stop the
+   slider at the desired angle. this function can only be called from
+   a NewtonSliderCallback and it can be used by the application to
+   implement slider limits."
+  (with-foreign-object (desc 'newtonhingesliderupdatedesc)
+    (with-foreign-slots ((m-accel m-minfriction m-maxfriction m-timestep)
+                         desc newtonhingesliderupdatedesc)
+      (setf m-accel acceleration
+            m-minfriction min-friction
+            m-maxfriction max-friction
+            m-timestep timestep))
+    (newtonslidercalculatestopaccel (%joint-ptr slider) desc position)))
 
 ;;------------------------------------------------------------
 

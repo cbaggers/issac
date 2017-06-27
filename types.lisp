@@ -120,7 +120,43 @@
 
 (defstruct (joint (:constructor %make-joint)
                   (:conc-name %joint-))
-  (ptr (error "") :type foreign-pointer))
+  (ptr (error "") :type foreign-pointer)
+  (destructor-callback nil :type (or null (function (joint) t))))
+
+(defstruct joint-info
+  (attachment-0-body
+   (error "joint-info missing required data attachment-0-body")
+   :type body)
+  (attachment-1-body
+   (error "joint-info missing required data attachment-1-body")
+   :type body)
+  (attachment-0-mat4
+   (error "joint-info missing required data attachment-0-mat4")
+   :type rtg-math.types:mat4)
+  (attachment-1-mat4
+   (error "joint-info missing required data attachment-1-mat4")
+   :type rtg-math.types:mat4)
+  (min-linear-dof
+   (error "joint-info missing required data min-linear-dof")
+   :type rtg-math.types:vec3)
+  (max-linear-dof
+   (error "joint-info missing required data max-linear-dof")
+   :type rtg-math.types:vec3)
+  (min-angular-dof
+   (error "joint-info missing required data min-angular-dof")
+   :type rtg-math.types:vec3)
+  (max-angular-dof
+   (error "joint-info missing required data max-angular-dof")
+   :type rtg-math.types:vec3)
+  (extra-params
+   (error "joint-info missing required data extra-params")
+   :type (array single-float (64)))
+  (bodies-collision-on
+   (error "joint-info missing required data bodies-collision-on")
+   :type boolean)
+  (description
+   (error "joint-info missing required data description")
+   :type string))
 
 (defstruct (ball-&-socket (:constructor %make-ball-&-socket)
                           (:conc-name %ball-&-socket-)
@@ -190,19 +226,7 @@
    :type (or null (function (bilateral-joint single-float) t)))
   (info-callback
    nil
-   :type (or null (function (bilateral-joint
-                             rtg-math.types:mat4
-                             rtg-math.types:mat4
-                             rtg-math.types:vec3
-                             rtg-math.types:vec3
-                             rtg-math.types:vec3
-                             rtg-math.types:vec3
-                             body
-                             body
-                             array
-                             (signed-byte 32)
-                             string)
-                            t))))
+   :type (or null (function (bilateral-joint joint-info) t))))
 
 ;;------------------------------------------------------------
 
