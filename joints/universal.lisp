@@ -28,6 +28,11 @@
 (defun universal-joint-omega-1 (universal-joint)
   (newtonuniversalgetjointomega1 (%joint-ptr universal-joint)))
 
+(defun universal-joint-omega (universal-joint)
+  (let ((ptr (%joint-ptr universal-joint)))
+    (v! (newtonuniversalgetjointomega0 ptr)
+        (newtonuniversalgetjointomega1 ptr))))
+
 ;;------------------------------------------------------------
 
 ;; (defun universal-joint-calc-stop-alpha-0 (universal-joint desc-ptr angle)

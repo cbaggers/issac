@@ -1,7 +1,7 @@
 (in-package :issac)
 
 ;;------------------------------------------------------------
-
+(newtonuserjoin)
 ;;------------------------------------------------------------
 
 (defun bilateral-callback (joint)
@@ -27,3 +27,16 @@
 ;;     (setf (%bilateral-info-callback joint) callback)))
 
 ;;------------------------------------------------------------
+
+;; newtonuserjoinrowscount
+;; newtonuserjointaddangularrow
+;; newtonuserjointaddgeneralrow
+;; newtonuserjointaddlinearrow
+;; newtonuserjointgetgeneralrow
+;; newtonuserjointgetrowforce
+;; newtonuserjointsetfeedbackcollectorcallback
+;; newtonuserjointsetrowacceleration
+;; newtonuserjointsetrowmaximumfriction
+;; newtonuserjointsetrowminimumfriction
+;; newtonuserjointsetrowspringdamperacceleration
+;; newtonuserjointsetrowstiffness

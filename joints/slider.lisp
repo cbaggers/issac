@@ -18,10 +18,14 @@
 (defun slider-velocity (slider)
   (newtonslidergetjointveloc (%joint-ptr slider)))
 
+(defun slider-force (slider)
+  (with-foreign-object (v3 :float 3)
+    (newtonslidergetjointforce (%joint-ptr slider) v3)
+    (ptr->v3 v3)))
+
 ;;------------------------------------------------------------
 
-;; (defun corkscrew-calc-stop-acceleration (corkscrew desc-ptr position)
-;;   (newtonslidercalculatestopaccel (%joint-ptr corkscrew) desc-ptr position))
+;; newtonslidercalculatestopaccel
 
 ;;------------------------------------------------------------
 

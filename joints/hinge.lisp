@@ -2,10 +2,16 @@
 
 ;;------------------------------------------------------------
 
-newtonconstraintcreatehinge
-newtonhingecalculatestopalpha
-newtonhingegetjointforce
-newtonhingegetjointomega
+;; newtonconstraintcreatehinge
+;; newtonhingecalculatestopalpha
+
+(defun hinge-force (hinge)
+  (with-foreign-object (v3 :float 3)
+    (newtonhingegetjointforce (%joint-ptr hinge) v3)
+    (ptr->v3 v3)))
+
+(defun hinge-omega (hinge)
+  (newtonhingegetjointomega (%joint-ptr hinge)))
 
 ;;------------------------------------------------------------
 

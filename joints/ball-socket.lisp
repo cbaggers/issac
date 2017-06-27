@@ -3,8 +3,17 @@
 ;;------------------------------------------------------------
 
 ;; newtonconstraintcreateball
-;; newtonballgetjointforce
-;; newtonballgetjointomega
+
+(defun ball-&-socket-force (ball-&-socket)
+  (with-foreign-object (v3 :float 3)
+    (newtonballgetjointforce (%joint-ptr ball-&-socket) v3)
+    (ptr->v3 v3)))
+
+(defun ball-&-socket-omega (ball-&-socket)
+  (with-foreign-object (v3 :float 3)
+    (newtonballgetjointomega (%joint-ptr ball-&-socket) v3)
+    (ptr->v3 v3)))
+
 ;; newtonballsetconelimits
 
 (defun ball-&-socket-callback (joint)

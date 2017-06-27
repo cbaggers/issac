@@ -2,8 +2,8 @@
 
 (defvar *points*
   (list (list (v! -100s0 0s0  100s0)
-              (v! 100s0 0s0  100s0)
-              (v! 100s0 0s0 -100s0)
+              (v!  100s0 0s0  100s0)
+              (v!  100s0 0s0 -100s0)
               (v! -100s0 0s0 -100s0))))
 
 (defun apply-gravity (body timestep)
