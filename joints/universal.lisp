@@ -35,3 +35,15 @@
 
 ;; (defun universal-joint-calc-stop-alpha-1 (universal-joint desc-ptr angle)
 ;;   (newtonuniversalcalculatestopalpha1 (%joint-ptr universal-joint) desc-ptr angle))
+
+;;------------------------------------------------------------
+
+(defun universal-joint-callback (joint)
+  (%universal-callback joint))
+
+(defun (setf universal-joint-callback) (callback joint)
+  (let ((cb (if callback
+                (get-callback '%universal-cb)
+                (null-pointer))))
+    (NewtonUniversalSetUserCallback (%joint-ptr joint) cb)
+    (setf (%universal-callback joint) callback)))

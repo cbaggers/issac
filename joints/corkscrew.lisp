@@ -49,3 +49,13 @@
 ;;   (m-timestep :float :offset 12))
 
 ;;------------------------------------------------------------
+
+(defun corkscrew-callback (joint)
+  (%corkscrew-callback joint))
+
+(defun (setf corkscrew-callback) (callback joint)
+  (let ((cb (if callback
+                (get-callback '%corkscrew-cb)
+                (null-pointer))))
+    (NewtonCorkscrewSetUserCallback (%joint-ptr joint) cb)
+    (setf (%corkscrew-callback joint) callback)))

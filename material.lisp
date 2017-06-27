@@ -254,3 +254,6 @@
      (%material-pair-ptr material-pair)
      n3))
   vec3)
+
+;; NewtonMaterialSetCollisionCallback
+;; {TODO} need a bit more info on contacts process before doing this

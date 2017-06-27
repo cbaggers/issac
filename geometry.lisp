@@ -243,6 +243,27 @@
 ;; (newtontreecollisionsetfaceattribute)
 ;; (newtontreecollisiongetvertexlisttrianglelistinaabb)
 
+
+(defun geometry-tree-ray-cast-callback (tree)
+  (%geometry-tree-raycast-callback tree))
+
+(defun (setf geometry-tree-ray-cast-callback) (callback tree)
+  (let ((cb (if callback
+                (get-callback '%geom-tree-raycast-cb)
+                (null-pointer))))
+    (NewtonTreeCollisionSetUserRayCastCallback (%geometry-ptr tree) cb)
+    (setf (%geometry-tree-raycast-callback tree) callback)))
+
+(defun geometry-tree-debug-callback (tree)
+  (%geometry-tree-debug-callback tree))
+
+(defun (setf geometry-tree-debug-callback) (callback tree)
+  (let ((cb (if callback
+                (get-callback '%geom-tree-debug-cb)
+                (null-pointer))))
+    (NewtonStaticCollisionSetDebugCallback (%geometry-ptr tree) cb)
+    (setf (%geometry-tree-debug-callback tree) callback)))
+
 ;;------------------------------------------------------------
 
 (defun free-geometry (geometry)
@@ -360,6 +381,16 @@
                (float vertical-scale)
                (float horizontal-scale)
                0))))))
+
+(defun height-field-ray-cast-callback (height-field)
+  (%height-field-ray-cast-callback height-field))
+
+(defun (setf height-field-ray-cast-callback) (callback height-field)
+  (let ((cb (if callback
+                (get-callback '%geom-height-field-raycast-cb)
+                (null-pointer))))
+    (NewtonHeightFieldSetUserRayCastCallback (%geometry-ptr height-field) cb)
+    (setf (%height-field-ray-cast-callback height-field) callback)))
 
 ;;------------------------------------------------------------
 
@@ -555,6 +586,19 @@
 ;; newtoncompoundcollisionparam
 ;; newtonfracturecompoundcollisiononemitchunk
 ;; newtonfracturecompoundcollisiononemitcompoundfractured
+
+;;------------------------------------------------------------
+
+(defun map-polygons-in-geometry (function geometry
+                                 &optional (mat4 (m4:identity)))
+  (assert function)
+  (with-foreign-array (m4 mat4 '(:array :float 16))
+    (let ((cb (get-callback '%geometry-iterator-cb))
+          (geom-ptr (%geometry-ptr geometry)))
+      (setf (%geometry-iterator-callback geometry) function)
+      (unwind-protect
+           (NewtonCollisionForEachPolygonDo geom-ptr m4 cb geom-ptr)
+        (setf (%geometry-iterator-callback geometry) nil)))))
 
 ;;------------------------------------------------------------
 

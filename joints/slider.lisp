@@ -22,3 +22,15 @@
 
 ;; (defun corkscrew-calc-stop-acceleration (corkscrew desc-ptr position)
 ;;   (newtonslidercalculatestopaccel (%joint-ptr corkscrew) desc-ptr position))
+
+;;------------------------------------------------------------
+
+(defun slider-callback (joint)
+  (%slider-callback joint))
+
+(defun (setf slider-callback) (callback joint)
+  (let ((cb (if callback
+                (get-callback '%slider-cb)
+                (null-pointer))))
+    (NewtonSliderSetUserCallback (%joint-ptr joint) cb)
+    (setf (%slider-callback joint) callback)))

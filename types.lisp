@@ -56,7 +56,7 @@
                              rtg-math.types:vec3
                              (signed-byte 32))
                             t)))
-  (face-callback
+  (debug-callback
    nil
    :type (or null (function (geometry-tree
                              body
@@ -232,6 +232,20 @@
   ;;
   (body-iterator-callback
    nil :type (or null (function (body) (signed-byte 32))))
+  (geom-constructor-callback
+   nil :type (or null (function (world body body) t)))
+  (geom-destructor-callback
+   nil :type (or null (function (world body) t)))
+  (pre-update-listener-callback
+   nil :type (or null (function (world single-float) t)))
+  (post-update-listener-callback
+   nil :type (or null (function (world single-float) t)))
+  (pre-destroy-listener-callback
+   nil :type (or null (function (world) t)))
+  (post-destroy-listener-callback
+   nil :type (or null (function (world) t)))
+  (destructor-callback
+   nil :type (or null (function (world) t)))
   (ray-filter-callback
    nil :type (or null (function (body
                                  geometry

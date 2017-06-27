@@ -137,32 +137,62 @@
     (funcall (%world-body-iterator-callback world) body)))
 
 ;; newtoncollisioncopyconstructioncallback
-(defcallback %geom-copy-construction-cb :void ((world-ptr :pointer)
+(defcallback %world-geom-constructor-cb :void ((world-ptr :pointer)
                                                (geom :pointer)
                                                (src-geom :pointer))
   (let ((world (%world-from-world-ptr world-ptr))
         (geometry (%geom-ptr->geom geom))
         (src-geometry (%geom-ptr->geom src-geom)))
-    (format t "{TODO} geometry copy construction ~s ~s ~s"
-            world geometry src-geometry)
+    (funcall (%world-geom-constructor-callback world)
+             world geometry src-geometry)
     (values)))
 
 ;; newtoncollisiondestructorcallback
-(defcallback %geom-copy-destruction-cb :void ((world-ptr :pointer)
-                                              (geom :pointer))
+(defcallback %world-geom-destruction-cb :void ((world-ptr :pointer)
+                                               (geom :pointer))
   (let ((world (%world-from-world-ptr world-ptr))
         (geometry (%geom-ptr->geom geom)))
-    (format t "{TODO} geometry destruction ~s ~s"
-            world geometry)
+    (funcall (%world-geom-destructor-callback world)
+             world geometry)
     (values)))
 
 
 ;; newtonworlddestroylistenercallback
-(defcallback %world-destroy-listener-cb :void ((world-ptr :pointer)
-                                               (user-data :pointer))
+(defcallback %world-pre-destory-listener-cb :void ((world-ptr :pointer)
+                                                   (user-data :pointer))
+  (declare (ignore user-data))
   (let ((world (%world-from-world-ptr world-ptr)))
     (format t "{TODO} geometry destruction ~s ~s"
             world user-data)
+    (values)))
+
+(defcallback %world-post-destory-listener-cb :void ((world-ptr :pointer)
+                                                    (user-data :pointer))
+  (declare (ignore user-data))
+  (let ((world (%world-from-world-ptr world-ptr)))
+    (format t "{TODO} geometry destruction ~s ~s"
+            world user-data)
+    (values)))
+
+;; newtonworldupdatelistenercallback
+(defcallback %world-pre-update-listener-cb :void ((world-ptr :pointer)
+                                                  (listener-user-data :pointer)
+                                                  (timestep :float))
+  (let ((world (%world-from-world-ptr world-ptr)))
+    (funcall (%world-pre-update-listener-callback world)
+             world
+             listener-user-data
+             timestep)
+    (values)))
+
+(defcallback %world-post-update-listener-cb :void ((world-ptr :pointer)
+                                                   (listener-user-data :pointer)
+                                                   (timestep :float))
+  (let ((world (%world-from-world-ptr world-ptr)))
+    (funcall (%world-post-update-listener-callback world)
+             world
+             listener-user-data
+             timestep)
     (values)))
 
 ;; newtonworlddestructorcallback
@@ -212,17 +242,6 @@
         (body (%body-ptr->body body-ptr))
         (shape-hit (%geom-ptr->geom geom-ptr)))
     (funcall (%world-ray-prefilter-callback world) body shape-hit)))
-
-;; newtonworldupdatelistenercallback
-(defcallback %world-update-listener-cb :void ((world-ptr :pointer)
-                                              (listener-user-data :pointer)
-                                              (timestep :float))
-  (let ((world (%world-from-world-ptr world-ptr)))
-    (funcall (%world-update-listener-callback world)
-             world
-             listener-user-data
-             timestep)
-    (values)))
 
 ;;------------------------------------------------------------
 ;; Geometry
@@ -286,19 +305,18 @@
 ;;  int indexCount)
 
 ;; newtontreecollisioncallback
-
-(defcallback %geom-tree-face-cb :void ((tree-ptr :pointer)
-                                       (body-ptr :pointer)
-                                       (face-id :int)
-                                       (vertex-count :int)
-                                       (vertex-arr :pointer)
+(defcallback %geom-tree-debug-cb :void ((tree-ptr :pointer)
+                                        (body-ptr :pointer)
+                                        (face-id :int)
+                                        (vertex-count :int)
+                                        (vertex-arr :pointer)
                                         (stride-in-bytes :int))
   (let ((tree (%geom-ptr->geom tree-ptr))
         (body (%body-ptr->body body-ptr))
         (arr (make-array vertex-count :element-type 'single-float)))
     (loop :for i :below vertex-count :do
        (setf (aref arr i) (mem-aref vertex-arr :float i)))
-    (funcall (%geometry-tree-face-callback tree)
+    (funcall (%geometry-tree-debug-callback tree)
              tree
              body
              face-id
@@ -314,7 +332,7 @@
 
 
 ;; newtonheightfieldraycastcallback
-(defcallback %geom-height-field-raycat-cb :float
+(defcallback %geom-height-field-raycast-cb :float
     ((body-ptr :pointer)
      (height-field-ptr :pointer)
      (intersection :float)

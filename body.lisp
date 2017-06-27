@@ -37,7 +37,10 @@
   (%body-destructor-callback body))
 
 (defun (setf body-destructor-callback) (callback body)
-  (newtonbodysetdestructorcallback (%body-ptr body) '%body-destructor)
+  (let ((cb (if callback
+                (get-callback '%body-destructor)
+                (null-pointer))))
+    (newtonbodysetdestructorcallback (%body-ptr body) cb))
   (setf (%body-destructor-callback body) callback))
 
 ;;------------------------------------------------------------
@@ -185,8 +188,11 @@
   (%body-transform-callback body))
 
 (defun (setf body-transform-callback) (callback body)
-  (newtonbodysettransformcallback (%body-ptr body) '%body-transform)
-  (setf (%body-transform-callback body) callback))
+  (let ((cb (if callback
+                (get-callback '%body-transform)
+                (null-pointer))))
+    (newtonbodysettransformcallback (%body-ptr body) cb)
+    (setf (%body-transform-callback body) callback)))
 
 ;;------------------------------------------------------------
 
@@ -330,8 +336,10 @@
   (%body-force-torque-callback body))
 
 (defun (setf body-force-torque-callback) (callback body)
-  (newtonbodysetforceandtorquecallback
-   (%body-ptr body) (get-callback '%body-apply-force-and-torque))
+  (let ((cb (if callback
+                (get-callback '%body-apply-force-and-torque)
+                (null-pointer))))
+    (newtonbodysetforceandtorquecallback (%body-ptr body) cb))
   (setf (%body-force-torque-callback body) callback))
 
 ;;------------------------------------------------------------
