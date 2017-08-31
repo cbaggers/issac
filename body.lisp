@@ -6,11 +6,14 @@
   (assert (member body-kind '(:kinematic :dynamic :deformable)) (body-kind))
   body-kind)
 
-(defun make-body (world geometry
-                  &key (kind :dynamic)
-                    (mass 1s0)
-                    (linear-damping 0.1)
-                    (matrix4 (m4:identity)))
+(defn make-body ((world world)
+                 (geometry geometry)
+                 &key (kind symbol :dynamic)
+                 (mass single-float 1s0)
+                 (linear-damping single-float 0.1)
+                 (matrix4 rtg-math.types:mat4 (m4:identity)))
+    body
+  (declare (profile t))
   (let ((kind (validate-body-kind kind))
         (wptr (%world-ptr world)))
     (with-foreign-array (m4 matrix4 '(:array :float 16))
@@ -22,7 +25,7 @@
                       (:dynamic (newtoncreatedynamicbody
                                  wptr (%geometry-ptr geometry) m4))
                       (:deformable (newtoncreatedeformablebody
-                                    wptr (%mesh-ptr geometry) m4))))))
+                                    wptr (%geometry-ptr geometry) m4))))))
         (setf (%body-user-data body) (make-pointer (%add-body-to-system body)))
         (body-geometry-mass-set body geometry mass)
         (setf (body-linear-damping body) linear-damping)
@@ -30,13 +33,22 @@
 
 ;;------------------------------------------------------------
 
-(defun free-body (body)
-  (newtondestroybody (%body-ptr body)))
+(defn free-body ((body body))
+    null
+  (declare (profile t))
+  (newtondestroybody (%body-ptr body))
+  nil)
 
-(defun body-destructor-callback (body)
+(defn body-destructor-callback ((body body))
+    (or null (function (body) t))
+  (declare (profile t))
   (%body-destructor-callback body))
 
-(defun (setf body-destructor-callback) (callback body)
+(defn (setf body-destructor-callback)
+    ((callback (or null (function (body) t)))
+     (body body))
+    (or null (function (body) t))
+  (declare (profile t))
   (let ((cb (if callback
                 (get-callback '%body-destructor)
                 (null-pointer))))
@@ -48,13 +60,18 @@
 (defun body-id (body)
   (newtonbodygetid (%body-ptr body)))
 
-(defun body-world (body)
-  (newtonbodygetworld (%body-ptr body)))
+(defn body-world ((body body)) world
+  (declare (profile t))
+  (%world-from-world-ptr (newtonbodygetworld (%body-ptr body))))
 
-(defun %body-user-data (body)
+(defn %body-user-data ((body body)) cffi:foreign-pointer
+  (declare (optimize (speed 3) (safety 1)))
   (newtonbodygetuserdata (%body-ptr body)))
 
-(defun (setf %body-user-data) (ptr body)
+(defn (setf %body-user-data) ((ptr cffi:foreign-pointer)
+                              (body body))
+    cffi:foreign-pointer
+  (declare (optimize (speed 3) (safety 1)))
   (newtonbodysetuserdata (%body-ptr body) ptr))
 
 ;;------------------------------------------------------------

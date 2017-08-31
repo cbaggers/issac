@@ -9,7 +9,7 @@
 
 ;;------------------------------------------------------------
 
-(defun %world-by-id (id)
+(defn-inline %world-by-id ((id t)) world
   (aref *worlds* id))
 
 (defun ensure-world-pool-size (len)
@@ -31,7 +31,7 @@
                      (max-thread-count :default)
                      (solve-model :adaptive)
                      (friction-model :adaptive)
-                     (minimum-frame-rate 60))
+                     (minimum-frame-rate 30))
   "Create an instance of the Newton world.
 
    Specifying the stack size for each thread is only useful for
@@ -77,7 +77,8 @@
 
 ;;------------------------------------------------------------
 
-(defun %world-from-world-ptr (world-ptr)
+(defn %world-from-world-ptr ((world-ptr cffi:foreign-pointer))
+    world
   (let ((id (pointer-address (newtonworldgetuserdata world-ptr))))
     (%world-by-id id)))
 

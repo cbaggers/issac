@@ -7,8 +7,7 @@
   :encoding :utf-8
   :serial t
   :depends-on (#:raw-bindings-newton
-               #:cffi #:uiop #:structy-defclass #:rtg-math
-               #:fn)
+               #:cffi #:uiop #:rtg-math)
   :components ((:file "package")
                (:file "cffi-helpers")
                (:file "types")
