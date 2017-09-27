@@ -285,6 +285,7 @@
    nil :type (or null (function (world foreign-pointer single-float)
                                 t))))
 
+(declaim (type world *null-world*))
 (defvar *null-world*
   (%make-world :ptr (null-pointer)
                :solve-model nil

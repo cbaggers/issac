@@ -8,7 +8,7 @@
 ;;
 ;;------------------------------------------------------------
 
-(defun world-default-material (world)
+(defn world-default-material ((world world)) (signed-byte 32)
   "Gets the defaul material for this world.
 
    A Material can be interpreted as the nodes of a dense graph. The edges of
@@ -18,13 +18,14 @@
    When the Newton world is created, the default material is created by the
    engine. When bodies are created the application assigns a material to the
    body."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (NewtonMaterialGetDefaultGroupID (%world-ptr world)))
 
 
 ;; NewtonMaterialCreateGroupID
 
 
-(defun create-material (world)
+(defn create-material ((world world)) (signed-byte 32)
   "Create a new material.
 
    A Material can be interpreted as the nodes of a dense graph. The edges of
@@ -39,13 +40,14 @@
    destroying all the bodies and calling the function `destroy-all-materials`"
   (NewtonMaterialCreateGroupID (%world-ptr world)))
 
-(defun destroy-all-materials (world)
+(defn destroy-all-materials ((world world)) null
   "Remove all materials from the Newton world. This function must be called
    after there are no more rigid bodies in the word."
-  (NewtonMaterialDestroyAllGroupID (%world-ptr world)))
+  (NewtonMaterialDestroyAllGroupID (%world-ptr world))
+  nil)
 
-
-(defun material-pair-body-colliding-shape (material-pair body)
+(defn material-pair-body-colliding-shape ((material-pair material-pair)
+                                          (body body))
   (%geom-ptr->geom
    (newtonmaterialgetbodycollidingshape
     (%material-pair-ptr material-pair)

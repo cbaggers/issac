@@ -1,5 +1,8 @@
 (in-package :issac)
 
+(deftype index () '(integer 0 #.most-positive-fixnum))
+(deftype issac-id () 'index)
+
 ;;------------------------------------------------------------
 
 (defvar *newton-version*
@@ -52,34 +55,40 @@
 
 ;;------------------------------------------------------------
 
-(defun %add-body-to-system (body)
-  ;; returns the new index
+(defn-inline %add-body-to-system ((body body)) issac-id
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (vector-push-extend body *bodies*))
 
-(defun %add-geom-to-system (geom)
-  ;; returns the new index
+(defn-inline %add-geom-to-system ((geom geometry)) issac-id
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (vector-push-extend geom *geometry*))
 
-(defun %add-material-pair-to-system (geom)
-  ;; returns the new index
-  (vector-push-extend geom *geometry*))
+(defn-inline %add-material-pair-to-system ((material-pair material-pair))
+    issac-id
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (vector-push-extend material-pair *material-pairs*))
 
-(defun %add-joint-to-system (joint)
-  ;; returns the new index
+(defn %add-joint-to-system ((joint joint)) issac-id
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (vector-push-extend joint *joints*))
 
 ;;------------------------------------------------------------
 
-(defun %body-id-to-body (body-id)
+(defn %body-id-to-body ((body-id issac-id)) body
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (aref *bodies* body-id))
 
-(defun %geom-id-to-geom (geom-id)
+(defn %geom-id-to-geom ((geom-id issac-id)) geometry
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (aref *geometry* geom-id))
 
-(defun %material-pair-id-to-material-pair (material-pair-id)
+(defn %material-pair-id-to-material-pair ((material-pair-id issac-id))
+    material-pair
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (aref *material-pairs* material-pair-id))
 
-(defun %joint-id-to-joint (joint-id)
+(defn %joint-id-to-joint ((joint-id issac-id)) joint
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (aref *joints* joint-id))
 
 ;;------------------------------------------------------------
@@ -90,15 +99,19 @@
    (pointer-address
     (the foreign-pointer (newtonbodygetuserdata ptr)))))
 
-(defun %geom-ptr->geom (ptr)
+(defn-inline %geom-ptr->geom ((ptr foreign-pointer)) geometry
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (%geom-id-to-geom (pointer-address (newtoncollisiongetuserdata ptr))))
 
-(defun %material-pair-ptr->material-pair (ptr)
+(defn-inline %material-pair-ptr->material-pair ((ptr foreign-pointer))
+    material-pair
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (%material-pair-id-to-material-pair
    (pointer-address
     (NewtonMaterialGetMaterialPairUserData ptr))))
 
-(defun %joint-ptr->joint (ptr)
+(defn-inline %joint-ptr->joint ((ptr foreign-pointer)) joint
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (%joint-id-to-joint (pointer-address (newtonjointgetuserdata ptr))))
 
 ;;------------------------------------------------------------

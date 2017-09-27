@@ -9,17 +9,21 @@
 
 ;;------------------------------------------------------------
 
-(defn-inline %world-by-id ((id t)) world
+(defn-inline %world-by-id ((id issac-id)) world
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (aref *worlds* id))
 
-(defun ensure-world-pool-size (len)
+(defn ensure-world-pool-size ((len issac-id)) null
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (when (< (length *worlds*) len)
     (if (< (array-dimension *worlds* 0) len)
         (adjust-array
          *worlds* (+ len 20) :fill-pointer len :initial-element *null-world*)
-        (setf (fill-pointer *worlds*) len))))
+        (setf (fill-pointer *worlds*) len)))
+  nil)
 
-(defun (setf %world-by-id) (world id)
+(defn (setf %world-by-id) ((world world) (id issac-id)) world
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (ensure-world-pool-size (1+ id))
   (setf (aref *worlds* id) world))
 
@@ -31,7 +35,7 @@
                      (max-thread-count :default)
                      (solve-model :adaptive)
                      (friction-model :adaptive)
-                     (minimum-frame-rate 30))
+                     (minimum-frame-rate 60))
   "Create an instance of the Newton world.
 
    Specifying the stack size for each thread is only useful for
@@ -65,11 +69,13 @@
 
 ;;------------------------------------------------------------
 
-(defun %world-stack-size (world)
+(defn-inline %world-stack-size ((world world)) (signed-byte 32)
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (newtongetstacksize (%world-ptr world)))
 
-(defun (setf %world-stack-size) (value world)
-  (assert (typep value '(unsigned-byte 32)))
+(defn (setf %world-stack-size) ((value (signed-byte 32)) (world world))
+    (signed-byte 32)
+  (assert (> value 0))
   (newtonsetstacksize (%world-ptr world) value)
   value)
 
@@ -77,53 +83,68 @@
 
 ;;------------------------------------------------------------
 
-(defn %world-from-world-ptr ((world-ptr cffi:foreign-pointer))
-    world
+(defn %world-from-world-ptr ((world-ptr cffi:foreign-pointer)) world
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (let ((id (pointer-address (newtonworldgetuserdata world-ptr))))
     (%world-by-id id)))
 
 ;;------------------------------------------------------------
 
-(defun free-world (world)
+(defn free-world ((world world)) null
   "Destroy an instance of the Newton world. This function will destroy the entire Newton world."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtondestroy (%world-ptr world))
-  t)
+  nil)
 
-(defun world-destroy-all-bodies (world)
-  (newtondestroyallbodies (%world-ptr world)))
+(defn world-destroy-all-bodies ((world world)) null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (newtondestroyallbodies (%world-ptr world))
+  nil)
 
 ;;------------------------------------------------------------
 
-(defconstant +1/60s0+ (/ 1s0 60s0))
+(declaim (type single-float +1/60f0+))
+(defconstant +1/60f0+ (/ 1f0 60f0))
 
-(defun world-step (world &optional (timestep +1/60s0+))
+(defn world-step ((world world) &optional (timestep single-float +1/60f0+))
+    world
   "Advance the simulation by a user defined amount of time. This
    function will advance the simulation by the specified amount of
    time."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonupdate (%world-ptr world) timestep)
   world)
 
-(defun world-step-async (world &optional (timestep +1/60s0+))
+(defn world-step-async ((world world)
+                        &optional (timestep single-float +1/60f0+))
+    world
   "Advance the simulation by a user defined amount of time. This
    function will advance the simulation by the specified amount of
    time."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonupdateasync (%world-ptr world) timestep)
   world)
 
 
-(defun world-wait-for-update-to-finish (world)
+(defn world-wait-for-update-to-finish ((world world)) world
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonwaitforupdatetofinish (%world-ptr world))
   world)
 
-(defun world-last-update-time (world)
+(defn world-last-update-time ((world world)) single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtongetlastupdatetime (%world-ptr world)))
 
-(defun world-substep-count (world)
+(defn world-substep-count ((world world)) (signed-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtongetnumberofsubsteps (%world-ptr world)))
 
-(defun (setf world-substep-count) (value world)
+(defn (setf world-substep-count) ((value (signed-byte 32)) (world world))
+    (signed-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (assert (typep value '(unsigned-byte 16)))
-  (newtonsetnumberofsubsteps (%world-ptr world) value))
+  (newtonsetnumberofsubsteps (%world-ptr world) value)
+  value)
 
 ;;------------------------------------------------------------
 
@@ -133,12 +154,13 @@
           (frame-rate))
   frame-rate)
 
-(defun world-minimum-frame-rate (world)
+(defn world-minimum-frame-rate ((world world)) (unsigned-byte 16)
   "The minimum frame rate at which the simulation can run. The default
   minimum frame rate of the simulation is 60 frame per second. Newton
   will perform sub steps to meet the desired minimum FPS, should the
   frame rate drop below the specified minimum.
   This value is clamped between 60fps and 1000fps"
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%world-min-frame-rate world))
 
 ;; (defun (setf world-minimum-frame-rate) (frame-rate world)
@@ -148,28 +170,33 @@
 ;;   frame rate drop below the specified minimum.
 ;;   This value is clamped between 60fps and 1000fps"
 ;;   (let ((frame-rate (validate-min-frame-rate frame-rate)))
+;;     (raw-bindings-newton:newton )
 ;;     (newtonsetminimumframerate (%world-ptr world) frame-rate)
 ;;     (setf (%world-min-frame-rate world) frame-rate)))
 
 
 ;;------------------------------------------------------------
 
-(defun world-invalidate-cache (world)
+(defn world-invalidate-cache ((world world)) world
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoninvalidatecache (%world-ptr world))
   world)
 
 ;;------------------------------------------------------------
 
-(defun world-current-device (world)
+(defn world-current-device ((world world)) (signed-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtongetcurrentdevice (%world-ptr world)))
 
-(defun (setf world-current-device) (value world)
+(defn (setf world-current-device) ((value (signed-byte 32)) (world world))
+    (signed-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (assert (and (< value (%world-device-count world))
                (>= value 0)))
-  (newtonsetcurrentdevice (%world-ptr world) (float value))
+  (newtonsetcurrentdevice (%world-ptr world) value)
   value)
 
-(defun world-devices (world)
+(defn world-devices ((world world)) list
   (loop :for i :below (%world-device-count world) :collect
      (list i (%device-string world i))))
 
@@ -178,19 +205,21 @@
     (let ((len (newtongetdevicestring (%world-ptr world) device-index cstr 100)))
       (cffi:foreign-string-to-lisp cstr :count len))))
 
-(defun %world-device-count (world)
+(defn %world-device-count ((world world)) (signed-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonenumeratedevices (%world-ptr world)))
 
 ;;------------------------------------------------------------
 
-(defparameter *broadphase-algorithms* '(:default :persintent))
+(declaim (type list *broadphase-algorithms*))
+(defvar *broadphase-algorithms* '(:default :persintent))
 
-(defun world-broadphase-algorithm (world)
+(defn world-broadphase-algorithm ((world world)) keyword
   (elt *broadphase-algorithms*
        (newtongetbroadphasealgorithm (%world-ptr world))))
 
-
-(defun (setf world-broadphase-algorithm) (algorithm-id world)
+(defn (setf world-broadphase-algorithm) ((algorithm-id symbol) (world world))
+    symbol
   (assert (member algorithm-id *broadphase-algorithms*) (algorithm-id))
   (newtonselectbroadphasealgorithm
    (%world-ptr world)
@@ -246,15 +275,18 @@
 
 ;;------------------------------------------------------------
 
-(defun validate-friction-model (friction-model)
+(defn validate-friction-model ((friction-model symbol)) symbol
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (assert (or (eq friction-model :exact) (eq friction-model :adaptive))
           (friction-model))
   friction-model)
 
-(defun world-friction-model (world)
+(defn world-friction-model ((world world)) symbol
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-friction-model world))
 
-(defun (setf world-friction-model) (model world)
+(defn (setf world-friction-model) ((model symbol) (world world)) symbol
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   "Set coulomb model of friction. This function allows the application
    to chose between and exact or an adaptive coulomb friction model
 
@@ -288,11 +320,14 @@
 
 ;;------------------------------------------------------------
 
-(defun world-contact-merge-tolerance (world)
+(defn world-contact-merge-tolerance ((world world)) single-float
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (newtongetcontactmergetolerance (%world-ptr world)))
 
-(defun (setf world-contact-merge-tolerance) (value world)
-  (newtonsetcontactmergetolerance (%world-ptr world) (float value))
+(defn (setf world-contact-merge-tolerance) ((value single-float) (world world))
+    single-float
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
+  (newtonsetcontactmergetolerance (%world-ptr world) value)
   value)
 
 ;;------------------------------------------------------------
@@ -301,14 +336,15 @@
 
 ;;------------------------------------------------------------
 
-(defun world-thread-count (world)
+(defn world-thread-count ((world world)) (signed-byte 32)
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (newtongetthreadscount (%world-ptr world)))
 
-(defun world-max-thread-count (world)
+(defn world-max-thread-count ((world world)) (signed-byte 32)
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (newtongetmaxthreadscount (%world-ptr world)))
 
 (defun (setf world-max-thread-count) (value world)
-  (assert (typep value '(unsigned-byte 8)))
   (newtonsetthreadscount (%world-ptr world) value)
   value)
 
@@ -316,7 +352,8 @@
 ;;   (newtondispachthreadjob world  )
 ;;     )
 
-(defun world-sync-thread-jobs (world)
+(defn world-sync-thread-jobs ((world world)) world
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (newtonsyncthreadjobs (%world-ptr world))
   world)
 
@@ -326,18 +363,25 @@
 
 ;;------------------------------------------------------------
 
-(defun world-body-count (world)
+(defn world-body-count ((world world)) (signed-byte 32)
   (newtonworldgetbodycount (%world-ptr world)))
 
-(defun world-constraint-count (world)
+(defn world-constraint-count ((world world)) (signed-byte 32)
   (newtonworldgetconstraintcount (%world-ptr world)))
 
 ;;------------------------------------------------------------
 
-(defun %world-first-body (world)
+;; {TODO} CRITICAL: can these return null-ptr? they gotta right? in that case
+;;                  we need to change do-world-bodys (and related do macros)
+
+
+(defn %world-first-body ((world world)) foreign-pointer
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
   (newtonworldgetfirstbody (%world-ptr world)))
 
-(defun %world-next-body (world body-ptr)
+(defn %world-next-body ((world world) (body-ptr foreign-pointer))
+    foreign-pointer
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
   (newtonworldgetnextbody (%world-ptr world) body-ptr))
 
 (defmacro do-world-bodys ((var-name world) &body body)
