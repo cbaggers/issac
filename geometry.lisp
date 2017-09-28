@@ -2,11 +2,13 @@
 
 ;;------------------------------------------------------------
 
-(defun %init-data (body)
-  (setf (%geometry-user-data body) (make-pointer (%add-geom-to-system body)))
-  body)
+(defn-inline %init-data ((geometry geometry)) geometry
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (setf (%geometry-user-data geometry)
+        (make-pointer (%add-geom-to-system geometry)))
+  geometry)
 
-(defun make-null-geometry (world)
+(defn make-null-geometry ((world world)) null-geometry
   "Create a transparent collision primitive. Some times the
    application needs to create helper rigid bodies that will never
    collide with other bodies, for example the neck of a rag doll, or an
@@ -15,13 +17,18 @@
    unnecessarily the material count, and therefore the project
    complexity. The Null collision is a collision object that satisfy all
    this conditions without having to change the engine philosophy."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((wptr (%world-ptr world)))
     (%init-data
      (%make-null
       :ptr (newtoncreatenull wptr)))))
 
-(defun make-box-geometry (world &key (dimensions (v! 1s0 1s0 1s0))
-                                  (offset-matrix4 (m4:identity)))
+(defn make-box-geometry
+    ((world world)
+     &key
+     (dimensions (simple-array single-float (3)) (v! 1f0 1f0 1f0))
+     (offset-matrix4 (simple-array single-float (16)) (m4:identity)))
+    box-geometry
   "Create a box primitive for collision."
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
@@ -30,35 +37,50 @@
         :ptr (newtoncreatebox
               wptr (v:x dimensions) (v:y dimensions) (v:z dimensions) 0 m4))))))
 
-(defun make-sphere-geometry (world &key (radius 1s0)
-                                     (offset-matrix4 (m4:identity)))
+(defn make-sphere-geometry
+    ((world world)
+     &key
+     (radius single-float 1f0)
+     (offset-matrix4 (simple-array single-float (16)) (m4:identity)))
+    sphere-geometry
   "Create a generalized ellipsoid primitive.. Sphere collision are
    generalized ellipsoids, the application can create many different kind
    of objects by just playing with dimensions of the radius. for example
    to make a sphere set all tree radius to the same value, to make a
    ellipse of revolution just set two of the tree radius to the same
    value."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
       (%init-data
        (%make-sphere
         :ptr (newtoncreatesphere wptr (float radius) 0 m4))))))
 
-(defun make-cone-geometry (world &key (radius 1s0) (height 1s0)
-                                   (offset-matrix4 (m4:identity)))
+(defn make-cone-geometry ((world world)
+                          &key
+                          (radius single-float 1f0)
+                          (height single-float 1f0)
+                          (offset-matrix4 (simple-array single-float (16)) (m4:identity)))
+    cone-geometry
   "Create a cone primitive for collision."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
       (%init-data
        (%make-cone
         :ptr (newtoncreatecone wptr (float radius) (float height) 0  m4))))))
 
-(defun make-capsule-geometry (world &key (radius-0 1s0) (radius-1 1s0)
-                                      (height (* 2 (max radius-1 radius-0)))
-                                      (offset-matrix4 (m4:identity)))
+(defn make-capsule-geometry ((world world)
+                             &key
+                             (radius-0 single-float 1f0)
+                             (radius-1 single-float 1f0)
+                             (height single-float (* 2 (max radius-1 radius-0)))
+                             (offset-matrix4 (simple-array single-float (16)) (m4:identity)))
+    capsule-geometry
   "Create a capsule primitive for collision. the capsule height must
    equal of larger than the sum of the cap radius. If this is not the
    case the height will be clamped the 2 * radius."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
       (%init-data
@@ -66,10 +88,15 @@
         :ptr (newtoncreatecapsule
               wptr (float radius-0) (float radius-1) (float height) 0 m4))))))
 
-(defun make-cylinder-geometry (world &key (radius-0 1s0) (radius-1 1s0)
-                                       (height 4s0)
-                                       (offset-matrix4 (m4:identity)))
+(defn make-cylinder-geometry ((world world)
+                              &key
+                              (radius-0 single-float 1f0)
+                              (radius-1 single-float 1f0)
+                              (height single-float 4f0)
+                              (offset-matrix4 (simple-array single-float (16)) (m4:identity)))
+    cylinder-geometry
   "Create a cylinder primitive for collision."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
       (%init-data
@@ -77,9 +104,14 @@
         :ptr (newtoncreatecylinder
               wptr (float radius-0) (float radius-1) (float height) 0 m4))))))
 
-(defun make-chamfer-cylinder-geometry (world &key (radius 1s0) (height 1s0)
-                                               (offset-matrix4 (m4:identity)))
+(defn make-chamfer-cylinder-geometry ((world world)
+                                      &key
+                                      (radius single-float 1f0)
+                                      (height single-float 1f0)
+                                      (offset-matrix4 (simple-array single-float (16)) (m4:identity)))
+    chamfer-cylinder-geometry
   "Create a ChamferCylinder primitive for collision."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
       (%init-data
@@ -88,9 +120,12 @@
               wptr (float radius) (float height) 0 m4))))))
 
 
-(defun make-convex-hull-geometry (world points/mesh
-                                  &key (tolerance 1s0)
-                                    (offset-matrix4 (m4:identity)))
+(defn make-convex-hull-geometry ((world world)
+                                 (points/mesh (or mesh sequence))
+                                 &key
+                                 (tolerance single-float 1f0)
+                                 (offset-matrix4 (simple-array single-float (16)) (m4:identity)))
+    convex-hull-geometry
   "Create a ConvexHull primitive from collision from a cloud of
    points. Convex hulls are the solution to collision primitive that can
    not be easily represented by an implicit solid. The implicit solid
@@ -129,6 +164,7 @@
    zero in tolerance will generate an exact hull and a value langer
    that zero will generate a loosely fitting hull and it willbe faster
    to generate."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((wptr (%world-ptr world)))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
       (%init-data
@@ -142,7 +178,11 @@
   (declare (ignore wptr mesh tolerance m4))
   (error "Not implemented"))
 
-(defun %make-convex-hull-from-points (wptr points tolerance m4)
+(defn %make-convex-hull-from-points ((wptr foreign-pointer)
+                                     (points sequence)
+                                     (tolerance number)
+                                     (m4 foreign-pointer))
+    convex-hull-geometry
   (assert (>= (length points) 4))
   (let ((len (length points)))
     (with-foreign-object (p-ptr :float (* 3 len))
@@ -155,12 +195,15 @@
        :ptr (newtoncreateconvexhull
              wptr len p-ptr 12 (float tolerance) 0 m4)))))
 
-(defun convex-geometry-calculate-inertia (convex)
+(defn convex-geometry-calculate-inertia ((convex convex-hull-geometry))
+    (values (simple-array single-float (3))
+            (simple-array single-float (3)))
   "Calculate the three principal axis and the the values of the inertia matrix
    of a convex collision objects.
    Returns two vec3s:
    - the principal inertia.
    - the center of mass for the principal inertia."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-objects ((inertia3 :float 3)
                          (origin3 :float 3))
     (newtonconvexcollisioncalculateinertialmatrix
