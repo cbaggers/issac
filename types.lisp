@@ -246,6 +246,21 @@
 (defun gen-world-id ()
   (incf *world-id*))
 
+(deftype ray-filter-function ()
+  '(function (body
+              geometry
+              rtg-math.types:vec3
+              rtg-math.types:vec3
+              (signed-byte 64)
+              single-float)
+    single-float))
+
+(deftype ray-prefilter-function ()
+  '(function (body geometry) (unsigned-byte 32)))
+
+(deftype body-iterator-function ()
+  '(function (body) (signed-byte 32)))
+
 (defstruct (world (:constructor %make-world)
                   (:conc-name %world-))
   (ptr (error "") :type foreign-pointer)
@@ -255,7 +270,7 @@
   (min-frame-rate 60 :type (unsigned-byte 16))
   ;;
   (body-iterator-callback
-   nil :type (or null (function (body) (signed-byte 32))))
+   nil :type (or null body-iterator-function))
   (geom-constructor-callback
    nil :type (or null (function (world body body) t)))
   (geom-destructor-callback
@@ -271,16 +286,9 @@
   (destructor-callback
    nil :type (or null (function (world) t)))
   (ray-filter-callback
-   nil :type (or null (function (body
-                                 geometry
-                                 rtg-math.types:vec3
-                                 rtg-math.types:vec3
-                                 (signed-byte 64)
-                                 single-float)
-                                single-float)))
+   nil :type (or null ray-filter-function))
   (ray-prefilter-callback
-   nil :type (or null (function (body geometry)
-                                (unsigned-byte 32))))
+   nil :type (or null ray-prefilter-function))
   (update-listener-callback
    nil :type (or null (function (world foreign-pointer single-float)
                                 t))))

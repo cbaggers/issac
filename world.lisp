@@ -371,10 +371,6 @@
 
 ;;------------------------------------------------------------
 
-;; {TODO} CRITICAL: can these return null-ptr? they gotta right? in that case
-;;                  we need to change do-world-bodys (and related do macros)
-
-
 (defn %world-first-body ((world world)) foreign-pointer
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (newtonworldgetfirstbody (%world-ptr world)))
@@ -397,10 +393,12 @@
           (setf ,hidden (%world-next-body ,gworld ,hidden)
                 ,var-name ,hidden)))))
 
-(defun %world-first-material-pair (world)
+(defn %world-first-material-pair ((world world)) foreign-pointer
   (newtonworldgetfirstmaterial (%world-ptr world)))
 
-(defun %world-next-material-pair (world material-pair-ptr)
+(defn %world-next-material-pair ((world world)
+                                 (material-pair-ptr foreign-pointer))
+    foreign-pointer
   (newtonworldgetnextmaterial (%world-ptr world) material-pair-ptr))
 
 (defmacro do-world-material-pairs ((var-name world) &body body)
@@ -414,7 +412,11 @@
             ,@body
             (setf ,hidden (%world-next-material-pair ,gworld ,hidden)))))))
 
-(defun map-bodies-in-aabb (function world p0-v3 p1-v3)
+(defn map-bodies-in-aabb ((function (or null body-iterator-function))
+                          (world world)
+                          (p0-v3 (simple-array single-float (3)))
+                          (p1-v3 (simple-array single-float (3))))
+    null
   (assert function)
   (with-foreign-array (p0 p0-v3 '(:array :float 3))
     (with-foreign-array (p1 p1-v3 '(:array :float 3))
@@ -423,7 +425,8 @@
         (setf (%world-body-iterator-callback world) function)
         (unwind-protect
              (newtonworldforeachbodyinaabbdo world-ptr p0 p1 cb world-ptr)
-          (setf (%world-body-iterator-callback world) nil))))))
+          (setf (%world-body-iterator-callback world) nil)))))
+  nil)
 
 ;; newtonworldforeachjointdo
 
@@ -436,10 +439,16 @@
 
 ;; newtonworldsetcollisionconstructordestructorcallback
 
-(defun world-geometry-constructor-callback (world)
+(defn world-geometry-constructor-callback ((world world))
+    (or null (function (world body body) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-geom-constructor-callback world))
 
-(defun (setf world-geometry-constructor-callback) (callback world)
+(defn (setf world-geometry-constructor-callback)
+    ((callback (or null (function (world body body) t)))
+     (world world))
+    (or null (function (world body body) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((con (if callback
                  (get-callback '%world-geom-constructor-cb)
                  (null-pointer)))
@@ -450,10 +459,16 @@
      (%world-ptr world) con des)
     (setf (%world-geom-constructor-callback world) callback)))
 
-(defun world-geometry-destructor-callback (world)
+(defn world-geometry-destructor-callback ((world world))
+    (or null (function (world body) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-geom-destructor-callback world))
 
-(defun (setf world-geometry-destructor-callback) (callback world)
+(defn (setf world-geometry-destructor-callback)
+    ((callback (or null (function (world body) t)))
+     (world world))
+    (or null (function (world body) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((con (if (%world-geom-constructor-callback world)
                  (get-callback '%world-geom-destructor-cb)
                  (null-pointer)))
@@ -470,10 +485,16 @@
 ;; newtonworldgetprelistener
 ;; newtonworldaddprelistener
 
-(defun world-pre-update-listener (world)
+(defn world-pre-update-listener ((world world))
+    (or null (function (world single-float) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-pre-update-listener-callback world))
 
-(defun (setf world-pre-update-listener) (callback world)
+(defn (setf world-pre-update-listener)
+    ((callback (or null (function (world single-float) t)))
+     (world world))
+    (or null (function (world single-float) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((upd (if callback
                  (get-callback '%world-pre-update-listener-cb)
                  (null-pointer)))
@@ -485,10 +506,16 @@
        (%world-ptr world) name (null-pointer) upd des))
     (setf (%world-pre-update-listener-callback world) callback)))
 
-(defun world-pre-destroy-listener (world)
+(defn world-pre-destroy-listener ((world world))
+    (or null (function (world) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-pre-destroy-listener-callback world))
 
-(defun (setf world-pre-destroy-listener) (callback world)
+(defn (setf world-pre-destroy-listener)
+    ((callback (or null (function (world) t)))
+     (world world))
+    (or null (function (world) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((upd (if callback
                  (get-callback '%world-pre-destroy-listener-cb)
                  (null-pointer)))
@@ -503,10 +530,16 @@
 ;; newtonworldgetpostlistener
 ;; newtonworldaddpostlistener
 
-(defun world-post-update-listener (world)
+(defn world-post-update-listener ((world world))
+    (or null (function (world single-float) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-post-update-listener-callback world))
 
-(defun (setf world-post-update-listener) (callback world)
+(defn (setf world-post-update-listener)
+    ((callback (or null (function (world single-float) t)))
+     (world world))
+    (or null (function (world single-float) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((upd (if callback
                  (get-callback '%world-post-update-listener-cb)
                  (null-pointer)))
@@ -518,10 +551,16 @@
        (%world-ptr world) name (null-pointer) upd des))
     (setf (%world-post-update-listener-callback world) callback)))
 
-(defun world-post-destroy-listener (world)
+(defn world-post-destroy-listener ((world world))
+    (or null (function (world) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-post-destroy-listener-callback world))
 
-(defun (setf world-post-destroy-listener) (callback world)
+(defn (setf world-post-destroy-listener)
+    ((callback (or null (function (world) t)))
+     (world world))
+    (or null (function (world) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((upd (if callback
                  (get-callback '%world-post-destroy-listener-cb)
                  (null-pointer)))
@@ -535,10 +574,15 @@
 
 ;;------------------------------------------------------------
 
-(defun world-destructor (world)
+(defn world-destructor ((world world))
+    (or null (function (world) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-destructor-callback world))
 
-(defun (setf world-destructor) (callback world)
+(defn (setf world-destructor) ((callback (or null (function (world) t)))
+                               (world world))
+    (or null (function (world) t))
+  (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((cb (if callback
                 (get-callback '%world-destructor-cb)
                 (null-pointer))))
@@ -569,7 +613,13 @@
 
 ;;------------------------------------------------------------
 
-(defun world-ray-cast (world point-a-v3 point-b-v3 filter &optional prefilter)
+(defn world-ray-cast ((world world)
+                      (point-a-v3 (simple-array single-float (3)))
+                      (point-b-v3 (simple-array single-float (3)))
+                      (filter ray-filter-function)
+                      &optional
+                      (prefilter ray-prefilter-function))
+    null
   "Shoot ray from point p0 to p1 and trigger callback for each body on
   that line. The ray cast function will trigger the callback for every
   intersection between the line segment (from p0 to p1) and a body in
@@ -612,8 +662,7 @@
   (with-foreign-array (p0 point-a-v3 '(:array :float 3))
     (with-foreign-array (p1 point-b-v3 '(:array :float 3))
       (setf (%world-ray-filter-callback world) filter)
-      (when prefilter
-        (setf (%world-ray-prefilter-callback world) prefilter))
+      (setf (%world-ray-prefilter-callback world) prefilter)
       (unwind-protect
            (newtonworldraycast (%world-ptr world)
                                p0
@@ -625,7 +674,8 @@
                                    (null-pointer))
                                0)
         (setf (%world-ray-filter-callback world) nil)
-        (setf (%world-ray-prefilter-callback world) nil)))))
+        (setf (%world-ray-prefilter-callback world) nil))))
+  nil)
 
 ;; newtonworldconvexcast
 ;; newtonworldconvexcastreturninfo
