@@ -44,25 +44,32 @@
             (:constructor %make-convex-hull-geometry)
             (:include geometry)))
 
+(deftype geometry-tree-raycast-function ()
+  '(function (geometry-tree
+              body
+              single-float
+              rtg-math.types:vec3
+              (signed-byte 32))
+    t))
+
+(deftype geometry-tree-debug-function ()
+  '(function (geometry-tree
+              body
+              (signed-byte 32)
+              (array single-float (*))
+              (signed-byte 32))
+    t))
+
 (defstruct (geometry-tree
              (:constructor %make-geometry-tree)
              (:conc-name %geometry-tree-)
              (:include geometry))
   (raycast-callback
    nil
-   :type (or null (function (geometry-tree
-                             body
-                             single-float
-                             rtg-math.types:vec3
-                             (signed-byte 32))
-                            t)))
+   :type (or null geometry-tree-raycast-function))
   (debug-callback
    nil
-   :type (or null (function (geometry-tree
-                             body
-                             (signed-byte 32)
-                             (array single-float (*))
-                             (signed-byte 32))))))
+   :type (or null geometry-tree-debug-function)))
 
 (defstruct (compound-geometry
             (:constructor %make-compound-geometry)

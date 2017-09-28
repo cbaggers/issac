@@ -238,27 +238,38 @@
 
 ;;------------------------------------------------------------
 
-(defun make-geometry-tree (world faces/mesh/filename
-                           &key (optimize t))
+(defn make-geometry-tree ((world world)
+                          (faces/mesh/filename (or sequence
+                                                   mesh
+                                                   string
+                                                   pathname))
+                          &key
+                          (optimize t t))
+    geometry-tree
   "Create an empty complex collision geometry tree. Tree-geometry is
    the preferred geometry within Newton for collision with polygonal meshes
    of arbitrary complexity. The mesh must be made of flat
    non-intersecting polygons, but they do not explicitly need to be
    triangles."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((tree-ptr (newtoncreatetreecollision (%world-ptr world) 0))
         (src faces/mesh/filename))
     (etypecase src
-      (sequence (%make-geom-tree-from-seq tree-ptr src optimize))
+      (sequence (%make-geom-tree-from-seq tree-ptr src (not (null optimize))))
       (mesh (%make-geom-tree-from-mesh tree-ptr src))
       ((or string pathname) (%deserialize-geom-tree tree-ptr src)))
     (%make-geometry-tree :ptr tree-ptr)))
 
-(defun %make-geom-tree-from-seq (tree-ptr src optimize)
+(defn %make-geom-tree-from-seq ((tree-ptr foreign-pointer)
+                                (src sequence)
+                                (optimize boolean))
+    null
   ;; Add an individual polygon to a TreeCollision. After the call to
   ;; NewtonTreeCollisionBeginBuild the TreeCollision is ready to accept
   ;; polygons. The application should iterate through the application's
   ;; mesh, adding the mesh polygons to the TreeCollision one at a time. The
   ;; polygons must be flat and non-self intersecting.
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtontreecollisionbeginbuild tree-ptr)
   (labels ((add-face (f)
              (let ((len (length f)))
@@ -270,15 +281,22 @@
                  (newtontreecollisionaddface
                   tree-ptr len d +vec3-size+ 0)))))
     (map nil #'add-face src))
-  (newtontreecollisionendbuild tree-ptr (if optimize 1 0)))
+  (newtontreecollisionendbuild tree-ptr (if optimize 1 0))
+  nil)
 
-(defun %make-geom-tree-from-mesh (tree-ptr src)
+(defn %make-geom-tree-from-mesh ((tree-ptr foreign-pointer)
+                                 (src mesh))
+    null
   (declare (ignore tree-ptr src))
-  (error "Not implemented"))
+  (error "Not implemented")
+  nil)
 
-(defun %deserialize-geom-tree (tree-ptr src)
+(defn %deserialize-geom-tree ((tree-ptr foreign-pointer)
+                              (src (or string pathname)))
+    null
   (declare (ignore tree-ptr src))
-  (error "Not implemented"))
+  (error "Not implemented")
+  nil)
 
 ;; (defun tree-geometry-face-attribute (tree index)
 ;;   (newtontreecollisiongetfaceattribute ))
@@ -286,7 +304,8 @@
 ;; (newtontreecollisiongetvertexlisttrianglelistinaabb)
 
 
-(defun geometry-tree-ray-cast-callback (tree)
+(defn geometry-tree-ray-cast-callback ((tree geometry-tree))
+    (or null geometry-tree-raycast-function)
   (%geometry-tree-raycast-callback tree))
 
 (defun (setf geometry-tree-ray-cast-callback) (callback tree)
