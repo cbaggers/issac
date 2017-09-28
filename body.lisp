@@ -9,7 +9,7 @@
 (defn make-body ((world world)
                  (geometry geometry)
                  &key (kind symbol :dynamic)
-                 (mass single-float 1s0)
+                 (mass single-float 1f0)
                  (linear-damping single-float 0.1)
                  (matrix4 rtg-math.types:mat4 (m4:identity)))
     body
