@@ -406,7 +406,8 @@
 
 (defn (setf %geometry-user-data) (ptr geometry) foreign-pointer
   (declare (optimize (speed 3) (safety 1) (debug 1)))
-  (newtoncollisionsetuserdata (%geometry-ptr geometry) ptr))
+  (newtoncollisionsetuserdata (%geometry-ptr geometry) ptr)
+  ptr)
 
 (defn %geometry-user-data-1 ((geometry geometry)) foreign-pointer
   (declare (optimize (speed 3) (safety 1) (debug 1)))

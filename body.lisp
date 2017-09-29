@@ -2,7 +2,7 @@
 
 ;;------------------------------------------------------------
 
-(defun validate-body-kind (body-kind)
+(defn validate-body-kind ((body-kind symbol)) symbol
   (assert (member body-kind '(:kinematic :dynamic :deformable)) (body-kind))
   body-kind)
 
@@ -33,8 +33,7 @@
 
 ;;------------------------------------------------------------
 
-(defn free-body ((body body))
-    null
+(defn free-body ((body body)) null
   (declare (profile t))
   (newtondestroybody (%body-ptr body))
   nil)
@@ -57,7 +56,7 @@
 
 ;;------------------------------------------------------------
 
-(defun body-id (body)
+(defn body-id ((body body)) (signed-byte 32)
   (newtonbodygetid (%body-ptr body)))
 
 (defn body-world ((body body)) world
@@ -76,135 +75,175 @@
 
 ;;------------------------------------------------------------
 
-(defun body-material (body)
+(defn body-material ((body body)) (signed-byte 32)
   (newtonbodygetmaterialgroupid (%body-ptr body)))
 
-(defun (setf body-material) (id body)
+(defn (setf body-material) ((id (signed-byte 32))
+                            (body body))
+    (signed-byte 32)
   (assert (typep id '(unsigned-byte 8)))
   (newtonbodysetmaterialgroupid (%body-ptr body) id)
   id)
 
 ;;------------------------------------------------------------
 
-(defun body-position (body)
+(defn body-position ((body body)) (simple-array single-float (3))
   (with-foreign-object (v3 :float 3)
     (newtonbodygetposition (%body-ptr body) v3)
     (ptr->v3 v3)))
 
 ;;------------------------------------------------------------
 
-(defun body-add-force (body force-vec3)
+(defn body-add-force ((body body)
+                      (force-vec3 (simple-array single-float (3))))
+    null
   (with-foreign-array (v3 force-vec3 '(:array :float 3))
-    (newtonbodyaddforce (%body-ptr body) v3)))
+    (newtonbodyaddforce (%body-ptr body) v3))
+  nil)
 
-(defun body-add-impluse (body delta-vec3 &optional (position-vec3 (v! 0 0 0)))
+(defn body-add-impluse
+    ((body body)
+     (delta-vec3 (simple-array single-float (3)))
+     &optional
+     (position-vec3 (simple-array single-float (3)) (v! 0 0 0)))
+    null
   (with-foreign-array (d3 delta-vec3 '(:array :float 3))
     (with-foreign-array (p3 position-vec3 '(:array :float 3))
-      (newtonbodyaddimpulse (%body-ptr body) d3 p3))))
+      (newtonbodyaddimpulse (%body-ptr body) d3 p3)))
+  nil)
 
-(defun body-add-torque (body torque-vec3)
+(defn body-add-torque ((body body)
+                       (torque-vec3 (simple-array single-float (3))))
+    null
   (with-foreign-array (v3 torque-vec3 '(:array :float 3))
-    (newtonbodyaddtorque (%body-ptr body) v3)))
+    (newtonbodyaddtorque (%body-ptr body) v3))
+  nil)
 
-(defun body-apply-impulse-pair (body linear-impulse3 angular-impulse3)
+(defn body-apply-impulse-pair ((body body)
+                               (linear-impulse3 (simple-array single-float (3)))
+                               (angular-impulse3 (simple-array single-float (3))))
+    null
   (with-foreign-array (l3 linear-impulse3 '(:array :float 3))
     (with-foreign-array (a3 angular-impulse3 '(:array :float 3))
-      (newtonbodyapplyimpulsepair (%body-ptr body) l3 a3))))
+      (newtonbodyapplyimpulsepair (%body-ptr body) l3 a3)))
+  nil)
 
 ;;newtonbodyapplyimpulsearray
 
 ;;------------------------------------------------------------
 
-(defun body-angular-damping (body)
+(defn body-angular-damping ((body body)) (simple-array single-float (3))
   (with-foreign-object (v3 :float 3)
     (newtonbodygetangulardamping (%body-ptr body) v3)
     (ptr->v3 v3)))
 
-(defun (setf body-angular-damping) (value body)
+(defn (setf body-angular-damping) ((value (simple-array single-float (3)))
+                                   (body body))
+    (simple-array single-float (3))
   (with-foreign-array (v3 value '(:array :float 3))
     (newtonbodysetangulardamping (%body-ptr body) v3))
   value)
 
 ;;------------------------------------------------------------
 
-(defun body-auto-sleep-p (body)
+(defn body-auto-sleep-p ((body body)) boolean
   (>= (newtonbodygetautosleep (%body-ptr body)) 0))
 
-(defun (setf body-auto-sleep-p) (value body)
-  (newtonbodysetautosleep (%body-ptr body) (if value 1 0)))
+(defn (setf body-auto-sleep-p) ((value t) (body body)) t
+  (newtonbodysetautosleep (%body-ptr body) (if value 1 0))
+  value)
 
 ;;------------------------------------------------------------
 
-(defun body-centre-of-mass (body)
+(defn body-centre-of-mass ((body body)) (simple-array single-float (3))
   (with-foreign-object (v3 :float 3)
     (newtonbodygetcentreofmass (%body-ptr body) v3)
     (ptr->v3 v3)))
 
-(defun (setf body-centre-of-mass) (value body)
+(defn (setf body-centre-of-mass) ((value (simple-array single-float (3)))
+                                  (body body))
+    (simple-array single-float (3))
   (with-foreign-array (v3 value '(:array :float 3))
     (newtonbodysetcentreofmass (%body-ptr body) v3))
   value)
 
 ;;------------------------------------------------------------
 
-(defun body-collidable-p (body)
+(defn body-collidable-p ((body body)) boolean
   (>= (newtonbodygetcollidable (%body-ptr body)) 0))
 
-(defun (setf body-collidable-p) (value body)
+(defn (setf body-collidable-p) ((value t) (body body)) t
   (newtonbodysetcollidable (%body-ptr body) (if value 1 0)))
 
 ;;------------------------------------------------------------
 
-(defun body-geometry (body)
+(defn body-geometry ((body body)) geometry
   "Get the geometry for the given body"
-  (newtonbodygetcollision (%body-ptr body)))
+  (%geom-ptr->geom
+   (newtonbodygetcollision
+    (%body-ptr body))))
 
-(defun (setf body-geometry) (geometry body)
+(defn (setf body-geometry) ((geometry geometry)
+                            (body body))
+    geometry
   "Get the geometry for the given body"
-  (newtonbodysetcollision (%body-ptr body) (%geometry-ptr geometry)))
+  (newtonbodysetcollision (%body-ptr body) (%geometry-ptr geometry))
+  geometry)
 
 ;;------------------------------------------------------------
 
-(defun body-continuous-collision-mode (body)
+(defn body-continuous-collision-mode ((body body)) (signed-byte 32)
   ;; {TODO} translate the int returned from this
   (newtonbodygetcontinuouscollisionmode body))
 
-(defun (setf body-continuous-collision-mode) (state body)
+(defn (setf body-continuous-collision-mode) ((state (unsigned-byte 32))
+                                              (body body))
+    (unsigned-byte 32)
   ;; {TODO} translate the int returned from this
-  (newtonbodysetcontinuouscollisionmode body state))
+  (newtonbodysetcontinuouscollisionmode body state)
+  state)
 
 ;;------------------------------------------------------------
 
-(defun body-recursive-collision-p (body)
+(defn body-recursive-collision-p ((body body)) boolean
   (>= (newtonbodygetjointrecursivecollision (%body-ptr body)) 0))
 
-(defun (setf body-recursive-collision-p) (value body)
-  (newtonbodysetjointrecursivecollision (%body-ptr body) (if value 1 0)))
+(defn (setf body-recursive-collision-p) ((value t) (body body)) t
+  (newtonbodysetjointrecursivecollision (%body-ptr body) (if value 1 0))
+  value)
 
 ;;------------------------------------------------------------
 
-(defun body-linear-damping (body)
+(defn body-linear-damping ((body body)) single-float
   (newtonbodygetlineardamping (%body-ptr body)))
 
-(defun (setf body-linear-damping) (value body)
-  (newtonbodysetlineardamping (%body-ptr body) (float value)))
+(defn (setf body-linear-damping) ((value single-float)
+                                  (body body))
+    single-float
+  (newtonbodysetlineardamping (%body-ptr body) value)
+  value)
 
 ;;------------------------------------------------------------
 
-(defun body-matrix4 (body)
+(defn body-matrix4 ((body body)) (simple-array single-float (16))
   (with-foreign-object (m4 :float 16)
     (newtonbodygetmatrix (%body-ptr body) m4)
     (ptr->m4 m4)))
 
-(defun (setf body-matrix4) (mat4 body)
+(defn (setf body-matrix4) ((mat4 (simple-array single-float (16)))
+                           (body body))
+    (simple-array single-float (16))
   (with-foreign-array (m4 mat4 '(:array :float 16))
     (newtonbodysetmatrix (%body-ptr body) m4)
     mat4))
 
-(defun body-transform-callback (body)
+(defn body-transform-callback ((body body)) (or null body-transform-function)
   (%body-transform-callback body))
 
-(defun (setf body-transform-callback) (callback body)
+(defn (setf body-transform-callback)
+    ((callback (or null body-transform-function))
+     (body body))
+    (or null body-transform-function)
   (let ((cb (if callback
                 (get-callback '%body-transform)
                 (null-pointer))))
@@ -213,35 +252,41 @@
 
 ;;------------------------------------------------------------
 
-(defun body-angular-velocity (body)
+(defn body-angular-velocity ((body body)) (simple-array single-float (3))
   "Get the global angular velocity (omega) of the body"
   (with-foreign-object (v3 :float 3)
     (newtonbodygetomega (%body-ptr body) v3)
     (ptr->v3 v3)))
 
-(defun (setf body-angular-velocity) (value body)
+(defn (setf body-angular-velocity) ((value (simple-array single-float (3)))
+                                     (body body))
+    (simple-array single-float (3))
   "Get the global angular velocity (omega) of the body"
   (with-foreign-array (v3 value '(:array :float 3))
     (newtonbodysetomega (%body-ptr body) v3))
   value)
 
-(defun body-omega (body)
+(defn body-omega ((body body)) (simple-array single-float (3))
   "The global angular velocity of the body"
   (body-angular-velocity body))
 
-(defun (setf body-omega) (value body)
+(defn (setf body-omega) ((value (simple-array single-float (3)))
+                         (body body))
+    (simple-array single-float (3))
   "The global angular velocity of the body"
   (setf (body-angular-velocity body) value))
 
 ;;------------------------------------------------------------
 
-(defun body-torque (body)
+(defn body-torque ((body body)) (simple-array single-float (3))
   "Get the global angular velocity (omega) of the body"
   (with-foreign-object (v3 :float 3)
     (newtonbodygettorque (%body-ptr body) v3)
     (ptr->v3 v3)))
 
-(defun (setf body-torque) (value body)
+(defn (setf body-torque) ((value (simple-array single-float (3)))
+                          (body body))
+    (simple-array single-float (3))
   "Get the global angular velocity (omega) of the body"
   (with-foreign-array (v3 value '(:array :float 3))
     (newtonbodysettorque (%body-ptr body) v3))
@@ -249,7 +294,8 @@
 
 ;;------------------------------------------------------------
 
-(defun body-mass (body)
+(defn body-mass ((body body))
+    (values single-float (simple-array single-float (3)))
   "Returns the mass and a vec3 containing the the moment of inertia of the object
    in each axis"
   (with-foreign-objects ((mass :float) (ixx :float) (iyy :float) (izz :float))
@@ -259,77 +305,99 @@
                 (mem-aref iyy :float)
                 (mem-aref izz :float)))))
 
-(defun body-mass-set (body mass ixx iyy izz)
-  (newtonbodysetmassmatrix
-   (%body-ptr body) (float mass) (float ixx) (float iyy) (float izz))
+(defn body-mass-set ((body body)
+                     (mass single-float)
+                     (ixx single-float)
+                     (iyy single-float)
+                     (izz single-float))
+    body
+  (newtonbodysetmassmatrix (%body-ptr body) mass ixx iyy izz)
   body)
 
-(defun body-mass-matrix-set (body mass interia-matrix)
+(defn body-mass-matrix-set ((body body)
+                            (mass single-float)
+                            (interia-matrix (simple-array single-float (16))))
+    body
   (with-foreign-array (m4 interia-matrix '(:array :float 16))
     (newtonbodysetfullmassmatrix (%body-ptr body) (float mass) m4))
   body)
 
-(defun body-inverse-mass (body)
+(defn body-inverse-mass ((body body))
+    (values single-float (simple-array single-float (3)))
   "Returns the mass and a vec3 containing the the moment of inertia of the object
    in each axis"
   (with-foreign-objects ((mass :float) (ixx :float) (iyy :float) (izz :float))
     (newtonbodygetinvmass (%body-ptr body) mass ixx iyy izz)
-    (values mass (v! (mem-aref ixx :float)
-                     (mem-aref iyy :float)
-                     (mem-aref izz :float)))))
+    (values (mem-aref mass :float)
+            (v! (mem-aref ixx :float)
+                (mem-aref iyy :float)
+                (mem-aref izz :float)))))
 
-(defun body-geometry-mass-set (body geometry mass)
-  (newtonbodysetmassproperties
-   (%body-ptr body) (float mass) (%geometry-ptr geometry)))
+(defn body-geometry-mass-set ((body body)
+                              (geometry geometry)
+                              (mass single-float))
+    null
+  (newtonbodysetmassproperties (%body-ptr body) mass (%geometry-ptr geometry))
+  nil)
 
 ;;------------------------------------------------------------
 
-(defun body-inertia-matrix4 (body)
+(defn body-inertia-matrix4 ((body body)) (simple-array single-float (16))
   (with-foreign-object (m4 :float 16)
     (newtonbodygetinertiamatrix (%body-ptr body) m4)
     (ptr->m4 m4)))
 
-(defun body-inverse-intertia-matrix4 (body)
+(defn body-inverse-intertia-matrix4 ((body body))
+    (simple-array single-float (16))
   (with-foreign-object (m4 :float 16)
     (newtonbodygetinvinertiamatrix (%body-ptr body) m4)
     (ptr->m4 m4)))
 
 ;;------------------------------------------------------------
 
-(defun body-velocity (body)
+(defn body-velocity ((body body)) (simple-array single-float (3))
   "Get the global angular velocity (omega) of the body"
   (with-foreign-object (v3 :float 3)
     (newtonbodygetvelocity (%body-ptr body) v3)
     (ptr->v3 v3)))
 
-(defun (setf body-velocity) (value body)
+(defn (setf body-velocity) ((value (simple-array single-float (3)))
+                            (body body))
+    (simple-array single-float (3))
   "Get the global angular velocity (omega) of the body"
   (with-foreign-array (v3 value '(:array :float 3))
     (newtonbodysetvelocity (%body-ptr body) v3))
   value)
 
-(defun body-point-velocity (body point)
+(defn body-point-velocity ((body body)
+                           (point (simple-array single-float (3))))
+    (simple-array single-float (3))
   (with-foreign-array (p3 point '(:array :float 3))
     (with-foreign-object (r3 :float 3)
       (newtonbodygetpointvelocity (%body-ptr body) p3 r3)
       (ptr->v3 r3))))
 
-(defun body-integrate-velocity (body timestep)
-  (newtonbodyintegratevelocity (%body-ptr body) (float timestep)))
+(defn body-integrate-velocity ((body body)
+                               (timestep single-float))
+    null
+  (newtonbodyintegratevelocity (%body-ptr body) timestep)
+  nil)
 
 ;;------------------------------------------------------------
 
-(defun body-force (body)
+(defn body-force ((body body)) (simple-array single-float (3))
   (with-foreign-object (v3 :float 3)
     (newtonbodygetforce  (%body-ptr body) v3)
     (ptr->v3 v3)))
 
-(defun (setf body-force) (value body)
+(defn (setf body-force) ((value (simple-array single-float (3)))
+                         (body body))
+    (simple-array single-float (3))
   (with-foreign-array (v3 value '(:array :float 3))
     (NewtonBodySetForce (%body-ptr body) v3))
   value)
 
-(defun body-force-acc (body)
+(defn body-force-acc ((body body)) (simple-array single-float (3))
   "Get the force applied on the last call to apply force and torque
    callback. this function can be useful to modify force from joint
    callback"
@@ -337,22 +405,30 @@
     (newtonbodygetforceacc (%body-ptr body) v3)
     (ptr->v3 v3)))
 
-(defun body-torque-acc (body)
+(defn body-torque-acc ((body body)) (simple-array single-float (3))
   (with-foreign-object (v3 :float 3)
     (newtonbodygettorqueacc (%body-ptr body) v3)
     (ptr->v3 v3)))
 
-(defun body-calculate-inverse-dynamics-force (body timestep desired-velocity)
+(defn body-calculate-inverse-dynamics-force
+    ((body body)
+     (timestep single-float)
+     (desired-velocity (simple-array single-float (3))))
+    (simple-array single-float (3))
   (with-foreign-array (dv3 desired-velocity '(:array :float 3))
     (with-foreign-object (r3 :float 3)
       (newtonbodycalculateinversedynamicsforce
        (%body-ptr body) (float timestep) dv3 r3)
       (ptr->v3 r3))))
 
-(defun body-force-torque-callback (body)
+(defn body-force-torque-callback ((body body))
+    (or null body-torque-function)
   (%body-force-torque-callback body))
 
-(defun (setf body-force-torque-callback) (callback body)
+(defn (setf body-force-torque-callback)
+    ((callback (or null body-torque-function))
+     (body body))
+    (or null body-torque-function)
   (let ((cb (if callback
                 (get-callback '%body-apply-force-and-torque)
                 (null-pointer))))
@@ -361,40 +437,55 @@
 
 ;;------------------------------------------------------------
 
-(defun body-sleeping-p (body)
+(defn body-sleeping-p ((body body)) boolean
   (>= (newtonbodygetsleepstate (%body-ptr body)) 0))
 
-(defun (setf body-sleeping-p) (value body)
-  (newtonbodysetsleepstate (%body-ptr body) (if value 1 0)))
+(defn (setf body-sleeping-p) ((value t) (body body)) t
+  (newtonbodysetsleepstate (%body-ptr body) (if value 1 0))
+  value)
 
-(defun body-set-velocity-no-sleep (body vec3)
+(defn body-set-velocity-no-sleep ((body body)
+                                  (vec3 (simple-array single-float (3))))
+    (simple-array single-float (3))
   (with-foreign-array (v3 vec3 '(:array :float 3))
-    (newtonbodysetvelocitynosleep (%body-ptr body) v3)))
+    (newtonbodysetvelocitynosleep (%body-ptr body) v3))
+  vec3)
 
-(defun body-set-matrix-no-sleep (body mat4)
+(defn body-set-matrix-no-sleep ((body body)
+                                (mat4 (simple-array single-float (16))))
+    (simple-array single-float (16))
   (with-foreign-array (m4 mat4 '(:array :float 16))
-    (newtonbodysetmatrixnosleep (%body-ptr body) m4)))
+    (newtonbodysetmatrixnosleep (%body-ptr body) m4))
+  mat4)
 
-(defun body-set-omega-no-sleep (body vec3)
+(defn body-set-omega-no-sleep ((body body)
+                               (vec3 (simple-array single-float (3))))
+    (simple-array single-float (3))
   (with-foreign-array (v3 vec3 '(:array :float 3))
-    (newtonbodysetomeganosleep (%body-ptr body) v3)))
+    (newtonbodysetomeganosleep (%body-ptr body) v3))
+  vec3)
 
 ;;------------------------------------------------------------
 
-(defun body-rotation (body)
+(defn body-rotation ((body body)) (simple-array single-float (3))
   (with-foreign-object (v3 :float 3)
     (newtonbodygetrotation (%body-ptr body) v3)
     (ptr->v3 v3)))
 
-(defun body-max-rotation-per-step (body)
+(defn body-max-rotation-per-step ((body body)) single-float
   (newtonbodygetmaxrotationperstep (%body-ptr body)))
 
-(defun (setf body-max-rotation-per-step) (value body)
-  (newtonbodysetmaxrotationperstep (%body-ptr body) (float value)))
+(defn (setf body-max-rotation-per-step) ((value single-float)
+                                         (body body))
+    single-float
+  (newtonbodysetmaxrotationperstep (%body-ptr body) value)
+  value)
 
 ;;------------------------------------------------------------
 
-(defun body-aabb (body)
+(defn body-aabb ((body body))
+    (values (simple-array single-float (3))
+            (simple-array single-float (3)))
   (with-foreign-objects ((p0 :float 3)
                          (p1 :float 3))
     (newtonbodygetaabb (%body-ptr body) p0 p1)
@@ -402,30 +493,42 @@
 
 ;;------------------------------------------------------------
 
-(defun body-simulation-state (body)
+(defn body-simulation-state ((body body)) (signed-byte 32)
   ;; {TODO} what does state mean
   (newtonbodygetsimulationstate (%body-ptr body)))
 
-(defun (setf body-simulation-state) (state body)
+(defn (setf body-simulation-state) ((state (signed-byte 32))
+                                    (body body))
+    (signed-byte 32)
   ;; {TODO} what does state mean
-  (newtonbodysetsimulationstate (%body-ptr body) state))
+  (newtonbodysetsimulationstate (%body-ptr body) state)
+  state)
 
-(defun body-get-skeleton (body)
+(defn body-get-skeleton ((body body)) foreign-pointer
   ;; {TODO} how are we meant to handle skeletons?
   (newtonbodygetskeleton (%body-ptr body)))
 
-(defun body-set-matrix-recursive (body mat4)
+(defn body-set-matrix-recursive ((body body)
+                                 (mat4 (simple-array single-float (16))))
+    (simple-array single-float (16))
   (with-foreign-array (m4 mat4 '(:array :float 16))
-    (newtonbodysetmatrixrecursive (%body-ptr body) m4)))
+    (newtonbodysetmatrixrecursive (%body-ptr body) m4))
+  mat4)
 
-(defun body-set-collision-scale (body scale3)
-  (newtonbodysetcollisionscale body (v:x scale3) (v:y scale3) (v:z scale3)))
+(defn body-set-collision-scale ((body body)
+                                (scale3 (simple-array single-float (3))))
+    (simple-array single-float (3))
+  (newtonbodysetcollisionscale body (v:x scale3) (v:y scale3) (v:z scale3))
+  scale3)
 
-(defun %body-first-joint (body)
+(defn-inline %body-first-joint ((body body)) foreign-pointer
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   ;; {TODO} need an index of joints
   (newtonbodygetfirstjoint (%body-ptr body)))
 
-(defun %body-next-joint (body joint)
+(defn-inline %body-next-joint ((body body) (joint foreign-pointer))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   ;; {TODO} need an index of joints
   (newtonbodygetnextjoint
    (%body-ptr body)
@@ -444,11 +547,16 @@
           (setf ,hidden (%body-next-joint ,gbody ,hidden)
                 ,var-name ,hidden)))))
 
-(defun %body-first-contact-joint (body)
+(defn-inline %body-first-contact-joint ((body body)) foreign-pointer
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   ;; {TODO} need an index of contact-joints
-  (newtonbodygetfirstcontactjoint (%body-ptr body)))
+  (newtonbodygetfirstcontactjoint
+   (%body-ptr body)))
 
-(defun %body-next-contact-joint (body contact-joint)
+(defn %body-next-contact-joint ((body body)
+                                (contact-joint foreign-pointer))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   ;; {TODO} need an index of contact-joints
   (newtonbodygetnextcontactjoint
    (%body-ptr body)

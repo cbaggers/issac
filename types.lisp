@@ -103,18 +103,24 @@
 ;;------------------------------------------------------------
 ;; NewtonBody* - newtonbody - body
 
+(deftype body-transform-function ()
+  '(function (body rtg-math.types:mat4) t))
+
+(deftype body-torque-function ()
+  '(function (body single-float) t))
+
 (defstruct (body (:constructor %make-body)
                  (:conc-name %body-))
   (ptr (error "") :type foreign-pointer)
   (force-torque-callback
    nil
-   :type (or null (function (body single-float) t)))
+   :type (or null body-torque-function))
   (destructor-callback
    nil
    :type (or null (function (body) t)))
   (transform-callback
    nil
-   :type (or null (function (body rtg-math.types:mat4) t))))
+   :type (or null body-transform-function)))
 
 ;;------------------------------------------------------------
 ;; NewtonSkeletonContainer* - newtonskeletoncontainer - skeleton
