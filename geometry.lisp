@@ -556,13 +556,11 @@
   ;; var-name to something else
   (with-gensyms (gscene hidden)
     `(let* ((,gscene ,scene)
-            (,hidden (%scene-first-node ,gscene))
-            (,var-name ,hidden))
+            (,hidden (%scene-first-node ,gscene)))
        (loop :until (null-pointer-p ,hidden) :do
-          (setf ,var-name ,hidden)
-          (progn ,@body)
-          (setf ,hidden (%scene-next-node ,gscene ,hidden)
-                ,var-name ,hidden)))))
+          (let ((,var-name ,hidden))
+            ,@body
+            (setf ,hidden (%scene-next-node ,gscene ,hidden)))))))
 
 (defn scene-from-node-get-geometry ((scene scene-geometry)
                                     (node foreign-pointer))
@@ -720,13 +718,11 @@
   ;; var-name to something else
   (with-gensyms (gcompound hidden)
     `(let* ((,gcompound ,compound)
-            (,hidden (%compound-first-node ,gcompound))
-            (,var-name ,hidden))
+            (,hidden (%compound-first-node ,gcompound)))
        (loop :until (null-pointer-p ,hidden) :do
-          (setf ,var-name ,hidden)
-          (progn ,@body)
-          (setf ,hidden (%compound-next-node ,gcompound ,hidden)
-                ,var-name ,hidden)))))
+          (let ((,var-name ,hidden))
+            ,@body
+            (setf ,hidden (%compound-next-node ,gcompound ,hidden)))))))
 
 
 (defn compound-node ((compound compound-geometry)

@@ -539,13 +539,11 @@
   ;; var-name to something else
   (with-gensyms (gbody hidden)
     `(let* ((,gbody ,body-obj)
-            (,hidden (%body-first-joint ,gbody))
-            (,var-name ,hidden))
+            (,hidden (%body-first-joint ,gbody)))
        (loop :until (null-pointer-p ,hidden) :do
-          (setf ,var-name ,hidden)
-          (progn ,@body)
-          (setf ,hidden (%body-next-joint ,gbody ,hidden)
-                ,var-name ,hidden)))))
+          (let ((,var-name (%body-ptr->body ,hidden)))
+            ,@body
+            (setf ,hidden (%body-next-joint ,gbody ,hidden)))))))
 
 (defn-inline %body-first-contact-joint ((body body)) foreign-pointer
   (declare (optimize (speed 3) (safety 0) (debug 0)))
@@ -567,10 +565,8 @@
   ;; var-name to something else
   (with-gensyms (gbody hidden)
     `(let* ((,gbody ,body-obj)
-            (,hidden (%body-first-contact-joint ,gbody))
-            (,var-name ,hidden))
+            (,hidden (%body-first-contact-joint ,gbody)))
        (loop :until (null-pointer-p ,hidden) :do
-          (setf ,var-name ,hidden)
-          (progn ,@body)
-          (setf ,hidden (%body-next-contact-joint ,gbody ,hidden)
-                ,var-name ,hidden)))))
+          (let ((,var-name (%joint-ptr->joint ,hidden)))
+            ,@body
+            (setf ,hidden (%body-next-contact-joint ,gbody ,hidden)))))))

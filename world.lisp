@@ -385,13 +385,11 @@
   ;; var-name to something else
   (with-gensyms (gworld hidden)
     `(let* ((,gworld ,world)
-            (,hidden (%world-first-body ,gworld))
-            (,var-name ,hidden))
+            (,hidden (%world-first-body ,gworld)))
        (loop :until (null-pointer-p ,hidden) :do
-          (setf ,var-name (%body-ptr->body ,hidden))
-          (progn ,@body)
-          (setf ,hidden (%world-next-body ,gworld ,hidden)
-                ,var-name ,hidden)))))
+          (let ((,var-name (%body-ptr->body ,hidden)))
+            ,@body
+            (setf ,hidden (%world-next-body ,gworld ,hidden)))))))
 
 (defn %world-first-material-pair ((world world)) foreign-pointer
   (newtonworldgetfirstmaterial (%world-ptr world)))

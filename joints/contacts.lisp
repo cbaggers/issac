@@ -46,13 +46,11 @@
   ;; var-name to something else
   (with-gensyms (gjoint hidden)
     `(let* ((,gjoint ,joint)
-            (,hidden (%joint-first-contact ,gjoint))
-            (,var-name ,hidden))
+            (,hidden (%joint-first-contact ,gjoint)))
        (loop :for i :below (%joint-contact-count ,gjoint) :do
-          (setf ,var-name ,hidden)
-          (progn ,@body)
-          (setf ,hidden (%joint-next-contact ,gjoint ,hidden)
-                ,var-name ,hidden)))))
+          (let ((,var-name (%joint-ptr->joint ,hidden)))
+            ,@body
+            (setf ,hidden (%joint-next-contact ,gjoint ,hidden)))))))
 
 ;;------------------------------------------------------------
 
