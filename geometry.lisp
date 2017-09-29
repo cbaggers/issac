@@ -308,17 +308,25 @@
     (or null geometry-tree-raycast-function)
   (%geometry-tree-raycast-callback tree))
 
-(defun (setf geometry-tree-ray-cast-callback) (callback tree)
+(defn (setf geometry-tree-ray-cast-callback)
+    ((callback (or null geometry-tree-raycast-function))
+     (tree geometry-tree))
+    (or geometry-tree-raycast-function null)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((cb (if callback
                 (get-callback '%geom-tree-raycast-cb)
                 (null-pointer))))
     (NewtonTreeCollisionSetUserRayCastCallback (%geometry-ptr tree) cb)
     (setf (%geometry-tree-raycast-callback tree) callback)))
 
-(defun geometry-tree-debug-callback (tree)
+(defn geometry-tree-debug-callback ((tree geometry-tree))
+    (or null geometry-tree-raycast-function)
   (%geometry-tree-debug-callback tree))
 
-(defun (setf geometry-tree-debug-callback) (callback tree)
+(defn (setf geometry-tree-debug-callback)
+    ((callback (or null geometry-tree-raycast-function))
+     (tree geometry-tree))
+    (or null geometry-tree-raycast-function)
   (let ((cb (if callback
                 (get-callback '%geom-tree-debug-cb)
                 (null-pointer))))
@@ -327,9 +335,10 @@
 
 ;;------------------------------------------------------------
 
-(defun free-geometry (geometry)
+(defn free-geometry ((geometry geometry)) null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtondestroycollision (%geometry-ptr geometry))
-  t)
+  nil)
 
 ;;------------------------------------------------------------
 
@@ -342,86 +351,119 @@
 
 ;;------------------------------------------------------------
 
-(defun geometry-mode (geometry)
+(defn geometry-mode ((geometry geometry)) (signed-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncollisiongetmode (%geometry-ptr geometry)))
 
-(defun (setf geometry-mode) (mode geometry)
+(defn (setf geometry-mode) ((mode (signed-byte 32))
+                            (geometry geometry))
+    (signed-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (assert (integerp mode))
-  (newtoncollisionsetmode (%geometry-ptr geometry) mode))
+  (newtoncollisionsetmode (%geometry-ptr geometry) mode)
+  mode)
 
 
 ;;------------------------------------------------------------
 
-(defun geometry-scale (geometry)
+(defn geometry-scale ((geometry geometry))
+    (simple-array single-float (3))
   (with-foreign-objects ((x :float) (y :float) (z :float))
     (newtoncollisiongetscale (%geometry-ptr geometry) x y z)
     (v! (mem-aref x :float) (mem-aref y :float) (mem-aref z :float))))
 
-(defun (setf geometry-scale) (value geometry)
+(defn (setf geometry-scale) ((value (simple-array single-float (3)))
+                             (geometry geometry))
+    (simple-array single-float (3))
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncollisionsetscale
-   (%geometry-ptr geometry) (v:x value) (v:y value) (v:z value)))
+   (%geometry-ptr geometry) (v:x value) (v:y value) (v:z value))
+  value)
 
 ;;------------------------------------------------------------
 
-(defun geometry-offset-matrix4 (geometry)
+(defn geometry-offset-matrix4 ((geometry geometry))
+    (simple-array single-float (16))
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (m4 :float 16)
     (newtoncollisiongetmatrix (%geometry-ptr geometry) m4)
     (ptr->m4 m4)))
 
-(defun (setf geometry-offset-matrix4) (mat4 geometry)
+(defn (setf geometry-offset-matrix4)
+    ((mat4 (simple-array single-float (16)))
+     (geometry geometry))
+    (simple-array single-float (16))
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-array (m4 mat4 '(:array :float 16))
     (newtoncollisionsetmatrix (%geometry-ptr geometry) m4)
     mat4))
 
 ;;------------------------------------------------------------
 
-(defun %geometry-user-data (geometry)
+(defn %geometry-user-data ((geometry geometry)) foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncollisiongetuserdata (%geometry-ptr geometry)))
 
-(defun (setf %geometry-user-data) (ptr geometry)
+(defn (setf %geometry-user-data) (ptr geometry) foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncollisionsetuserdata (%geometry-ptr geometry) ptr))
 
-(defun %geometry-user-data-1 (geometry)
+(defn %geometry-user-data-1 ((geometry geometry)) foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncollisiongetuserdata1 (%geometry-ptr geometry)))
 
-(defun (setf %geometry-user-data-1) (ptr geometry)
-  (newtoncollisionsetuserdata1 (%geometry-ptr geometry) ptr))
+(defn (setf %geometry-user-data-1) ((ptr foreign-pointer)
+                                    (geometry geometry))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (newtoncollisionsetuserdata1 (%geometry-ptr geometry) ptr)
+  ptr)
 
-
-(defun %geometry-data-pointer (geometry)
+(defn %geometry-data-pointer ((geometry geometry)) foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncollisiondatapointer (%geometry-ptr geometry)))
 
 ;;------------------------------------------------------------
 
-(defun %geometry-user-id (geometry)
+(defn %geometry-user-id ((geometry geometry)) (unsigned-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncollisiongetuserid (%geometry-ptr geometry)))
 
-(defun (setf %geometry-user-id) (id geometry)
-  (assert (typep id '(unsigned-byte 32)))
-  (newtoncollisionsetuserid (%geometry-ptr geometry) id))
+(defn (setf %geometry-user-id) ((id (unsigned-byte 32))
+                                (geometry geometry))
+    null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (newtoncollisionsetuserid (%geometry-ptr geometry) id)
+  nil)
 
 ;;------------------------------------------------------------
 
-(defun convex-shape-p (geometry)
+(defn convex-shape-p ((geometry geometry)) boolean
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (>= (newtoncollisionisconvexshape (%geometry-ptr geometry)) 0))
 
-(defun convex-static-p (geometry)
+(defn convex-static-p ((geometry geometry)) boolean
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (>= (newtoncollisionisstaticshape (%geometry-ptr geometry)) 0))
 
 ;;------------------------------------------------------------
 
-(defun %geometry-info (geometry)
+(defn %geometry-info ((geometry geometry)) t
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (info '(:struct newtoncollisioninforecord))
     (newtoncollisiongetinfo (%geometry-ptr geometry) info)
     (mem-aref info '(:struct newtoncollisioninforecord))))
 
 ;;------------------------------------------------------------
 
-(defun make-height-field-geometry (world heights-2d-array
-                                   &optional
-                                     (vertical-scale 1f0)
-                                     (horizontal-scale 1f0)
-                                     (diagonals :lower-left->upper-right))
+(defn make-height-field-geometry ((world world)
+                                  (heights-2d-array)
+                                  &optional
+                                  (vertical-scale single-float 1f0)
+                                  (horizontal-scale single-float 1f0)
+                                  (diagonals symbol :lower-left->upper-right))
+    height-field-geometry
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   ;; {TODO} what are shape-ids?
   (assert (and (typep heights-2d-array 'array)
                (= 2 (array-rank heights-2d-array))))
@@ -443,10 +485,16 @@
                (float horizontal-scale)
                0))))))
 
-(defun height-field-ray-cast-callback (height-field)
+(defn height-field-ray-cast-callback ((height-field height-field-geometry))
+    (or null height-field-ray-cast-function)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%height-field-ray-cast-callback height-field))
 
-(defun (setf height-field-ray-cast-callback) (callback height-field)
+(defn (setf height-field-ray-cast-callback)
+    ((callback (or null height-field-ray-cast-function))
+     (height-field height-field-geometry))
+    (or null height-field-ray-cast-function)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((cb (if callback
                 (get-callback '%geom-height-field-raycast-cb)
                 (null-pointer))))
@@ -455,16 +503,23 @@
 
 ;;------------------------------------------------------------
 
-(defun create-scene-geometry (world shape-id)
+(defn create-scene-geometry ((world world)
+                             (shape-id (signed-byte 32)))
+    scene-geometry
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   ;; {TODO} what are shape-ids?
   (%make-scene
    :ptr (newtoncreatescenecollision (%world-ptr world) shape-id)))
 
-(defun %scene-begin-add-remove (scene)
-  (newtonscenecollisionbeginaddremove (%geometry-ptr scene)))
+(defn-inline %scene-begin-add-remove ((scene scene-geometry)) null
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (newtonscenecollisionbeginaddremove (%geometry-ptr scene))
+  nil)
 
-(defun %scene-end-add-remove (scene)
-  (newtonscenecollisionendaddremove (%geometry-ptr scene)))
+(defn-inline %scene-end-add-remove ((scene scene-geometry)) null
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (newtonscenecollisionendaddremove (%geometry-ptr scene))
+  nil)
 
 (defmacro with-scene-add-remove (scene &body body)
   (with-gensyms (gscene)
@@ -473,16 +528,23 @@
        (unwind-protect (progn ,@body)
          (%scene-end-add-remove ,gscene)))))
 
-(defun scene-add-sub-geometry (scene geometry)
+(defn scene-add-sub-geometry ((scene scene-geometry)
+                              (geometry geometry))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonscenecollisionaddsubcollision
    (%geometry-ptr scene)
    (%geometry-ptr geometry)))
 
-(defun %scene-first-node (scene)
+(defn %scene-first-node ((scene scene-geometry)) foreign-pointer
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   ;; What is a collision-node? look like just a ptr
   (newtonscenecollisiongetfirstnode (%geometry-ptr scene)))
 
-(defun %scene-next-node (scene node)
+(defn %scene-next-node ((scene scene-geometry)
+                        (node foreign-pointer))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   ;; What is a collision-node? look like just a ptr
   (newtonscenecollisiongetnextnode
    (%geometry-ptr scene)
@@ -501,44 +563,68 @@
           (setf ,hidden (%scene-next-node ,gscene ,hidden)
                 ,var-name ,hidden)))))
 
-(defun scene-from-node-get-geometry (scene node)
+(defn scene-from-node-get-geometry ((scene scene-geometry)
+                                    (node foreign-pointer))
+    geometry
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%geom-ptr->geom
    (newtonscenecollisiongetcollisionfromnode
     (%geometry-ptr scene)
     node)))
 
-(defun scene-node-index (scene node)
+(defn scene-node-index ((scene scene-geometry)
+                        (node foreign-pointer))
+    (signed-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonscenecollisiongetnodeindex
    (%geometry-ptr scene)
    node))
 
-(defun scene-node (scene index)
+(defn scene-node ((scene scene-geometry)
+                  (index (signed-byte 32)))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonscenecollisiongetnodebyindex
    (%geometry-ptr scene)
    index))
 
-(defun scene-remove-sub-geometry-by-index (scene index)
+(defn scene-remove-sub-geometry-by-index ((scene scene-geometry)
+                                          (index (signed-byte 32)))
+    null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonscenecollisionremovesubcollisionbyindex
    (%geometry-ptr scene)
-   index))
+   index)
+  nil)
 
-(defun scene-remove-sub-geometry (scene node)
+(defn scene-remove-sub-geometry ((scene scene-geometry)
+                                 (node foreign-pointer))
+    null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonscenecollisionremovesubcollision
    (%geometry-ptr scene)
-   node))
+   node)
+  nil)
 
-(defun scene-set-sub-geometry-matrix4 (scene node mat4)
+(defn scene-set-sub-geometry-matrix4 ((scene scene-geometry)
+                                      (node foreign-pointer)
+                                      (mat4 (simple-array single-float (16))))
+    null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-array (m4 mat4 '(:array :float 16))
     (newtonscenecollisionsetsubcollisionmatrix
      (%geometry-ptr scene)
      node
-     m4)))
+     m4))
+  nil)
 
 ;;------------------------------------------------------------
 ;; COMPOUND COLLISION
 
-
-(defun make-compound-geometry (world shape-id)
+(defn make-compound-geometry ((world world)
+                              (shape-id (signed-byte 32)))
+    compound-geometry
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   "Create a container to hold an array of convex collision
    primitives. Compound collision primitives can only be made of convex
    collision primitives and they can not contain compound
@@ -551,31 +637,51 @@
    :ptr (newtoncreatecompoundcollision
          (%world-ptr world) shape-id)))
 
-(defun compound-add-sub-geometry (compound convex)
+(defn compound-add-sub-geometry ((compound compound-geometry)
+                                 (convex convex-hull-geometry))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (NewtonCompoundCollisionAddSubCollision
    (%geometry-ptr compound)
    (%geometry-ptr convex)))
 
-(defun compound-node-index (compound node)
+(defn compound-node-index ((compound compound-geometry)
+                           (node foreign-pointer))
+    (signed-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (NewtonCompoundCollisionGetNodeIndex
    (%geometry-ptr compound)
    node))
 
-(defun compound-remove-sub-geometry-by-index (compound index)
+(defn compound-remove-sub-geometry-by-index ((compound compound-geometry)
+                                             (index (signed-byte 32)))
+    null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (NewtonCompoundCollisionRemoveSubCollisionByIndex
    (%geometry-ptr compound)
-   index))
+   index)
+  nil)
 
-(defun compound-remove-sub-geometry (compound node)
+(defn compound-remove-sub-geometry ((compound compound-geometry)
+                                    (node foreign-pointer))
+    null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (NewtonCompoundCollisionRemoveSubCollision
    (%geometry-ptr compound)
-   node))
+   node)
+  nil)
 
-(defun %compound-begin-add-remove (compound)
-  (newtoncompoundcollisionbeginaddremove (%geometry-ptr compound)))
+(defn-inline %compound-begin-add-remove ((compound compound-geometry))
+    null
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (newtoncompoundcollisionbeginaddremove (%geometry-ptr compound))
+  nil)
 
-(defun %compound-end-add-remove (compound)
-  (newtoncompoundcollisionendaddremove (%geometry-ptr compound)))
+(defn-inline %compound-end-add-remove ((compound compound-geometry))
+    null
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (newtoncompoundcollisionendaddremove (%geometry-ptr compound))
+  nil)
 
 (defmacro with-compound-add-remove (compound &body body)
   (with-gensyms (gcompound)
@@ -584,17 +690,25 @@
        (unwind-protect (progn ,@body)
          (%compound-end-add-remove ,gcompound)))))
 
-(defun compound-from-node-get-geometry (compound node)
+(defn compound-from-node-get-geometry ((compound compound-geometry)
+                                       (node foreign-pointer))
+    geometry
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%geom-ptr->geom
    (newtoncompoundcollisiongetcollisionfromnode
     (%geometry-ptr compound)
     node)))
 
-(defun %compound-first-node (compound)
+(defn %compound-first-node ((compound compound-geometry))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   ;; What is a collision-node? look like just a ptr
   (newtoncompoundcollisiongetfirstnode (%geometry-ptr compound)))
 
-(defun %compound-next-node (compound node)
+(defn %compound-next-node ((compound compound-geometry)
+                           (node foreign-pointer))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   ;; What is a collision-node? look like just a ptr
   (newtoncompoundcollisiongetnextnode
    (%geometry-ptr compound)
@@ -614,17 +728,26 @@
                 ,var-name ,hidden)))))
 
 
-(defun compound-node (compound index)
+(defn compound-node ((compound compound-geometry)
+                     (index (signed-byte 32)))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncompoundcollisiongetnodebyindex
    (%geometry-ptr compound)
    index))
 
-(defun compound-set-sub-geometry-matrix4 (compound node mat4)
+(defn compound-set-sub-geometry-matrix4
+    ((compound compound-geometry)
+     (node foreign-pointer)
+     (mat4 (simple-array single-float (16))))
+    null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-array (m4 mat4 '(:array :float 16))
     (newtoncompoundcollisionsetsubcollisionmatrix
      (%geometry-ptr compound)
      node
-     m4)))
+     m4))
+  nil)
 
 ;; newtonfracturedcompoundcollisiongetvertexnormals
 ;; newtonfracturedcompoundcollisiongetvertexpositions
@@ -650,8 +773,13 @@
 
 ;;------------------------------------------------------------
 
-(defun map-polygons-in-geometry (function geometry
-                                 &optional (mat4 (m4:identity)))
+(defn map-polygons-in-geometry
+    ((function geometry-iterator-function)
+     (geometry geometry)
+     &optional
+     (mat4 (simple-array single-float (16)) (m4:identity)))
+    null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (assert function)
   (with-foreign-array (m4 mat4 '(:array :float 16))
     (let ((cb (get-callback '%geometry-iterator-cb))
@@ -659,37 +787,50 @@
       (setf (%geometry-iterator-callback geometry) function)
       (unwind-protect
            (NewtonCollisionForEachPolygonDo geom-ptr m4 cb geom-ptr)
-        (setf (%geometry-iterator-callback geometry) nil)))))
+        (setf (%geometry-iterator-callback geometry) nil))))
+  nil)
 
 ;;------------------------------------------------------------
 
-(defun geometry-calculate-aabb (geometry
-                                &optional (offset-matrix4 (m4:identity)))
+(defn geometry-calculate-aabb
+    ((geometry geometry)
+     &optional
+     (offset-matrix4 (simple-array single-float (16)) (m4:identity)))
+    null
   "Calculate an axis-aligned bounding box for this collision,
    the box is calculated relative to `offset-matrix4`"
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-objects ((p0 :float 3)
                          (p1 :float 3))
     (with-foreign-array (m4 offset-matrix4 '(:array :float 16))
       (newtoncollisioncalculateaabb
        (%geometry-ptr geometry) m4 p0 p1)
-      (values (ptr->v3 p0) (ptr->v3 p1)))))
+      (values (ptr->v3 p0) (ptr->v3 p1))))
+  nil)
 
-(defun geometry-get-parent (geometry)
-  (newtoncollisiongetparentinstance (%geometry-ptr geometry)))
+(defn geometry-get-parent ((geometry geometry)) geometry
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (%geom-ptr->geom
+   (newtoncollisiongetparentinstance
+    (%geometry-ptr geometry))))
 
-(defun geometry-skin-thickness (geometry)
+(defn geometry-skin-thickness ((geometry geometry)) single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (NewtonCollisionGetSkinThickness (%geometry-ptr geometry)))
 
-(defun sub-geometry-handle (geometry)
+(defn sub-geometry-handle ((geometry geometry)) geometry
   (%geom-ptr->geom
-   (newtoncollisiongetsubcollisionhandle (%geometry-ptr geometry))))
+   (newtoncollisiongetsubcollisionhandle
+    (%geometry-ptr geometry))))
 
-(defun geometry-type (geometry)
+(defn geometry-type ((geometry geometry)) (signed-byte 32)
   ;; {TODO} what is type?
   (newtoncollisiongettype (%geometry-ptr geometry)))
 
 
-(defun geometry-most-extreme-vertex (geometry dir3)
+(defn geometry-most-extreme-vertex ((geometry geometry)
+                                    (dir3 (simple-array single-float (3))))
+    (simple-array single-float (3))
   "Calculate the most extreme point of a convex collision shape along the given
    direction"
   (with-foreign-array (d3 dir3 '(:array :float 3))

@@ -2,15 +2,18 @@
 
 ;;------------------------------------------------------------
 
+(deftype geometry-iterator-function ()
+  '(function (geometry
+              (array single-float (*))
+              (signed-byte 32))
+    single-float))
+
 (defstruct (geometry (:constructor %make-geometry)
                      (:conc-name %geometry-))
   (ptr (error "") :type foreign-pointer)
   (iterator-callback
    nil
-   :type (or null (function (geometry
-                             (array single-float (*))
-                             (signed-byte 32))
-                            single-float))))
+   :type (or null geometry-iterator-function)))
 
 (defstruct (null-geometry
             (:constructor %make-null)
@@ -75,20 +78,23 @@
             (:constructor %make-compound-geometry)
             (:include geometry)))
 
+(deftype height-field-ray-cast-function ()
+  '(function (height-field-geometry
+              body
+              single-float
+              (signed-byte 32)
+              (signed-byte 32)
+              rtg-math.types:vec3
+              (signed-byte 32))
+    single-float))
+
 (defstruct (height-field-geometry
              (:constructor %make-height-field)
              (:conc-name %height-field-)
              (:include geometry))
   (ray-cast-callback
    nil
-   :type (or null (function (height-field-geometry
-                             body
-                             single-float
-                             (signed-byte 32)
-                             (signed-byte 32)
-                             rtg-math.types:vec3
-                             (signed-byte 32))
-                            single-float))))
+   :type (or null height-field-ray-cast-function)))
 
 (defstruct (scene-geometry
             (:constructor %make-scene)
