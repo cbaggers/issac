@@ -2,42 +2,58 @@
 
 ;;------------------------------------------------------------
 
-(defun make-corkscrew (world parent-body child-body pivot-point-v3 pin-dir-v3)
+(defn make-corkscrew ((world world)
+                      (parent-body body)
+                      (child-body body)
+                      (pivot-point-v3 (simple-array single-float (3)))
+                      (pin-dir-v3 (simple-array single-float (3))))
+    corkscrew
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-array (piv3 pivot-point-v3 '(:array :float 3))
     (with-foreign-array (dir3 pin-dir-v3 '(:array :float 3))
-      (newtonconstraintcreatecorkscrew
-       (%world-ptr world) piv3 dir3
-       (%body-ptr child-body)
-       (%body-ptr parent-body)))))
+      (let ((jnt (%make-corkscrew
+                  :ptr (newtonconstraintcreatecorkscrew
+                        (%world-ptr world) piv3 dir3
+                        (%body-ptr child-body)
+                        (%body-ptr parent-body)))))
+        (setf (%joint-user-data jnt) (make-pointer (%add-joint-to-system jnt)))
+        jnt))))
 
 ;;------------------------------------------------------------
 
-(defun corkscrew-force (corkscrew)
+(defn corkscrew-force ((corkscrew corkscrew))
+    (simple-array single-float (3))
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (v3 :float 3)
     (newtoncorkscrewgetjointforce (%joint-ptr corkscrew) v3)
     (ptr->v3 v3)))
 
-(defun corkscrew-omega (corkscrew)
+(defn corkscrew-omega ((corkscrew corkscrew)) single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncorkscrewgetjointomega (%joint-ptr corkscrew)))
 
-(defun corkscrew-position (corkscrew)
+(defn corkscrew-position ((corkscrew corkscrew)) single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncorkscrewgetjointposit (%joint-ptr corkscrew)))
 
-(defun corkscrew-velocity (corkscrew)
+(defn corkscrew-velocity ((corkscrew corkscrew)) single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncorkscrewgetjointveloc (%joint-ptr corkscrew)))
 
 ;;------------------------------------------------------------
 
-(defun corkscrew-calc-stop-acceleration (corkscrew
-                                         acceleration
-                                         min-friction
-                                         max-friction
-                                         timestep
-                                         position)
+(defn corkscrew-calc-stop-acceleration ((corkscrew corkscrew)
+                                        (acceleration single-float)
+                                        (min-friction single-float)
+                                        (max-friction single-float)
+                                        (timestep single-float)
+                                        (position single-float))
+    single-float
   "Calculate the the relative linear acceleration needed to stop the
    corkscrew at the desired angle. this function can only be called from
    a NewtonCorkscrewCallback and it can be used by the application to
    implement corkscrew limits."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (desc 'newtonhingesliderupdatedesc)
     (with-foreign-slots ((m-accel m-minfriction m-maxfriction m-timestep)
                          desc newtonhingesliderupdatedesc)
@@ -47,16 +63,18 @@
             m-timestep timestep))
     (newtoncorkscrewcalculatestopaccel (%joint-ptr corkscrew) desc position)))
 
-(defun corkscrew-calc-stop-alpha (corkscrew
-                                  acceleration
-                                  min-friction
-                                  max-friction
-                                  timestep
-                                  angle)
+(defn corkscrew-calc-stop-alpha ((corkscrew corkscrew)
+                                 (acceleration single-float)
+                                 (min-friction single-float)
+                                 (max-friction single-float)
+                                 (timestep single-float)
+                                 (angle single-float))
+    single-float
   "Calculate the relative angular acceleration needed to stop the
    corkscrew at the desired angle. this function can only be called from
    a NewtonCorkscrewCallback and it can be used by the application to
    implement corkscrew limits."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (desc 'newtonhingesliderupdatedesc)
     (with-foreign-slots ((m-accel m-minfriction m-maxfriction m-timestep)
                          desc newtonhingesliderupdatedesc)
@@ -68,10 +86,16 @@
 
 ;;------------------------------------------------------------
 
-(defun corkscrew-callback (joint)
+(defn corkscrew-callback ((joint corkscrew))
+    (or null corkscrew-cb-function)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%corkscrew-callback joint))
 
-(defun (setf corkscrew-callback) (callback joint)
+(defn (setf corkscrew-callback)
+    ((callback (or null corkscrew-cb-function))
+     (joint corkscrew))
+    (or null corkscrew-cb-function)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((cb (if callback
                 (get-callback '%corkscrew-cb)
                 (null-pointer))))

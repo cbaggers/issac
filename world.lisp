@@ -438,14 +438,14 @@
 ;; newtonworldsetcollisionconstructordestructorcallback
 
 (defn world-geometry-constructor-callback ((world world))
-    (or null (function (world body body) t))
+    (or null (function (world geometry geometry) t))
   (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-geom-constructor-callback world))
 
 (defn (setf world-geometry-constructor-callback)
-    ((callback (or null (function (world body body) t)))
+    ((callback (or null (function (world geometry geometry) t)))
      (world world))
-    (or null (function (world body body) t))
+    (or null (function (world geometry geometry) t))
   (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((con (if callback
                  (get-callback '%world-geom-constructor-cb)
@@ -458,14 +458,14 @@
     (setf (%world-geom-constructor-callback world) callback)))
 
 (defn world-geometry-destructor-callback ((world world))
-    (or null (function (world body) t))
+    (or null (function (world geometry) t))
   (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-geom-destructor-callback world))
 
 (defn (setf world-geometry-destructor-callback)
-    ((callback (or null (function (world body) t)))
+    ((callback (or null (function (world geometry) t)))
      (world world))
-    (or null (function (world body) t))
+    (or null (function (world geometry) t))
   (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((con (if (%world-geom-constructor-callback world)
                  (get-callback '%world-geom-destructor-cb)
@@ -484,14 +484,14 @@
 ;; newtonworldaddprelistener
 
 (defn world-pre-update-listener ((world world))
-    (or null (function (world single-float) t))
+    (or null (function (world single-float single-float) t))
   (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-pre-update-listener-callback world))
 
 (defn (setf world-pre-update-listener)
-    ((callback (or null (function (world single-float) t)))
+    ((callback (or null (function (world single-float single-float) t)))
      (world world))
-    (or null (function (world single-float) t))
+    (or null (function (world single-float single-float) t))
   (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((upd (if callback
                  (get-callback '%world-pre-update-listener-cb)
@@ -529,14 +529,14 @@
 ;; newtonworldaddpostlistener
 
 (defn world-post-update-listener ((world world))
-    (or null (function (world single-float) t))
+    (or null (function (world single-float single-float) t))
   (declare (optimize (speed 3) (debug 1) (safety 1)))
   (%world-post-update-listener-callback world))
 
 (defn (setf world-post-update-listener)
-    ((callback (or null (function (world single-float) t)))
+    ((callback (or null (function (world single-float single-float) t)))
      (world world))
-    (or null (function (world single-float) t))
+    (or null (function (world single-float single-float) t))
   (declare (optimize (speed 3) (debug 1) (safety 1)))
   (let ((upd (if callback
                  (get-callback '%world-post-update-listener-cb)

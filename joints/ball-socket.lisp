@@ -2,40 +2,52 @@
 
 ;;------------------------------------------------------------
 
-(defun make-ball-&-socket (world
-                           pivot-point-v3
-                           child-body
-                           parent-body)
+(defn make-ball-&-socket ((world world)
+                          (pivot-point-v3 (simple-array single-float (3)))
+                          (child-body body)
+                          (parent-body body))
+    ball-&-socket
   (with-foreign-array (v3 pivot-point-v3 '(:array :float 3))
-    (newtonconstraintcreateball (%world-ptr world)
-                                v3
-                                (%body-ptr child-body)
-                                (%body-ptr parent-body))))
+    (let ((jnt (%make-ball-&-socket
+                :ptr (newtonconstraintcreateball (%world-ptr world)
+                                                 v3
+                                                 (%body-ptr child-body)
+                                                 (%body-ptr parent-body)))))
+      (setf (%joint-user-data jnt) (make-pointer (%add-joint-to-system jnt)))
+      jnt)))
 
-(defun ball-&-socket-force (ball-&-socket)
+(defn ball-&-socket-force ((ball-&-socket ball-&-socket))
+    (simple-array single-float (3))
   (with-foreign-object (v3 :float 3)
     (newtonballgetjointforce (%joint-ptr ball-&-socket) v3)
     (ptr->v3 v3)))
 
-(defun ball-&-socket-omega (ball-&-socket)
+(defn ball-&-socket-omega ((ball-&-socket ball-&-socket))
+    (simple-array single-float (3))
   (with-foreign-object (v3 :float 3)
     (newtonballgetjointomega (%joint-ptr ball-&-socket) v3)
     (ptr->v3 v3)))
 
-(defun ball-&-socket-set-cone-limits (ball-&-socket
-                                      pin-v3
-                                      max-cone-angle
-                                      max-twist-angle)
+(defn ball-&-socket-set-cone-limits ((ball-&-socket ball-&-socket)
+                                     (pin-v3 (simple-array single-float (3)))
+                                     (max-cone-angle single-float)
+                                     (max-twist-angle single-float))
+    null
   (with-foreign-array (pin3 pin-v3 '(:array :float 3))
     (newtonballsetconelimits (%joint-ptr ball-&-socket)
                              pin3
                              max-cone-angle
-                             max-twist-angle)))
+                             max-twist-angle))
+  nil)
 
-(defun ball-&-socket-callback (joint)
-  (%ball-&-socket-callback joint))
+(defn ball-&-socket-callback ((ball-&-socket ball-&-socket))
+    (or null ball-&-socket-cb-function)
+  (%ball-&-socket-callback ball-&-socket))
 
-(defun (setf ball-&-socket-callback) (callback joint)
+(defn (setf ball-&-socket-callback)
+    ((callback (or null ball-&-socket-cb-function))
+     (joint ball-&-socket))
+    (or null ball-&-socket-cb-function)
   (let ((cb (if callback
                 (get-callback '%ball-cb)
                 (null-pointer))))

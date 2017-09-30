@@ -4,10 +4,14 @@
 ;; newtonuserjoin
 ;;------------------------------------------------------------
 
-(defun bilateral-callback (joint)
+(defn bilateral-callback ((joint bilateral-joint))
+    (or null bilateral-joint-cb-function)
   (%bilateral-callback joint))
 
-(defun (setf bilateral-callback) (callback joint)
+(defn (setf bilateral-callback)
+    ((callback (or null bilateral-joint-cb-function))
+     (joint bilateral-joint))
+    (or null bilateral-joint-cb-function)
   (let ((cb (if callback
                 (get-callback '%bilateral-cb)
                 (null-pointer))))

@@ -2,25 +2,30 @@
 
 ;;------------------------------------------------------------
 
-(defun make-hinge (world
-                   pivot-point-v3
-                   pin-dir-v3
-                   child-body
-                   parent-body)
+(defn make-hinge ((world world)
+                  (pivot-point-v3 (simple-array single-float (3)))
+                  (pin-dir-v3 (simple-array single-float (3)))
+                  (child-body body)
+                  (parent-body body))
+    hinge
   (with-foreign-array (pp3 pivot-point-v3 '(:array :float 3))
     (with-foreign-array (pd3 pin-dir-v3 '(:array :float 3))
-      (newtonconstraintcreatehinge (%world-ptr world)
-                                   pp3
-                                   pd3
-                                   (%body-ptr child-body)
-                                   (%body-ptr parent-body)))))
+      (let ((jnt (%make-hinge
+                  :ptr (newtonconstraintcreatehinge (%world-ptr world)
+                                                    pp3
+                                                    pd3
+                                                    (%body-ptr child-body)
+                                                    (%body-ptr parent-body)))))
+        (setf (%joint-user-data jnt) (make-pointer (%add-joint-to-system jnt)))
+        jnt))))
 
-(defun corkscrew-calc-stop-alpha (corkscrew
-                                  acceleration
-                                  min-friction
-                                  max-friction
-                                  timestep
-                                  angle)
+(defn hinge-calc-stop-alpha ((hinge hinge)
+                             (acceleration single-float)
+                             (min-friction single-float)
+                             (max-friction single-float)
+                             (timestep single-float)
+                             (angle single-float))
+    single-float
   "Calculate the relative angular acceleration needed to stop the
    corkscrew at the desired angle. this function can only be called from
    a NewtonCorkscrewCallback and it can be used by the application to
@@ -32,26 +37,31 @@
             m-minfriction min-friction
             m-maxfriction max-friction
             m-timestep timestep))
-    (newtonhingecalculatestopalpha (%joint-ptr corkscrew) desc angle)))
+    (newtonhingecalculatestopalpha (%joint-ptr hinge) desc angle)))
 
-(defun hinge-force (hinge)
+(defn hinge-force ((hinge hinge))
+    (simple-array single-float (3))
   (with-foreign-object (v3 :float 3)
     (newtonhingegetjointforce (%joint-ptr hinge) v3)
     (ptr->v3 v3)))
 
-(defun hinge-omega (hinge)
+(defn hinge-omega ((hinge hinge)) single-float
   (newtonhingegetjointomega (%joint-ptr hinge)))
 
 ;;------------------------------------------------------------
 
-(defun hinge-callback (joint)
-  (%hinge-callback joint))
+(defn hinge-callback ((hinge hinge))
+    (or null hinge-cb-function)
+  (%hinge-callback hinge))
 
-(defun (setf hinge-callback) (callback joint)
+(defn (setf hinge-callback)
+    ((callback (or null hinge-cb-function))
+     (hinge hinge))
+    (or null hinge-cb-function)
   (let ((cb (if callback
                 (get-callback '%hinge-cb)
                 (null-pointer))))
-    (NewtonHingeSetUserCallback (%joint-ptr joint) cb)
-    (setf (%hinge-callback joint) callback)))
+    (NewtonHingeSetUserCallback (%joint-ptr hinge) cb)
+    (setf (%hinge-callback hinge) callback)))
 
 ;;------------------------------------------------------------

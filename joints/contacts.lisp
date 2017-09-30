@@ -5,40 +5,56 @@
 ;;------------------------------------------------------------
 ;; Get the geometry involved (or just the ids of the geometry)
 
-(defun contact-geometry-0 (contact)
+(defn contact-geometry-0 ((contact foreign-pointer))
+    geometry
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%geom-ptr->geom
    (newtoncontactgetcollision0 contact)))
 
-(defun contact-geometry-1 (contact)
+(defn contact-geometry-1 ((contact foreign-pointer))
+    geometry
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%geom-ptr->geom
    (newtoncontactgetcollision1 contact)))
 
-(defun contact-geometry-id-0 (contact)
+(defn contact-geometry-id-0 ((contact foreign-pointer))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncontactgetcollisionid0 contact))
 
-(defun contact-geometry-id-1 (contact)
+(defn contact-geometry-id-1 ((contact foreign-pointer))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncontactgetcollisionid1 contact))
 
 ;;------------------------------------------------------------
 ;; Contact Material
 
-(defun contact-material-pair (contact)
+(defn contact-material-pair ((contact foreign-pointer))
+    material-pair
   "Get the material-pair holding the materials of the bodies involved
    in the contact"
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%material-pair-ptr->material-pair
    (newtoncontactgetmaterial contact)))
 
 ;;------------------------------------------------------------
 ;; Iteration over contacts
 
-(defun %joint-contact-count (contact-joint)
+(defn %joint-contact-count ((contact-joint joint))
+    (signed-byte 32)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncontactjointgetcontactcount contact-joint))
 
-(defun %joint-first-contact (contact-joint)
+(defn %joint-first-contact ((contact-joint joint))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncontactjointgetfirstcontact (%joint-ptr contact-joint)))
 
-(defun %joint-next-contact (contact-joint contact)
+(defn %joint-next-contact ((contact-joint joint) (contact foreign-pointer))
+    foreign-pointer
   ;; contact needed as this seems to be a linked list
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncontactjointgetnextcontact contact-joint contact))
 
 (defmacro do-joint-contacts ((var-name joint) &body body)
@@ -54,8 +70,13 @@
 
 ;;------------------------------------------------------------
 
-(defun joint-remove-contact (contact-joint contact)
-  (newtoncontactjointremovecontact contact-joint contact))
+(defn joint-remove-contact ((contact-joint joint) (contact foreign-pointer))
+    null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (newtoncontactjointremovecontact contact-joint contact)
+  nil)
 
-(defun joint-closest-distance (contact-joint)
+(defn joint-closest-distance ((contact-joint joint))
+    single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtoncontactjointgetclosestdistance contact-joint))

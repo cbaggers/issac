@@ -2,20 +2,27 @@
 
 ;;------------------------------------------------------------
 
-(defun free-joint (world joint)
-  (NewtonDestroyJoint (%world-ptr world) (%joint-ptr joint)))
+(defn free-joint ((world world) (joint joint)) null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (NewtonDestroyJoint (%world-ptr world) (%joint-ptr joint))
+  nil)
 
 ;;------------------------------------------------------------
 
-(defun %joint-user-data (geometry)
-  (NewtonJointGetUserData (%geometry-ptr geometry)))
+(defn %joint-user-data ((joint joint)) foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (NewtonJointGetUserData (%joint-ptr joint)))
 
-(defun (setf %joint-user-data) (ptr geometry)
-  (NewtonJointSetUserData (%geometry-ptr geometry) ptr))
+(defn (setf %joint-user-data) ((ptr foreign-pointer)
+                               (joint joint))
+    foreign-pointer
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (NewtonJointSetUserData (%joint-ptr joint) ptr)
+  ptr)
 
 ;;------------------------------------------------------------
 
-(defun joint-linked-collide-p (joint)
+(defn joint-linked-collide-p ((joint joint)) boolean
   "Get the collision state of the two bodies linked by the
    joint. usually when two bodies are linked by a joint, the application
    wants collision between this two bodies to be disabled. This is the
@@ -24,27 +31,37 @@
    collision on. If the application decides to enable collision between
    jointed bodies, the application should make sure the collision
    geometry do not collide in the work space of the joint."
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (>= (NewtonJointGetCollisionState (%joint-ptr joint)) 0))
 
-(defun (setf joint-linked-collide-p) (value joint)
-  (NewtonJointSetCollisionState (%joint-ptr joint) (if value 1 0)))
+(defn (setf joint-linked-collide-p) ((value t)
+                                     (joint joint))
+    t
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (NewtonJointSetCollisionState (%joint-ptr joint) (if value 1 0))
+  value)
 
 ;;------------------------------------------------------------
 
-(defun joint-stiffness (joint)
+(defn joint-stiffness ((joint joint)) single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (NewtonJointGetStiffness (%joint-ptr joint)))
 
-(defun (setf joint-stiffness) (value joint)
+(defn (setf joint-stiffness) ((value single-float) (joint joint))
+    single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (NewtonJointSetStiffness (%joint-ptr joint) (float value)))
 
 ;;------------------------------------------------------------
 
-(defun joint-active-p (joint)
+(defn joint-active-p ((joint joint)) boolean
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (>= (newtonjointisactive (%joint-ptr joint)) 0))
 
 ;;------------------------------------------------------------
 
-(defun joint-info (joint)
+(defn joint-info ((joint joint)) joint-info
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (ptr 'NewtonJointRecord)
     (NewtonJointGetInfo (%joint-ptr joint) ptr)
     (with-foreign-slots ((m-attachmenmatrix-0
@@ -75,18 +92,26 @@
 
 ;;------------------------------------------------------------
 
-(defun joint-body-0 (joint)
-  (NewtonJointGetBody0 (%joint-ptr joint)))
+(defn joint-body-0 ((joint joint)) body
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (%body-ptr->body (NewtonJointGetBody0 (%joint-ptr joint))))
 
-(defun joint-body-1 (joint)
-  (NewtonJointGetBody1 (%joint-ptr joint)))
+(defn joint-body-1 ((joint joint)) body
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
+  (%body-ptr->body (NewtonJointGetBody1 (%joint-ptr joint))))
 
 ;;------------------------------------------------------------
 
-(defun joint-destructor-callback (joint)
+(defn joint-destructor-callback ((joint joint))
+    (or null (function (joint) t))
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%joint-destructor-callback joint))
 
-(defun (setf joint-destructor-callback) (callback joint)
+(defn (setf joint-destructor-callback)
+    ((callback (or null (function (joint) t)))
+     (joint joint))
+    (or null (function (joint) t))
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((cb (if callback
                 (get-callback '%joint-destructor-cb)
                 (null-pointer))))

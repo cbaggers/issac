@@ -177,64 +177,82 @@
    (error "joint-info missing required data description")
    :type string))
 
+(deftype ball-&-socket-cb-function ()
+  '(function (ball-&-socket) t))
+
 (defstruct (ball-&-socket (:constructor %make-ball-&-socket)
                           (:conc-name %ball-&-socket-)
                           (:include joint))
   (callback
    nil
-   :type (or null (function (ball-&-socket single-float) t))))
+   :type (or null ball-&-socket-cb-function)))
+
+(deftype corkscrew-cb-function ()
+  '(function (corkscrew
+              single-float
+              single-float
+              single-float
+              single-float)
+    (unsigned-byte 32)))
 
 (defstruct (corkscrew (:constructor %make-corkscrew)
                       (:conc-name %corkscrew-)
                       (:include joint))
   (callback
    nil
-   :type (or null (function (corkscrew
-                             single-float
-                             single-float
-                             single-float
-                             single-float)
-                            (unsigned-byte 32)))))
+   :type (or null corkscrew-cb-function)))
+
+(deftype hinge-cb-function ()
+  '(function (hinge
+              single-float
+              single-float
+              single-float
+              single-float)
+    (unsigned-byte 32)))
 
 (defstruct (hinge (:constructor %make-hinge)
                   (:conc-name %hinge-)
                   (:include joint))
   (callback
    nil
-   :type (or null (function (hinge
-                             single-float
-                             single-float
-                             single-float
-                             single-float)
-                            (unsigned-byte 32)))))
+   :type (or null hinge-cb-function)))
+
+(deftype slider-cb-function ()
+  '(function (slider
+              single-float
+              single-float
+              single-float
+              single-float)
+    (unsigned-byte 32)))
 
 (defstruct (slider (:constructor %make-slider)
                    (:conc-name %slider-)
                    (:include joint))
   (callback
    nil
-   :type (or null (function (slider
-                             single-float
-                             single-float
-                             single-float
-                             single-float)
-                            (unsigned-byte 32)))))
+   :type (or null slider-cb-function)))
+
+(deftype universal-joint-cb-function ()
+  '(function (universal-joint
+              single-float
+              single-float
+              single-float
+              single-float)
+    (unsigned-byte 32)))
 
 (defstruct (universal-joint (:constructor %make-universal-joint)
                             (:conc-name %universal-)
                             (:include joint))
   (callback
    nil
-   :type (or null (function (universal-joint
-                             single-float
-                             single-float
-                             single-float
-                             single-float)
-                            (unsigned-byte 32)))))
+   :type (or null universal-joint-cb-function)))
 
 (defstruct (up-vector (:constructor %make-up-vector)
                       (:conc-name %up-vector-)
                       (:include joint)))
+
+(deftype bilateral-joint-cb-function ()
+  '(function (bilateral-joint single-float) t))
 
 ;; An advanced feature we dont need yet
 (defstruct (bilateral-joint (:constructor %make-bilateral-joint)
@@ -242,7 +260,7 @@
                             (:include joint))
   (callback
    nil
-   :type (or null (function (bilateral-joint single-float) t)))
+   :type (or null bilateral-joint-cb-function))
   (info-callback
    nil
    :type (or null (function (bilateral-joint joint-info) t))))
@@ -291,13 +309,13 @@
   (body-iterator-callback
    nil :type (or null body-iterator-function))
   (geom-constructor-callback
-   nil :type (or null (function (world body body) t)))
+   nil :type (or null (function (world geometry geometry) t)))
   (geom-destructor-callback
-   nil :type (or null (function (world body) t)))
+   nil :type (or null (function (world geometry) t)))
   (pre-update-listener-callback
-   nil :type (or null (function (world single-float) t)))
+   nil :type (or null (function (world single-float single-float) t)))
   (post-update-listener-callback
-   nil :type (or null (function (world single-float) t)))
+   nil :type (or null (function (world single-float single-float) t)))
   (pre-destroy-listener-callback
    nil :type (or null (function (world) t)))
   (post-destroy-listener-callback
