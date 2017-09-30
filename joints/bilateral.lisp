@@ -6,12 +6,14 @@
 
 (defn bilateral-callback ((joint bilateral-joint))
     (or null bilateral-joint-cb-function)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%bilateral-callback joint))
 
 (defn (setf bilateral-callback)
     ((callback (or null bilateral-joint-cb-function))
      (joint bilateral-joint))
     (or null bilateral-joint-cb-function)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((cb (if callback
                 (get-callback '%bilateral-cb)
                 (null-pointer))))

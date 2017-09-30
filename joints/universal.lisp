@@ -9,6 +9,7 @@
                       (pin0-dir-v3 (simple-array single-float (3)))
                       (pin1-dir-v3 (simple-array single-float (3))))
     universal-joint
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-array (piv3 pivot-point-v3 '(:array :float 3))
     (with-foreign-array (dir0 pin0-dir-v3 '(:array :float 3))
       (with-foreign-array (dir1 pin1-dir-v3 '(:array :float 3))
@@ -24,21 +25,26 @@
 
 (defn universal-joint-force ((universal-joint universal-joint))
     (simple-array single-float (3))
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (v3 :float 3)
     (newtonuniversalgetjointforce (%joint-ptr universal-joint) v3)
     (ptr->v3 v3)))
 
 (defn universal-joint-angle (universal-joint) single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonuniversalgetjointangle1 (%joint-ptr universal-joint)))
 
 (defn universal-joint-omega-0 (universal-joint) single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonuniversalgetjointomega0 (%joint-ptr universal-joint)))
 
 (defn universal-joint-omega-1 (universal-joint) single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (newtonuniversalgetjointomega1 (%joint-ptr universal-joint)))
 
 (defn universal-joint-omega ((universal-joint universal-joint))
     (simple-array single-float (2))
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((ptr (%joint-ptr universal-joint)))
     (v2:make (newtonuniversalgetjointomega0 ptr)
              (newtonuniversalgetjointomega1 ptr))))
@@ -52,6 +58,7 @@
                                          (timestep single-float)
                                          (position single-float))
     single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (desc 'newtonhingesliderupdatedesc)
     (with-foreign-slots ((m-accel m-minfriction m-maxfriction m-timestep)
                          desc newtonhingesliderupdatedesc)
@@ -68,6 +75,7 @@
                                          (timestep single-float)
                                          (position single-float))
     single-float
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (desc 'newtonhingesliderupdatedesc)
     (with-foreign-slots ((m-accel m-minfriction m-maxfriction m-timestep)
                          desc newtonhingesliderupdatedesc)
@@ -81,12 +89,14 @@
 
 (defn universal-joint-callback ((joint universal-joint))
     (or null universal-joint-cb-function)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%universal-callback joint))
 
 (defn (setf universal-joint-callback)
     ((callback (or null universal-joint-cb-function))
      (joint universal-joint))
-  (or null universal-joint-cb-function)
+    (or null universal-joint-cb-function)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((cb (if callback
                 (get-callback '%universal-cb)
                 (null-pointer))))

@@ -7,6 +7,7 @@
                           (child-body body)
                           (parent-body body))
     ball-&-socket
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-array (v3 pivot-point-v3 '(:array :float 3))
     (let ((jnt (%make-ball-&-socket
                 :ptr (newtonconstraintcreateball (%world-ptr world)
@@ -18,12 +19,14 @@
 
 (defn ball-&-socket-force ((ball-&-socket ball-&-socket))
     (simple-array single-float (3))
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (v3 :float 3)
     (newtonballgetjointforce (%joint-ptr ball-&-socket) v3)
     (ptr->v3 v3)))
 
 (defn ball-&-socket-omega ((ball-&-socket ball-&-socket))
     (simple-array single-float (3))
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-object (v3 :float 3)
     (newtonballgetjointomega (%joint-ptr ball-&-socket) v3)
     (ptr->v3 v3)))
@@ -33,6 +36,7 @@
                                      (max-cone-angle single-float)
                                      (max-twist-angle single-float))
     null
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (with-foreign-array (pin3 pin-v3 '(:array :float 3))
     (newtonballsetconelimits (%joint-ptr ball-&-socket)
                              pin3
@@ -42,12 +46,14 @@
 
 (defn ball-&-socket-callback ((ball-&-socket ball-&-socket))
     (or null ball-&-socket-cb-function)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (%ball-&-socket-callback ball-&-socket))
 
 (defn (setf ball-&-socket-callback)
     ((callback (or null ball-&-socket-cb-function))
      (joint ball-&-socket))
     (or null ball-&-socket-cb-function)
+  (declare (optimize (speed 3) (safety 1) (debug 1)))
   (let ((cb (if callback
                 (get-callback '%ball-cb)
                 (null-pointer))))
