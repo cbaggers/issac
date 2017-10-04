@@ -665,10 +665,10 @@
            (newtonworldraycast (%world-ptr world)
                                p0
                                p1
-                               '%world-ray-filter-cb
+                               (get-callback '%world-ray-filter-cb)
                                (%world-ptr world)
                                (if prefilter
-                                   '%world-ray-prefilter-cb
+                                   (get-callback '%world-ray-prefilter-cb)
                                    (null-pointer))
                                0)
         (setf (%world-ray-filter-callback world) nil)
