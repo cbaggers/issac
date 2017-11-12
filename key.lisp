@@ -1,6 +1,6 @@
 #||
 NewtonCollision* - NEWTONCOLLISION
-newton calls it a primtive for collision
+newton calls it a primitive for collision
 we call it geometry. We also have extra types for different kinds of geometry
 but this is just so folks can specialize on types if they want to.
 
