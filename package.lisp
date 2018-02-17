@@ -1,8 +1,7 @@
 ;;;; package.lisp
 
 (uiop:define-package #:issac
-    (:use #:cl #:raw-bindings-newton :cffi
-          :%rtg-math)
+    (:use #:cl #:raw-bindings-newton :cffi)
   (:import-from #:alexandria :with-gensyms)
   (:import-from #:rtg-math :v!)
   (:shadow :callback)
